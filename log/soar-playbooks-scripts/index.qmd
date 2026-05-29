@@ -34,7 +34,7 @@ flowchart LR
 
 Each stage has a clear job and a clear handoff:
 
-1. **Init.** Triggers, baseline tags, recording the trigger source (Gmail vs KnowBe4). Cheap boilerplate, but worth running first so the analyst sees tags appear on the case while the rest of the playbook works.
+1. **Init.** Triggers, baseline tags, metrics, custom fields. Cheap boilerplate.
 2. **Collect.** Fetch all data you'll need downstream: email message, case details, run queries in other tools like EDR, get similar cases, user context. Run in parallel where you can, and don't make any decisions yet, just gather.
 3. **Transform.** This is the conceptual pivot. Process raw data, extracting IOCs, email attachments, and paths, separating interesting pieces of data. Then, process this data, calculating hashes, saving files to case, etc. You'll want to identify the **Entities**. Finally, convert them into entities using `Create Entity` actions with the right delimiter, scoped to the right type. After this stage, the raw data is mostly irrelevant; the entity graph is what matters.
 4. **Operate.** Run enrichment functions over entity scopes. `Enrich URL` on `All URL`, `Enrich Hash` on `All FILEHASH`. Mark entities as suspicious via configured thresholds, and use a single condition on `[Entity.IsSuspicious]` to consolidate the verdict. No for-loops or nested ifs. The platform handles parallelism for free.
@@ -44,7 +44,7 @@ When the playbook is shaped this way, stage 4 reads less like code and more like
 
 ## Reusable Blocks
 
-The next refinement, and one I'm still working into my own playbooks: stages 1 and 4 shouldn't be simple stacked actions. They should be lists of **block invocations**.
+The next refinement, and one I'm still working into my own playbooks: stages 1, 4, and 5 shouldn't be simple stacked actions. They should be lists of **block invocations**.
 
 Blocks in Chronicle SOAR are reusable sub-playbooks, basically functions. You define `VT_Enrich_All_Entities` once, with the enrichment actions, thresholds, and post-conditions, and call it from any playbook that needs it. Same for `KB4_Simulation_Check`, `Sender_Reputation`, `Similar_Cases_Sweep`, and `Attachment_Hash_And_Enrich`.
 
@@ -65,8 +65,6 @@ This pays off in two places:
 - **Maintenance.** A change to enrichment logic (new threshold, new engine allowlist) happens in one block, not five playbooks.
 - **Composition.** The next playbook becomes a thirty-minute job of arranging existing blocks, not a week of copying actions.
 
-If your playbook still looks like a long horizontal chain, it's not done. Refactor stage 4 into functions and the playbook will compress to a readable size.
-
 ## A Familiar Shape
 
 What I described is the same shape as well-known patterns in software engineering:
@@ -85,7 +83,7 @@ Google and other vendors have packaged what they call "agentic triage": an LLM i
 The instinct to drop it into the front of the SOC funnel is wrong, and the reason isn't cost; though cost matters too. Three problems, roughly in order of how much they should worry you.
 
 1. **The real risks are prompt injection and non-determinism.** Phishing emails are, by construction, untrusted input written by someone trying to deceive the recipient. Feeding that body to an LLM with tool access (mark malicious, escalate, close as benign) is handing the adversary a function-call interface. Mitigations exist (system-prompt hardening, content sanitization, tool-output validation) but none of them are airtight. The second-order problem is that two runs of the same alert can produce different verdicts, which makes audit, regression testing, and analyst trust harder than they need to be.
-2. **Cost scales the wrong way for T1.** Deterministic pipelines have flat per-alert cost: a VT lookup is a VT lookup. LLM pipelines scale with alert volume *and* with prompt size. T1 is exactly where alert volume is highest and per-alert value is lowest. Putting the most expensive component at the widest part of the funnel is a budget shape you'll regret.
+2. **Cost scales the wrong way for T1.** Deterministic pipelines have flat per-alert cost: a VT lookup is a VT lookup. LLM pipelines scale with alert volume *and* with prompt size. T1 is exactly where alert volume is highest and per-alert value is lowest. Putting the most expensive component at the widest part of the funnel is a budget killer.
 3. **AI's edge is judgment, not lookups.** An LLM is not a faster VT client. Where it earns its tokens is *synthesis*: reading the email body, the reporter's recent activity, similar past cases, and producing a short narrative a T2 can audit in thirty seconds. That capability is wasted on alerts an `[Entity.IsSuspicious]` condition already resolved.
 
 Two concrete placements fall out:
