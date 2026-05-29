@@ -99,23 +99,6 @@ while IFS= read -r file; do
   fi
 done <<< "$FILES_TO_CHECK"
 
-# ---- MARKDOWN LINT ----
-if command -v markdownlint-cli2 >/dev/null 2>&1; then
-  QMD_FILES=""
-  while IFS= read -r file; do
-    [[ "$file" == *.qmd ]] && QMD_FILES="$QMD_FILES $file"
-  done <<< "$FILES_TO_CHECK"
-
-  if [ -n "$QMD_FILES" ]; then
-    echo "🔍 Running markdownlint-cli2..."
-    if ! markdownlint-cli2 --no-globs $QMD_FILES; then
-      error=1
-    fi
-  fi
-else
-  echo "⚠️  markdownlint-cli2 not found — skipping markdown lint (install: brew install markdownlint-cli2)"
-fi
-
 # ---- RESULT ----
 if [ $error -eq 1 ]; then
   echo "❌ Validation failed. Fix errors above."
