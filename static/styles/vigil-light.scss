@@ -254,6 +254,18 @@ h3, h4, h5, h6 {
   }
 }
 
+// Mobile: image leads each card so the title groups with its own image, not the previous card's.
+@media (max-width: 767.98px) {
+  .quarto-listing-default .quarto-post {
+    display: flex;
+    flex-direction: column;
+
+    .thumbnail { order: 1; margin-bottom: 1rem; }
+    .body      { order: 2; }
+    .metadata  { order: 3; margin-top: 0.75rem; }
+  }
+}
+
 // Listing title — Playfair Display (rendered as h3 in default listing)
 .quarto-listing-default h3.listing-title,
 .quarto-listing-default .listing-title {
