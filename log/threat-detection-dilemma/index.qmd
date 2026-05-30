@@ -4,6 +4,7 @@ date: 2024-03-08
 description: "Exploring the precision vs. recall dilemma in threat detection."
 categories: ["detection", "dfir"]
 image: "og-threat-detection-dilemma.webp"
+html-math-method: mathjax
 ---
 
 In my role as a CSIRT Engineer, I raised many concerns and critics about low precision analytics. Now, as a member of the Threat Detection team, I am keenly focused on crafting rules that are both useful and precise, aiming to mitigate unnecessary stress in CSIRT caused by alert fatigue. However, the challenge arises when overly precise rules may inadvertently blind us to real malicious activities. This conundrum, which I term the "Threat Detection Fundamental Dilemma," will be the focal point of this post.

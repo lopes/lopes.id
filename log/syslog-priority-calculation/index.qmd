@@ -4,6 +4,7 @@ date: 2021-09-02
 description: "Calculate and decompose Syslog message priority."
 categories: ["logging", "unix"]
 image: "og-syslog-priority-calculation.webp"
+html-math-method: mathjax
 ---
 
 When dealing with [Syslog](https://success.trendmicro.com/solution/TP000086250-What-are-Syslog-Facilities-and-Levels), one should notice that each message starts with a number. This number identifies the priority of that message, and in this text, I will explain how to calculate and decompose it. Here are some examples of Syslog messages:

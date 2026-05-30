@@ -4,6 +4,7 @@ date: 2023-08-23
 description: "Better portfolio management with this powerful spreadsheet."
 categories: ["random"]
 image: "og-finance-portfolio-tracker.webp"
+html-math-method: mathjax
 ---
 
 ::: {.callout-important}
