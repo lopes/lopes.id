@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Performs validation checks for the lopes-logbook repository.
+# Performs validation checks for the lopes.id repository.
 #
 # USAGE
 # This script is executed automatically by Git via the pre-commit hook.
