@@ -1,4 +1,4 @@
-# 📜 Changelog — lopes-logbook
+# 📜 Changelog — lopes.id
 
 A summarized yet comprehensive overview of my public writing and publishing journey.
 

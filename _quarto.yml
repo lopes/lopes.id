@@ -7,7 +7,7 @@ website:
   image: /static/images/og-home.webp
   favicon: /static/images/favicon.ico
   site-url: https://lopes.id
-  repo-url: https://github.com/lopes/lopes-logbook
+  repo-url: https://github.com/lopes/lopes.id
   repo-actions: [issue]
   search: false
   open-graph: true

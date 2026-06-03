@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs and configures Git hooks for the lopes-logbook repository.
+# Installs and configures Git hooks for the lopes.id repository.
 #
 # ACTIONS
 # - Installs the Git pre-commit hook at .git/hooks/pre-commit

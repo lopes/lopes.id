@@ -54,6 +54,6 @@ Overall, the result was positive, but there is clear room for improvement in cur
 
 While I acknowledge Zola's performance and remain grateful for it, I am very satisfied with Quarto thus far. The deployment time is admittedly much longer now, taking over a minute to build the site from scratch. However, since I do not deploy constantly, this is an acceptable trade-off.
 
-This experience reinforced the value of open-source software, and I have decided to open-source [this blog's repository](https://github.com/lopes/lopes-logbook) 🔗 so others in the Quarto community can benefit from it. 🤲🏻
+This experience reinforced the value of open-source software, and I have decided to open-source [this blog's repository](https://github.com/lopes/lopes.id) 🔗 so others in the Quarto community can benefit from it. 🤲🏻
 
 I look forward to exploring more of Quarto's features and am confident that this site now possesses a strong foundation for the future.
