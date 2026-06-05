@@ -1,0 +1,50 @@
+---
+title: "Review: Intrusion Detection Honeypots"
+date: 2026-06-05
+description: "Detection through deception made simple."
+categories: ["detection", "deception"]
+image: "og-review-intrusion-detection-honeypots.webp"
+---
+
+If you've spent any time in the Cyber Deception / Adversary Engagement scene, you've probably seen *Intrusion Detection Honeypots* (Sanders, 2020) on every reading list. After finishing [Virtual Honeypots (Provos & Holz, 2007)](/log/review-virtual-honeypots/), I wanted to catch up on modern tools and techniques, mainly honeytokens, and this was the obvious next stop. Short post, honest take.
+
+## The Book
+
+*Intrusion Detection Honeypots* (IDH) is a short book with fewer than 300 pages, but not a shallow one. Sanders writes in a direct, clear style with no dead weight; every paragraph carries lots of lessons.
+
+He opens with theory and motivation, defining IDH by contrast with Intrusion Detection Systems (IDS): signature-based network monitors known for their noise. IDHs, on the other hand, sit quietly on the network and aren't meant to be probed. When they are, they yield high-fidelity alerts. It's essentially the honeypot definition from Provos & Holz, extended to cover honeytokens.
+
+From there, Sanders walks through the lineage of the field. He anchors it to two seminal books — *Honeypots* (Spitzner, 2002) and *Virtual Honeypots* (Provos & Holz, 2007) — and explains the origin of terms like *production* and *research* honeypots and *canary* honeypots. He goes further back, too: the Trojan Horse of Greek mythology and, more recently, Cliff Stoll's [Cuckoo's Egg (1989)](/log/review-cuckoos-egg/).
+
+As the title suggests, the focus is on *detection* honeypots (decoys placed inside the company perimeter that raise alarms when triggered), not research honeypots feeding cyber intelligence teams. The concepts still translate to the research side, but that's not the book's lens.
+
+Two conceptual scaffolds carry the rest of the book:
+
+- **Barton Whaley's deception framework** — two goals (*hiding* and *showing*) and three forms for each — hiding: masking, repackaging, dazzling; showing: mimicking, inventing, decoying.
+- **See-Think-Do** — Sanders's own framework for designing deception: think like the attacker, then ask what they'll *see*, *think*, and *do* when they hit your trap. Dead simple, no bureaucracy.
+
+Sanders rounds out the theory with the three properties every decoy must have to be useful: **discoverable**, **interactive**, and **monitored**. Together, these concepts (goals, framework, and properties) turn honeypot planning from instinct into strategy.
+
+The rest of the book is use cases. For each one, the author walks through how See-Think-Do and the three properties apply.
+
+## Impressions
+
+What I appreciated most is that Sanders goes *end to end*: from the history of deception, through how to build the traps, to how to wire them into an existing SOC pipeline. The takeaway that stuck with me, and the one I'd put on a sticker, is that **a honeypot's value doesn't lie in the deployed trap, but in how it's set up and what your SOC does with the data it produces.** True for detection and research honeypots alike.
+
+The kill-chain framing isn't new, but Sanders states it cleanly: **prevention first, detection as fallback.** You don't lose the game when attackers get in. You lose it when they reach their goal. Catching them before that is already a huge win.
+
+The honeytoken chapters are what I came for, and they delivered. Sanders shows how to deploy them, how to interpret their signals, and what value they bring. He also makes a point I'd love every SOC engineer to read: if you don't carefully consider *placement* and how alerts will be interpreted by triage and investigation teams, a high-fidelity source can flip into alert fatigue and SOC rage real fast.
+
+To flag one drawback (real nit): the use cases are useful and insightful, but reading them back-to-back gets tiring. I'd have preferred each one split into "the idea" and "the implementation". Let readers skim the idea and dive into the *how* only when they're actually about to build it. Minor complaint, but it would make the book more engaging.
+
+Overall, it was one of those books I appreciated like wine. I took so many notes that the first part is almost entirely highlighted in yellow. Plenty to put into practice.
+
+## Closing Thoughts
+
+Fast forward: I liked it. A lot. If you're running honeypots (or pretending to), read it. It's that simple.
+
+Sanders picks up where Provos & Holz left off almost two decades ago and bridges that foundational work into the present. Honeytokens are the headline addition: a cheap, high-signal class of trap that fits neatly inside modern SaaS, cloud, and identity stacks. The framing (Whaley, See-Think-Do, discoverable/interactive/monitored) gives you a vocabulary to plan deception deliberately instead of by gut feel — and that terminology will outlive any specific tool you build on top of it.
+
+One caveat worth flagging is that deception tooling ages fast. A lot of open-source honeypot projects from earlier generations are abandoned, half-maintained, or quietly forked. Read Sanders for the *concepts and strategy* and budget time to evaluate whether the specific tools he points to are still alive before you build on them.
+
+Ultimately, Sanders gives you the mindset to turn almost any piece of infrastructure into a tripwire. Kevin McCallister-in-*Home Alone* 😱 energy. Your imagination is the limit. Just remember that keeping track of traps is as important as setting them. The deception program you don't maintain is the one that bites your SOC later. 👊
