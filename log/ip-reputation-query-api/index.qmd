@@ -2,7 +2,7 @@
 title: "Query Security Services for IP Reputation"
 date: 2022-09-06
 description: "Query three security services for IP reputation in one script."
-categories: ["dev", "dfir"]
+categories: ["engineering", "dfir"]
 image: "og-ip-reputation-query-api.webp"
 ---
 

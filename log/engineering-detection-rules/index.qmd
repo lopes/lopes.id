@@ -2,7 +2,7 @@
 title: "Engineering Detection Rules"
 date: 2025-06-20
 description: "Engineer threat detection rules: design, document, then code."
-categories: ["detection", "dev"]
+categories: ["detection", "engineering"]
 image: "og-engineering-detection-rules.webp"
 ---
 

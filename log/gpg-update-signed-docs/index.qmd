@@ -2,7 +2,7 @@
 title: "Updating Signed Documents with GPG"
 date: 2023-01-02
 description: "Update GPG signed docs: import keys, patch files in batch."
-categories: ["dev"]
+categories: ["engineering"]
 image: "og-gpg-update-signed-docs.webp"
 ---
 

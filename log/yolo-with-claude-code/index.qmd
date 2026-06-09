@@ -2,7 +2,7 @@
 title: "Going YOLO With Claude Code"
 date: 2026-05-12
 description: "Two days of full-permission Claude Code, and a close call."
-categories: ["random", "dev"]
+categories: ["random", "engineering"]
 image: "og-yolo-with-claude-code.webp"
 ---
 

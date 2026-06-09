@@ -2,7 +2,7 @@
 title: "Rust for Security Engineers"
 date: 2025-09-03
 description: "Rust language from a security engineer's perspective."
-categories: ["dev"]
+categories: ["engineering"]
 image: "og-rust-for-security-engineers.webp"
 code-line-numbers: true
 ---

@@ -2,7 +2,7 @@
 title: "Project Nebula: Detecting with Wazuh"
 date: 2024-09-20
 description: "Setting up Wazuh for log collection and detection rules."
-categories: ["detection", "logging"]
+categories: ["detection", "logging", "engineering"]
 image: "og-nebula-2-wazuh-detection.webp"
 ---
 

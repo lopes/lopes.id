@@ -2,7 +2,7 @@
 title: "Changing the Zola Theme"
 date: 2022-08-29
 description: "How to change your Zola blog theme without breaking the site."
-categories: ["dev"]
+categories: ["random"]
 image: "og-zola-change-theme.webp"
 ---
 
