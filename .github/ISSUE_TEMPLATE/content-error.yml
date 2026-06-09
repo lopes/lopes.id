@@ -1,0 +1,40 @@
+name: Content Error
+description: Report a typo, broken link, factual error, or outdated information.
+labels: ["content", "triage"]
+body:
+  - type: dropdown
+    id: error-type
+    attributes:
+      label: Type of error
+      options:
+        - Typo or grammar
+        - Broken link
+        - Factual error
+        - Outdated information
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: post
+    attributes:
+      label: Post URL or title
+      placeholder: "e.g. https://lopes.id/log/some-post/ or \"Lantana 1: Honeypot as Code\""
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What's wrong?
+      placeholder: Describe the error clearly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix (optional)
+      placeholder: What should it say instead?
+    validations:
+      required: false
