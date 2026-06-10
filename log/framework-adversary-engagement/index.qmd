@@ -1,6 +1,6 @@
 ---
 title: "Pragmatic Adversary Engagement Framework"
-date: 2026-06-11
+date: 2026-06-10
 description: "A pragmatic framework for running Adversary Engagement programs."
 categories: ["deception", "detection"]
 image: "og-framework-adversary-engagement.webp"
