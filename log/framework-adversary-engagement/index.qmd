@@ -1,0 +1,312 @@
+---
+title: "Pragmatic Adversary Engagement Framework"
+date: 2026-06-10
+description: "A pragmatic framework for running Adversary Engagement programs."
+categories: ["deception", "detection"]
+image: "og-framework-adversary-engagement.webp"
+html-math-method: mathjax
+---
+
+Cyber deception or, more formally and broadly, **Adversary Engagement** (AE), is a discipline that sits across both Threat Detection and Threat Intelligence, depending on how you implement it. Contrary to what most people think, it's far beyond simply deploying honeypots: a strategy must be in place, stakeholders aligned, decoys deployed safely, data collected and analyzed, and data-driven actions must follow.
+
+Possibly the only framework dedicated to structuring a program like this, [MITRE Engage](https://engage.mitre.org/) offers a lot of good ideas and direction. However, it's sometimes too bureaucratic, adding documentation and friction where it should be light and dynamic. Engage was designed for a dedicated team that doesn't exist in most companies and a cadence that doesn't match how detection honeypots actually work.
+
+In this post, I'll cover my approach to establishing this program aimed at Threat Detection. I'll go from why MITRE Engage alone isn't enough, through the sources that reshaped my mental model, to the framework I ended up with — including the Program Charter and a filled-in example of both the Charter and a Scenario Document in the appendices.
+
+::: {.callout-note}
+Adversary Engagement is a better name because it covers multiple techniques to deceive and delay adversaries. Cyber deception, although the common name to reference this field, is just part of its goals. See MITRE Engage.
+:::
+
+## MITRE Engage is Too Much
+
+MITRE Engage's foundational insight is correct and should anchor any AE program: **deception is a process, not a technology stack.** Deploying a honeypot without a defined goal is hobbism; deploying one with a clearly articulated goal is engineering. Engage gets a handful of things uniquely right and worth keeping:
+
+- The **strategic goal taxonomy** (Expose, Affect, Elicit): a clean, leadership-legible way to describe what *kind* of program you're investing in.
+- **Gating Criteria and Rules of Engagement (RoE)** as first-class concepts: forcing the team to pre-commit to kill conditions before deploying anything.
+- **ATT&CK linkage:** mapping engagement activities to adversary behaviors so deception design stays grounded in real threats.
+- **Narrative Objective** as a planning artifact: requiring the defender to articulate the story the environment tells before building any of it.
+- **After-Action Review (AAR)** as the primary measurement construct: acknowledging that qualitative, per-scenario retrospectives are more useful than invented metrics.
+
+All of that can be absorbed in a day. The difficulty starts when a team tries to execute Engage as prescribed:
+
+- The **10-step operational process** is adapted from Barton Whaley's work on military deception and assumes a campaign cadence of weeks to months per engagement. Detection honeypots don't run this way. They're deployed once and alert over months or years.
+- The **8-role team structure** (Team Lead, Operational Coordinator, Threat Analyst, System Administrator, Operational User, Red Teamer, Blue Teamer, Reverse Engineer) presumes a dedicated AE team with bandwidth and headcount most corporate SOCs don't have and don't need.
+- The **Mission Essential Task List** construct is imported from US military training-qualification practice. It's useful when building a team from zero with no existing competencies. It's overhead when those competencies already exist in Detection Engineering.
+- **Per-operation artifacts** (Persona Creation, Storyboarding, Threat Model, Engagement Environment, Gating Criteria, Operational Objective) fragment a single coherent planning exercise into six separate documents, each with its own template.
+
+Each individual element has a defensible purpose. The problem is aggregate weight, where an organization that tries to implement everything Engage prescribes spends more time on ceremony than on catching attackers. The existence of the Engage [Starter Kit](https://engage.mitre.org/starter-kit/) (designed to lower the barrier to entry for defenders new to the framework) at minimum acknowledges that the full process isn't where most teams start.
+
+## A Lighter Approach
+
+My first attempt at this program was tightly aligned with MITRE Engage, but it ended up hard to establish, explain, and maintain. While trying to make it work, I dove into adjacent literature looking for something more operational. Three sources reshaped my model:
+
+- [Virtual Honeypots](/log/review-virtual-honeypots/) (Provos & Holz, 2007) provides the underlying typology Engage alludes to but never names — low-interaction vs. high-interaction, detection vs. research, production vs. research honeypots. This is the vocabulary that maps cleanly onto the Detection-team vs. CTI-team split when you have to figure out *who owns what*. It also showcases some clearly well-planned and successful operations without any bureaucratic overhead.
+- [Intrusion Detection Honeypots](/log/review-intrusion-detection-honeypots/) (Sanders, 2020) introduces the **See-Think-Do** positioning model, Whaley's goals of hiding and showing traps, and the decoy properties — discoverable, interactive, and monitored. It compresses three of Engage's planning steps (how the adversary reacts, what they perceive, through which channels) into a simple form a detection engineer can fill out in ten minutes per decoy.
+- [Thinkst Canary](https://canary.tools/)'s operational philosophy of "just 2 minutes of setup; nearly 0 false positives, no ongoing overhead" is a commercial validation of minimalism. A platform designed around the *opposite* of Engage's ceremonial weight is what has actually succeeded in the market.
+
+What emerged was a synthesis. Keep the vocabulary and planning artifacts Engage does uniquely well (gating criteria, RoE, ATT&CK mapping, AAR). Replace Engage's heavier planning steps with Sanders' lighter See-Think-Do model. Inherit Provos/Holz's detection-vs-research distinction as the *program-design axis* that determines who owns what. Steal Thinkst's bias toward operational minimalism throughout. The result is a framework that fits in a single document, that a detection engineer can learn in an afternoon, and that a staff-level lead can approve without board-level ceremony — while still producing the strategic clarity, safety, and goal-alignment a deception program needs.
+
+## The Framework
+
+The framework is organized as a continuous improvement loop based on the Plan-Do-Check-Act (PDCA) model. PDCA is the right frame for an AE program because the program itself is a stable process that improves over time, not a series of one-off adversarial decisions.
+
+The four phases:
+
+1. **Phase 1: Plan.** Establish the program. Organize the tooling, write the Program Charter, secure approvals. The output is one reviewed, signed Charter document.
+2. **Phase 2: Operationalize.** Translate the Charter into concrete deception. Define engagement scenarios, deploy assets bound to scenarios, integrate with the SIEM and SOAR (for Detection) or with the analyst data pipeline (for Intelligence). The output is a catalog of active scenarios and deployed assets.
+3. **Phase 3: Monitor.** Collect metrics. Review alerts. Track scenario effectiveness. The output is a quarterly report and an actionable list of things that need to change.
+4. **Phase 4: Improve.** Act on what Phase 3 surfaced. Retire stale scenarios, tune detections, create new scenarios based on CTI, review the Charter annually. Feed the results back into Phase 1.
+
+```{mermaid}
+flowchart LR
+    P1["Phase 1<br/>Plan"] --> P2["Phase 2<br/>Operationalize"]
+    P2 --> P3["Phase 3<br/>Monitor"]
+    P3 --> P4["Phase 4<br/>Improve"]
+    P4 -->|"annual"| P1
+```
+
+Phases aren't strictly sequential after the first pass. Phase 1 is executed once to establish the program and revisited annually. Phase 2 runs continuously as new scenarios are defined, new assets deployed, stale ones retired. Phase 3 runs continuously with a quarterly formal cadence. Phase 4 runs quarterly (operational improvements) and annually (Charter review). The loop closes between Phase 4 and Phase 1: every annual Charter review is a fresh Phase 1 pass informed by twelve months of Phase 3 data.
+
+No dedicated headcount is required. Responsibilities map onto five existing SOC functions:
+
+- **Program Owner**: Detection or Intelligence lead engineer or technical manager. Accountable for the whole program, signs the Charter, resolves cross-scenario conflicts, approves new scenarios.
+- **Scenario Designer**: Detection or Intelligence engineer. Designs and documents scenarios, contributes to AAR, proposes new scenarios.
+- **Deployer**: Detection engineer, with Cloud/Infra support where platform access is needed. Deploys assets bound to scenarios, applies See-Think-Do positioning per decoy, maintains assets, rotates ephemeral tokens.
+- **Sensor Code Maintainer**: Detection engineer named in the homemade-sensor registry. Owns the source, dependencies, deployment pipeline, and weekly health review for the deception sensors not covered by vendor tooling.
+- **Alert Triage**: SOC analysts. Receives and handles deception alerts in the standard SOC queue, flags FP patterns, suggests tuning.
+
+These are functions, not roles. One person can hold multiple; multiple people can share each. The program doesn't add headcount.
+
+### Phase 1: Plan
+
+The central output of Phase 1 is a single artifact: the **Program Charter**. It's a high-level, ~6-page document — not a policy, not a runbook, not a technical specification. It answers four questions: *what is this program, who owns it, what does it do, and how do we measure it?*
+
+The Charter has seven short sections:
+
+1. **Mission:** one paragraph stating the program's purpose in plain language.
+2. **Scope:** what the program covers and what it explicitly does not. This is where you state whether it'll cover Detection, Intelligence, or both (hard).
+3. **Functions and responsibilities:** the five functions above, mapped to existing SOC roles.
+4. **Tooling stack:** one paragraph naming the platforms involved, without configuration detail.
+5. **Rules of Engagement:** program-wide rules every scenario inherits: passivity, synthetic data only, no live production paths, attribution handling, DC honeypot probe escalation, kill switches, purple-team coordination, documentation confidentiality. Paired with two further constructs documented within the Charter:
+    - **Stop conditions:** the exhaustive list of triggers under which an asset or scenario is paused or pulled because the decoy itself has become a liability (weaponization, pivot use, pivot reachability, real-user contamination, cover blown, sustained precision breach, telemetry failure).
+    - **State holds:** the list of triggers under which a decoy's state is frozen (no rotation, no retirement, no redeployment) without the asset being pulled (active IR engagement, legal or regulatory hold, coordinated exercise window).
+6. **Metrics:** the three reported metrics and one operational health indicator, each tied to an action trigger.
+7. **Governance:** who signs, review cadence (including out-of-cycle triggers), scenario approval, scenario retirement, and scenario validation rules.
+
+For a Detection-only program, the Charter is signed by the **Detection Engineering lead** (or equivalent — SOC manager, Detection technical manager). No higher-level signature is required because the activities covered fall within existing SOC scope and are addressed by existing monitoring disclosures in the corporate onboarding documentation. If the program is ever extended to research honeypots, approval must be elevated; see the [sponsorship](#sponsorship-and-the-intelligence-question) section below. A filled-in Charter is in [Appendix A](#appendix-a-program-charter-example).
+
+A new scenario goes live when the Scenario Document exists, a second detection engineer has peer-reviewed the cover (banners, wiki staging, naming, persona realism), the Program Owner has approved it, and a named scenario owner has committed to quarterly review. Every scenario is validated via purple-team traversal before go-live and at least annually thereafter — there is no per-scenario success-criteria field, because validation is program-wide.
+
+### Phase 2: Operationalize
+
+Phase 2 translates the Charter into actions. The core unit of work is the **engagement scenario**, a reference template that states why a class of assets exists, what story it tells an attacker, what adversary behavior it targets, and any scenario-specific deviations from the program-wide stop conditions.
+
+#### Scenarios are stable; decoys are dynamic
+
+The most important architectural choice in this framework is that **scenarios don't list assets, and assets reference scenarios via tags.** A scenario document is stable because it captures the narrative, the operational objective, the ATT&CK mapping. The decoys that *implement* that scenario are not — they're created, rotated, and retired continuously as the environment shifts.
+
+This inversion is what makes decoy creation dynamic. When deploying a new decoy you don't open a scenario document and add it to a manifest. You ask: *which scenario(s) fit this decoy's narrative?* Then you stamp those scenario IDs into the asset's own metadata — the Thinkst memo, the AWS resource tag, the Kubernetes annotation, the database row column, the homemade-sensor description. The asset is now bound to those scenarios; a single decoy can carry multiple scenario tags when it serves multiple narratives.
+
+The reasoning behind the inversion is practical:
+
+- **Honeytokens and breadcrumbs are ephemeral.** A canarytoken embedded in a generated `.env.example` file may live for weeks before a refresh cycle rotates it. A breadcrumb pushed via MDM changes with every fleet configuration update. A static scenario manifest can't keep up.
+- **Honeypots and tokens are voluminous.** A program running dozens of scenarios and hundreds of tokens cannot maintain a document that lists each asset by ID.
+- **The authoritative source is the console.** Assets actually live in the Thinkst console, the AWS tagging system, the Kubernetes annotation, the database row flag. A document duplicating that list will drift the moment you rotate anything. The best approach to list all decoys in a single document is to automate the console queries via API.
+- **Tags scale in both directions.** An asset can belong to many scenarios and a scenario can be represented by many assets — 1:N. Static manifests can't express this cleanly.
+
+The result is that scenario documents stay small and stable, the console stays the source of truth, and automation over the tags produces whatever scenario-to-asset view is needed on demand — coverage reports, retirement candidates, orphan detection. Retiring a scenario is even simpler: stop tagging new assets with it; existing assets age out as they are replaced.
+
+#### The Scenario Document
+
+A Scenario Document has six fields. That's the entire document so a scenario fits on one screen:
+
+1. **Scenario ID:** a stable identifier (e.g., `SCN-0007`) that's stamped onto every asset's metadata.
+2. **Operational objective:** one specific, falsifiable, measurable sentence. Not "improve detection of lateral movement"; rather "detect an adversary with initial access to an engineer workstation enumerating browser bookmarks or Confluence for privileged access to high-value internal consoles."
+3. **Narrative:** one paragraph describing the in-world fiction the environment portrays: what fictitious team or project these assets belong to, why they're here, why they look this way (legacy branding, abandoned credentials, deprecated hostnames). Followed by a short list of **persona conventions**, like the hostnames, DNS suffixes, TLS CN patterns, service banners, MOTD strings, console wallpapers, and wiki references the narrative dictates. A scenario whose persona conventions are not specified will produce decoys that betray themselves on first contact.
+4. **ATT&CK mapping:** two to four technique IDs per scenario is typical. A scenario claiming fifteen is doing too much and should be split.
+5. **RoE deviations:** usually empty. Only written when a scenario introduces something stricter than the program-wide RoE.
+6. **Gating criteria deviations:** usually empty. Program-wide stop conditions and state holds apply to every scenario by default; this field is populated only when a scenario adds a stricter or scenario-specific trigger — for example, "When IR engages on an incident touching real regulated infrastructure, assets are pulled rather than state-held".
+
+A filled-in Scenario Document is in [Appendix B](#appendix-b-scenario-document-example).
+
+#### Positioning each decoy with See-Think-Do
+
+Where the narrative is the *fiction*, **See-Think-Do** is the positioning logic applied to each individual decoy. For every decoy you place, ask:
+
+- **See:** what does someone interacting with the environment perceive about this decoy?
+- **Think:** what conclusion should they draw from what they see?
+- **Do:** what action will that conclusion motivate?
+
+The output lives in the decoy's own metadata (the Thinkst memo, the AWS tag, the Kubernetes annotation), not in the scenario document. The discipline is what matters: applying See-Think-Do per decoy forces you to articulate why a specific placement should plausibly attract a specific action. A decoy that fails this articulation either shouldn't be deployed or belongs to a different scenario.
+
+#### Integration with SIEM and SOAR
+
+Decoy telemetry is forwarded to the SIEM for **monitoring**, where detection rules evaluate it against scenario-specific conditions and suppress known scanners. I share one common prefix (e.g., `_ae_`) across the rule names so the program's alerts are easily grouped and queried. When a rule fires, the alert is routed to the SOC queue with elevated priority. Triage playbooks enrich and tag those alerts; automated responses are orchestrated through the SOAR. If the alert is confirmed as malicious, CSIRT picks it up and the standard incident-response process takes over.
+
+### Phase 3: Monitor
+
+Phase 3 is the continuous collection of signal about the program's health — it's the overall program monitoring, not decoy monitoring, that's performed as a goal of Phase 2. The program tracks three metrics, each tied to a specific action — any without a corresponding action is worth dropping:
+
+- **Alert Precision** — $\frac{TP}{(TP + FP)}$, target ≥95%. Below target: identify FP-generating scenarios and retune (SIEM suppression for benign sources, preserving telemetry), redesign (if placement exposes the asset to routine automation), or retire. Sustained breach across two consecutive quarterly reviews triggers automatic pull as a program-wide stop condition.
+- **Mean Time to Detect (MTTD)** for deception alerts — median, target <10 minutes for the program overall, considering the latency to push logs to SIEM and run detection pipelines. Above target triggers a review of the logging pipeline for the slow asset class.
+- **Mean Time to Triage (MTTT)** for deception alerts — median, target <15 minutes. Above target means enriching the context delivered with alerts: SOAR playbook improvements, scenario-document excerpts in the alert payload, pre-computed correlation to other signals from the same source IP.
+
+A fourth, operational indicator is **Decoy Health**, a count of unresponsive honeypots and homemade sensors by asset class. Deployed decoys rot: Thinkst birds drop off the network during cloud maintenance, homemade Lambda sensors fail silently when an upstream API contract changes, Kubernetes sensors die when their namespace is reorganized. A dead decoy is the worst kind of asset because it consumes placement real estate, contributes nothing to detection, and creates false confidence. Decoy Health should be reviewed monthly and reported in the quarterly review as context for the three primary metrics. A degraded fleet biases precision and MTTD numbers and must be visible when those are read.
+
+A few metrics commonly proposed in the deception literature are deliberately not part of this core set, like number of deployed decoys, alert counts, attacker dwell time, hits per decoy, intelligence actionability rate, engagement scenario success rate, critical-asset coverage. Each fits some program in some configuration, but each carries a feasibility cost or interpretation pitfall — mostly: rewarding noise, gameable by scanners, or requiring an asset inventory you don't have yet. The Phase 4 annual review is the right place to revisit them on evidence.
+
+The quarterly review is the checkpoint. Metrics are computed, triggered scenarios get an AAR entry, CTI presents a refresh, and a one-page list of actions becomes the input to Phase 4.
+
+### Phase 4: Improve
+
+Phase 4 closes the PDCA loop. It operates on two cadences:
+
+- **Quarterly operational improvements:** retune noisy scenarios, update breadcrumb placement, retire a stale scenario, create a new scenario from a CTI report, upgrade a logging path to reduce MTTD, enrich alert context to reduce MTTT. Items are tracked in the team's existing ticket system, not in a parallel AE-only tracker.
+- **Annual Charter review:** are the functions still mapped to the right people, is the metric set still right, has the tooling stack changed, have the program-wide RoE held up, is the program still aligned with the threat model, is it time to consider research honeypots? An out-of-cycle review is also triggered by any material incident involving deception assets, any program-wide stop condition firing, or a substantive change in threat model from CTI.
+
+:::{.callout-warning}
+The overall AE program and its documents, including tickets and asset placements should be restricted. People must have need to know to get access to these documents. If the decoy information leaks, the program will lose effectiveness.
+:::
+
+**Purple-team validation** is the program's primary scenario-effectiveness check. Every scenario is validated via purple-team traversal before go-live and at least annually thereafter; the results are recorded in the scenario asset register. Additional ad-hoc traversals are triggered when a scenario hasn't fired in a long period and its health can't be confirmed from telemetry alone, when underlying infrastructure changes may have broken alert paths, or when a CTI development warrants confirming a scenario still fires as designed.
+
+As part of the annual Charter review, the Program Owner also verifies that every active decoy is operational; a defense-in-depth manual check against silent decay. Scenarios that fail validation are either remediated or retired. A silent scenario that hasn't fired in 12 months *and* fails validation is a liability.
+
+## Sponsorship and the Intelligence Question
+
+AE for Detection purposes is usually simple because decoys are pretty much like any other detection tool. It's a matter of aligning with management and going. Internal deception assets log attacker interactions the same way any SIEM logs internal activity, and corporate onboarding documentation already establishes that the environment is monitored — no new lawful basis, notice, or data-processing agreement is required.
+
+Expanding to **Intelligence / research honeypots** (public, internet-exposed, owned by the CTI team, consumed as bulk telemetry rather than as alerts) is a fundamentally different activity, not an incremental adjustment. A *second program* with its own charter, its own approvals, and its own risk profile. Specifically:
+
+- **Attracting attention.** A recognizable research honeypot signals that the company is watching. Some adversaries respond with greater caution; others respond with more sophisticated probing of your *real* surface. The expected value of the intelligence gained must exceed the cost of this increased attention.
+- **Attribution leakage.** WHOIS, TLS certificate details, JA fingerprints, cloud account metadata, and billing patterns can link a "research" honeypot back to the parent organization. Operating fully unattributed is non-trivial engineering.
+- **Weaponization liability.** Research honeypots have been used as launchpads against third parties. Without careful containment, this creates direct legal exposure.
+- **Third-party data capture.** Research honeypots routinely capture data attackers test against them — stolen credentials, PII from prior breaches, sensitive documents. This creates data-minimization obligations and incident-notification questions.
+- **Duplicative intelligence.** For most TTPs, commercial CTI feeds, public research-honeypot networks, sector ISACs, and national CERTs already cover what a homegrown research honeypot would collect. Homegrown research adds value only in specific, named gaps.
+
+The pros and cons must be closely analyzed, and the person ultimately responsible for Information Security in the organization (usually a CISO or CTO) should be the formal sponsor. New functions become mandatory: a **Program Sponsor** at CISO/CTO level, a **Legal and Privacy lead** (your DPO or privacy counsel), one or more dedicated **CTI analysts**, **data engineering support** for the telemetry pipeline, and access to **malware analysis / reverse engineering** capability. A dedicated **Legal and Regulatory section** becomes non-negotiable in the Charter. The attacker data captured by an internet-exposed honeypot doesn't originate from someone covered by the company's onboarding monitoring disclosure, so the lawful basis must be independently established.
+
+The pro side must also be stated as a specific hypothesis with a measurable outcome before the program is expanded. "We might learn something interesting" is not sufficient justification. "We expect to collect N samples of malware family X per quarter that target our specific customer authentication flow" is. If any of {specific intelligence gap, dedicated CTI capacity, executive sponsor, Legal/Privacy/Comms alignment, risk-appetite fit} is absent, the answer is to consume external research telemetry (GreyNoise, Shadowserver, SANS ISC, commercial CTI, sector ISACs) and revisit the question next year.
+
+## Closing Thoughts
+
+The core idea behind this framework is that an AE program should fit inside Detection Engineering's existing rhythm, not impose a parallel one. Engage's vocabulary is too good to ignore but its ceremony is too heavy to copy. The synthesis (Engage's planning concepts, Sanders' positioning model, Provos/Holz's typology, Thinkst's minimalism) lets a small team run a serious program with one Charter, one scenario template, three metrics, and a PDCA loop.
+
+If you're standing one up, start with the Charter, define one scenario, deploy one asset bound to that scenario, and verify the alert path end-to-end with a synthetic trigger. Everything else is iteration. The framework rewards starting small and improving on evidence, exactly what Phase 3 and Phase 4 are designed to support.
+
+Deploying any decoy is just a small part of AE. Before, we need to plan and after we need to properly use the collected data. Focusing solely on the technicalities is wrong and often a misuse of resources. Real engineering goes way beyond that.
+
+## Appendix A: Program Charter Example
+
+This is an adapted version of the Charter signed for the internal Detection-oriented program. Names, tooling, and regional references are generic.
+
+---
+
+### Adversary Engagement Program Charter
+
+Version 1.0 | Signatory: Detection Engineering Lead | Review: annual
+
+#### 1. Mission
+
+The Adversary Engagement program uses cyber deception to detect adversaries who have bypassed preventive controls, validate the company's threat model, and generate high-fidelity alerts for the SOC. The program operates under a detection-first posture, is owned by the Threat Detection team, and is designed to be safe, legal, and compatible with the company's risk tolerance.
+
+#### 2. Scope
+
+- **In scope**: detection-oriented honeypots, honeytokens, and breadcrumbs deployed within the internal perimeter (corporate network, cloud infrastructure, SaaS, workstations); scenario design, asset deployment, SIEM and SOAR integration; quarterly and annual program reviews.
+- **Out of scope**: offensive operations, hack-back, public-facing research honeypots (conditions for scope expansion described in the framework); fraud-detection deception operated by other teams; purple team engagements coordinated separately.
+
+#### 3. Functions and responsibilities
+
+- **Program Owner:** Detection Engineering lead. Accountable for the program, signs the Charter, resolves cross-scenario conflicts, approves new scenarios.
+- **Scenario Designer:** Detection engineers. Design and document scenarios following the program's Scenario template. Own assigned scenarios through their lifecycle.
+- **Deployer:** Detection engineers, with Cloud/Infrastructure team support where platform access is required. Deploy assets bound to scenarios via tags, maintain asset health, rotate ephemeral tokens.
+- **Sensor Code Maintainer:** Detection engineer(s) named in the homemade-sensor registry. Own the source, dependencies, deployment pipeline, and weekly health review for the deception sensors not covered by Thinkst Canary.
+- **Alert Triage:** SOC analysts. Handle deception alerts in the standard SOC queue, identified by the `_ae_` rule-name prefix and routed with elevated priority. Escalate confirmed malicious triggers to IR.
+
+*If the program is extended to research honeypots, additional functions will be added — Program Sponsor (CISO or CTO level), Legal and Privacy Lead, CTI Analyst, Data Engineering support, Malware Analysis capability.*
+
+#### 4. Tooling stack
+
+The program uses Thinkst Canary as the primary quick-win platform for network honeypots (birds) and standard-type honeytokens (canarytokens). The Detection team develops and operates homemade deception sensors for use cases not covered by the product — cloud-native identity tokens, Kubernetes service-account tokens, in-application decoy endpoints, database-row honeytokens. Homemade sensors are tracked in a registry owned by the Sensor Code Maintainer. Decoy telemetry is forwarded to the SIEM, where detection rules generate alerts routed to the SOC queue with elevated priority. Triage playbooks enrich and tag those alerts; automated responses are orchestrated through the SOAR.
+
+#### 5. Rules of Engagement
+
+All scenarios inherit these rules; scenario documents may add stricter constraints but cannot relax them.
+
+- *Passivity:* no active action against attacker infrastructure, no hack-back, no phone-home to attacker systems.
+- *No taunting:* any material, like "tryharder" password, that taunts or challenges adversaries are prohibited.
+- *Synthetic data only:* decoy content is generated, never sampled from production; no real customer PII in any decoy.
+- *No live production paths:* fake credentials never authenticate to real systems; decoy hostnames never resolve to production infrastructure.
+- *Attribution handling:* attacker artifacts (source addresses, attempted credentials, user agents, payloads, command lines) stored in the SIEM under standard security-logs retention. Credentials matching real internal identities are routed to identity and IR as a separate credential-compromise signal. No paid deanonymization without elevated approval.
+- *Kill switches:* the Program Owner can retire any asset without further approval; noisy assets are quarantined pending review.
+- *Purple team coordination:* scheduled internal exercises are not suppressed; alerts fire and are tagged as planned-benign by the exercise coordinator before the window opens.
+- *Documentation confidentiality:* scenario documents and asset registers are need-to-know, access-controlled, with quarterly access review.
+
+##### 5.1 Stop conditions
+
+An asset or scenario is paused or pulled when the decoy itself becomes a liability. Scenario documents may add stricter triggers but cannot relax these.
+
+- *Decoy weaponized:* an attacker gains interactive control of a decoy host, establishes persistence, deploys implants, or otherwise turns the asset from an observation post into operational attacker infrastructure. Pull and rebuild; forensically image the host before teardown.
+- *Decoy used as pivot:* activity is observed originating from a decoy toward real production infrastructure. Pull immediately and audit reachability.
+- *Pivot reachability discovered:* a configuration, credential, or network audit reveals that a decoy has reach or material that would allow pivot to real systems, even with no pivot yet observed. Pull until reachability is corrected.
+- *Real-user contamination:* legitimate users or production services authenticate to a decoy, indicating naming, CMDB, or DNS bleed. Pause and investigate the bleed before reactivation.
+- *Cover blown:* the deceptive nature of an asset is referenced outside the controlled wiki and runbook surface. Retire and replace under a new persona.
+- *Sustained precision breach:* an asset below the program precision target across two consecutive quarterly reviews is pulled for redesign or retirement.
+- *Telemetry failure:* a decoy's logging or alerting path is broken and not restored within 24 hours. The asset is marked not-live until restored.
+
+##### 5.2 State holds
+
+A decoy may need to be held in place — no rotation, no retirement, no redeployment — without being pulled.
+
+- *Active IR engagement:* IR opens a P1 incident whose scope touches the decoy's blast radius. Hold until IR releases.
+- *Legal or regulatory hold:* a law-enforcement request, regulator inquiry, or e-discovery action touches logs related to the decoy. Hold until the request lifts.
+- *Coordinated exercise window:* per §5 purple-team coordination, the asset is held for the duration of the window; the exercise coordinator owns the tagging.
+
+#### 6. Metrics
+
+The program tracks three reported metrics and one operational health indicator, each with a defined action trigger:
+
+- **Alert Precision:** target ≥95%. Below target at the asset level, the scenario is tuned, redesigned, or retired. Sustained breach across two consecutive quarterly reviews triggers automatic pull (see §5.1).
+- **Mean Time to Detect (MTTD):** target <10 minutes median across the program. The 10-minute ceiling reflects the floor set by SIEM ingestion lag for homemade sensors; Canary-class paths are typically much faster. If exceeded, the logging pipeline for the slow asset class is reviewed and upgraded.
+- **Mean Time to Triage (MTTT):** target <15 minutes median. If exceeded, the context delivered with alerts is enriched (SOAR playbook improvements, additional schema fields).
+- **Decoy Health (operational):** count of unresponsive honeypots and homemade sensors, grouped by asset class. Reviewed weekly by the Sensor Code Maintainer (homemade sensors) and the Program Owner (Canary fleet). Reported in the quarterly review as context for the three primary metrics — a degraded fleet biases precision and MTTD numbers and must be visible when those are read.
+
+#### 7. Governance
+
+- *Signatory:* Detection Engineering lead. Re-signed annually.
+- *Review cadence:* quarterly operational reviews; annual Charter review. An out-of-cycle review is triggered by any material incident involving deception assets, any program-wide stop condition firing (§5.1), or a substantive change in threat model from CTI.
+- *Scenario approval:* a new scenario goes live when the Scenario Document exists, a second detection engineer has peer-reviewed the cover (banners, wiki staging, naming, persona realism), the Program Owner has approved it, and a named scenario owner has committed to quarterly review.
+- *Scenario retirement:* retired when the quarterly review determines the TTP is no longer relevant; when CTI determines the modeled behavior is no longer in the threat model; or when a stop condition has fired and the redesign is judged not worth the effort.
+- *Scenario validation:* every scenario is validated via purple-team traversal before go-live and at least annually thereafter; validation results are recorded in the scenario asset register.
+
+*Signed: [Detection Engineering lead name], [date]*
+
+---
+
+## Appendix B: Scenario Document Example
+
+---
+
+### Scenario: Pix Reconciliation Treasure Trail
+
+**1. Scenario ID**: `SCN-0007`
+
+**2. Operational objective**: Detect an adversary with initial access to an SRE, infrastructure-security, or payments-ops engineer workstation who is enumerating local artifacts or internal wikis for privileged access to Pix manual-reconciliation systems.
+
+**3. Narrative**: The Pix operations team maintains a documented break-glass procedure for cases where automated reconciliation fails — a manual reconciliation console used by on-call SREs and payments-ops engineers to force-settle stuck transactions during incidents. The procedure is documented in the wiki, referenced from a bookmark on on-call engineer laptops, and grants access to a privileged operator console that talks to the Pix settlement and merchant databases. Because the procedure is rarely exercised, the artifacts around it (the bookmark, the wiki page, the credentials document, the console hostnames) sit quietly in the environment between incidents — visible to anyone with engineer access, not actively used, not on any team's roadmap to remove. The story aligns with TTPs observed in recent LatAm fintech incidents, where insider-access scenarios led to unauthorized Pix settlement actions.
+
+*Persona conventions*:
+
+- Hostnames: `pixops-<role>-<env>.infra` (e.g., `pixops-recon-prod01.infra`)
+- TLS CN: `*.pixops.infra`, internal CA, valid certificates (this is in-use infrastructure, not abandoned)
+- Service banners: "Pix Operations — Authorized Personnel Only", "Manual Reconciliation Console v2.4"
+- Wiki references: Confluence space `Pix-Ops Runbooks` containing the break-glass procedure page
+- Bookmark / breadcrumb naming: `PIX-BreakGlass-Console`
+
+**4. ATT&CK mapping**: T1078 (Valid Accounts), T1552.001 (Credentials in Files), T1213 (Data from Information Repositories), T1021 (Remote Services)
+
+**5. RoE deviations**: The Confluence page hosting the tokenized document is marked "confidential — security" in page metadata to reduce accidental discovery by Pix-ops staff; the page owner is the scenario owner.
+
+**6. Gating criteria deviations**: When IR engages on an incident touching real Pix production infrastructure, assets tagged `SCN-0007` are pulled rather than state-held (stricter than Charter §5.2 default), given the regulated-operations sensitivity and the value of removing deception assets from the IR scope.
+
+All assets deployed in service of this scenario carry `#scn0007` in their memo, tag, or annotation metadata. The current asset inventory is available via the tag-query automation; it is not maintained in this document.
