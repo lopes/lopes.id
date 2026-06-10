@@ -289,6 +289,8 @@ To wrap things up and keep the narrative consistent, I asked Claude to create a 
 
 For this data to be properly generated, the underlying stack has to be solid. Using modern Linux tooling contributed significantly. Services, scheduled tasks, users, permissions, and containers all ran seamlessly. System metrics are green and resource usage is under control — not bad for a 2 vCPU, 4 GB RAM, 75 GB disk VPS running a single-node Lantana with Cowrie and Dionaea simultaneously with a data pipeline for parsing and enrichment. Linux accepts many configurations, but deviations from standard become technical debt that needs to be managed with extra documentation and workarounds. Keeping things standard pays off here.
 
+The only thing that didn't work as expected was IPv6. Not that it didn't work exactly but it was stressful. Many tools still don't support it well so I had trouble testing it locally. Later, I had to add a prune step to Cowrie logs as it tunnels IPv4 inside IPv6 in dual-stack mode, making IPv4 addresses being prefixed with `::ffff:`. Later, during validation, I had another problem with nftables logs with IPv6 in the long form (with zeros instead of `::` shortcuts), that were preventing the sanitization routine from running. It highlights that decades after being published IPv6 still cares solid support for better adoption. Without it people will keep ignoring it or worse: letting it enable but unconfigured in the environment, grist for adversaries mill. That's the reason I insisted on it here as a prerequisite.
+
 In general, Lantana operates as shown in the next diagram. From my workstation, I deploy and configure the server. It receives attacks whose telemetry is properly processed to generate intelligence.
 
 ```mermaid
