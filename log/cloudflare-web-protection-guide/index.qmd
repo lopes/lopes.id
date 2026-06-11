@@ -2,7 +2,7 @@
 title: "Getting Started with CloudFlare for Web Protection"
 date: 2023-01-02
 description: "Use CloudFlare's free plan for better site security."
-categories: ["hardening", "dev"]
+categories: ["hardening", "engineering"]
 image: "og-cloudflare-web-protection-guide.webp"
 ---
 

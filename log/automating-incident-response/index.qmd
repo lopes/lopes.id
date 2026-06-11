@@ -2,7 +2,7 @@
 title: "Automating Incident Response"
 date: 2022-10-25
 description: "Tackling log centralization, SIEM, and IR automation."
-categories: ["dfir"]
+categories: ["dfir", "engineering"]
 image: "og-automating-incident-response.webp"
 ---
 

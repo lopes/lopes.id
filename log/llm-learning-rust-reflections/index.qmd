@@ -2,7 +2,7 @@
 title: "Reflections on Using LLMs to Learn Rust"
 date: 2025-09-09
 description: "Using LLMs as a learning tool for programming."
-categories: ["dev"]
+categories: ["engineering"]
 image: "og-llm-learning-rust-reflections.webp"
 ---
 

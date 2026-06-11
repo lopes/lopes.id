@@ -2,7 +2,7 @@
 title: "Arch Linux Workstation Setup"
 date: 2020-07-15
 description: "Setup your Arch workstation with GUI and apps."
-categories: ["unix"]
+categories: ["random"]
 image: "og-arch-linux-workstation-setup.webp"
 ---
 

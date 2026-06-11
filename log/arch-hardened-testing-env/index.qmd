@@ -2,7 +2,7 @@
 title: "Creating a Hardened Testing Environment"
 date: 2021-11-04
 description: "Install and secure Arch Linux for safer network tests."
-categories: ["dev", "unix", "hardening"]
+categories: ["engineering", "hardening"]
 image: "og-arch-hardened-testing-env.webp"
 ---
 

@@ -2,7 +2,7 @@
 title: "High-Fidelity NRD Detections"
 date: 2026-01-20
 description: "Implementing high-fidelity detection rules for Newly Registered Domains (NRDs) in Google SecOps."
-categories: ["detection"]
+categories: ["detection", "engineering"]
 image: "og-high-fidelity-nrd-detections.webp"
 ---
 

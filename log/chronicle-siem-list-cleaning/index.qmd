@@ -2,7 +2,7 @@
 title: "Auto-Cleaning Lists in Chronicle SIEM"
 date: 2024-07-18
 description: "Automate Chronicle SIEM list cleanup for expired items."
-categories: ["logging", "cloud", "dev", "detection"]
+categories: ["logging", "engineering", "detection"]
 image: "og-chronicle-siem-list-cleaning.webp"
 ---
 

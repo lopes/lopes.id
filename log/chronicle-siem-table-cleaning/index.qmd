@@ -2,7 +2,7 @@
 title: "Auto-Cleaning Data Tables in Chronicle SIEM"
 date: 2025-11-19
 description: "Automate Chronicle SIEM Data Tables cleanup for expired rows."
-categories: ["logging", "cloud", "dev", "detection"]
+categories: ["logging", "engineering", "detection"]
 image: "og-chronicle-siem-table-cleaning.webp"
 ---
 

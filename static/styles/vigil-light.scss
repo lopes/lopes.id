@@ -574,3 +574,32 @@ img {
     color: $w-ink;
   }
 }
+
+// =============================================================================
+// 19. Mermaid Diagrams
+// =============================================================================
+
+:root {
+  --mermaid-font-family: #{$font-family-monospace};
+}
+
+// Edge label backgrounds: two layers inside foreignObject, both must be cleared.
+// Top-level — SVG-scoped ancestors don't reliably reach HTML in foreignObject.
+.labelBkg {
+  background: none !important;
+}
+
+.edgeLabel p {
+  background: none !important;
+}
+
+svg.mermaid-js {
+  .cluster rect {
+    fill: transparent !important;
+  }
+
+  text, tspan {
+    font-family: $font-family-monospace !important;
+    font-size: 12px !important;
+  }
+}

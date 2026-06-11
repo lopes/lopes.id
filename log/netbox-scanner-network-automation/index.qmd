@@ -2,7 +2,7 @@
 title: "Automating Network Management with NetBox Scanner"
 date: 2020-05-31
 description: "Streamlining network management with IPAM and a network scanner."
-categories: ["dev"]
+categories: ["engineering"]
 image: "og-netbox-scanner-network-automation.webp"
 ---
 

@@ -2,7 +2,7 @@
 title: "A Little Hardening with Burp Suite"
 date: 2024-02-23
 description: "How I used Burp to improve this blog's security."
-categories: ["dev", "hardening"]
+categories: ["engineering", "hardening"]
 image: "og-burp-suite-website-hardening.webp"
 ---
 
