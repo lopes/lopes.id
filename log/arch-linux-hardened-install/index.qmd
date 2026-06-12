@@ -67,7 +67,7 @@ These steps will show how to perform full device encryption using LVM, enabling 
 The main goal here is to create only a minimum bootable unencrypted partition and an encrypted partition on the rest of the disk. Table 1 resumes this scenario.
 
 | Mount point | Partition | Size   | File system |
-|-------------|-----------|--------|-------------|
+| --- | --- | --- | --- |
 | `/efi`      | primary   | 550 MB | FAT32       |
 | `/boot`     | primary   | 450 MB | EXT4        |
 | LVM         | primary   | Rest   | LVM         |
@@ -106,7 +106,7 @@ cryptsetup luksOpen /dev/sda3 luks
 The encrypted partition will host the [LVM](https://opensource.com/business/16/9/linux-users-guide-lvm) system with the partitions shown in Table 2—these are the partitions I like to use in my systems and the spaces are dimensioned to this 16 GB disk.
 
 | Mount point | Partition type | Size   | File system |
-|-------------|----------------|--------|-------------|
+| --- | --- | --- | --- |
 | swap        | primary        | 512 MB | swap        |
 | `/`         | primary        | 6 GB   | EXT4        |
 | `/home`     | primary        | 6 GB   | EXT4        |
