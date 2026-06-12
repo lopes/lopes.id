@@ -198,13 +198,7 @@ Deploying any decoy is just a small part of AE. Before, we need to plan and afte
 
 ## Appendix A: Program Charter Example
 
-This is an adapted version of the Charter signed for the internal Detection-oriented program. Names, tooling, and regional references are generic.
-
----
-
 ### Adversary Engagement Program Charter
-
-Version 1.0 | Signatory: Detection Engineering Lead | Review: annual
 
 #### 1. Mission
 
@@ -281,11 +275,7 @@ The program tracks three reported metrics and one operational health indicator, 
 
 *Signed: [Detection Engineering lead name], [date]*
 
----
-
 ## Appendix B: Scenario Document Example
-
----
 
 ### Scenario: Pix Reconciliation Treasure Trail
 
