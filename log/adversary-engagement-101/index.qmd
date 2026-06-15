@@ -1,12 +1,12 @@
 ---
 title: "Adversary Engagement 101"
-date: 2026-06-10
+date: 2026-06-16
 description: "A primer on cyber deception and adversary engagement."
 categories: ["deception"]
 image: "og-adversary-engagement-101.webp"
 ---
 
-After reading Provos and Holz's [Virtual Honeypots](/log/review-virtual-honeypots/) (2007), Sanders's [Intrusion Detection Honeypots](/log/review-intrusion-detection-honeypots/) (2020), and [MITRE Engage](https://engage.mitre.org/) to start an Adversary Engagement program, I noticed each source solves a different piece of the puzzle. So this post is the primer I wish someone had handed me when I started running an Adversary Engagement program. The one that pulls the vocabulary, the architecture, the placement doctrine, and the modern tooling into a single picture.
+After reading Provos and Holz's [Virtual Honeypots](/log/review-virtual-honeypots/) (2007), Sanders's [Intrusion Detection Honeypots](/log/review-intrusion-detection-honeypots/) (2020), and [MITRE Engage](https://engage.mitre.org/) while building an Adversary Engagement program, I noticed each source solves a different piece of the puzzle. So this post is the primer I wish someone had handed me when I started running an Adversary Engagement program. The one that pulls the vocabulary, the architecture, the placement doctrine, and the modern tooling into a single picture.
 
 I'm writing this after a year of running an AE program and rebuilding it from scratch. I've already posted the [framework I created](/log/framework-adversary-engagement/) based on these sources, but was still missing an introduction to the theme.
 
@@ -14,7 +14,7 @@ I'm writing this after a year of running an AE program and rebuilding it from sc
 
 ### The Golden Rule: Zero Production Value
 
-The foundational premise of any honeypot is simple: **it has no legitimate production value.** It hosts no real services and serves no real users, so any attempt to contact it is suspicious by definition. No real data at all, only synthetic. This is what makes honeypot telemetry so much higher fidelity than a typical NIDS feed. Instead of mining a haystack of legitimate traffic for needles, you start with a haystack made of needles.
+The foundational premise of any honeypot is simple: **it has no legitimate production value.** It hosts no real services and serves no real users, so **any attempt to contact it is suspicious by definition**. No real data at all, only synthetic. This is what makes honeypot telemetry so much higher fidelity than a typical NIDS feed. Instead of mining a haystack of legitimate traffic for needles, you start with a haystack made of needles.
 
 This only holds if the honeypots are deployed and managed properly. A poorly placed honeypot quickly becomes an alert factory: triggered by your own sysadmins running routine vulnerability scans, by asset discovery tools that crawl every subnet, by misconfigured network appliances probing for neighbours. Honeypot operators should treat the placement decision as seriously as the deployment decision, otherwise they'll be paying the operational cost of a tripwire while getting NIDS-grade noise.
 
@@ -22,19 +22,19 @@ This only holds if the honeypots are deployed and managed properly. A poorly pla
 
 Drawn directly from Virtual Honeypots, every decoy must be deployed with three pillars in mind:
 
-1. **Security (Containment).** The adversary must be isolated from the production network. Collateral damage, lateral movement out of the deception zone, and weaponisation against third parties are all unacceptable failure modes.
-2. **Performance.** The infrastructure must handle the expected volume of traffic and concurrent adversary interactions without degrading. A honeypot that crashes under a single botnet scan teaches you nothing.
+1. **Containment.** The adversary must be isolated from the production network. Collateral damage, lateral movement out of the deception zone, and weaponisation against third parties are all unacceptable failure modes.
+2. **Performance.** The infrastructure must handle the expected volume of traffic and concurrent adversary interactions without degrading. A honeypot that crashes under a minor DoS attack teaches you nothing.
 3. **Fidelity.** This is the realism of the illusion. How effectively the honeypot deceives the adversary into believing they've found a valuable, real system.
 
 These three are in constant tension. Higher fidelity (e.g. a full vulnerable OS) reduces containment. Higher containment (e.g. heavy egress filtering) erodes fidelity. Higher performance per host (e.g. dozens of services on one IP) starts to look unrealistic to a careful attacker. Honeypot design is, in practice, the art of picking *which* of these to sacrifice in *which* part of the architecture.
 
-On top of that, Sanders introduces the **See-Think-Do framework** that considers what we want the adversary to see. After noticing the decoy, we must guide what they think about it and what they do. This mindset allows us to easily configure more convincing scenarios that will inevitably lead to better results. Sanders also introduces Barton Whaley's framework to decide if a trap should stand out among legitimate assets or be mixed with them (showing vs. mimicking). Finally, he presents important properties every honeypot must have:
+On top of that, Sanders introduces the **See-Think-Do framework** that considers what we want the adversary to see. After noticing the decoy, we must guide what they think about it and what they do. This mindset allows us to easily configure more convincing scenarios that will inevitably lead to better results. Sanders also presents Barton Whaley's framework to decide if a trap should stand out among legitimate assets or be mixed with them (showing vs. mimicking). Finally, he presents important properties every honeypot must have:
 
 - **Discoverable:** The honeypot must be reachable and findable by attackers.
 - **Interactive:** Adversaries must be able to interact with decoys at certain levels.
 - **Monitored:** Every decoy must be closely monitored and operators must act upon this data.
 
-My personal takeaway is that deploying traps in the environment must be part of a bigger plan and once the deployment is complete, we must work with the data they produce. Only through this approach will we get real outcomes from honeypots, justifying the investment.
+My takeaway is that deploying traps in the environment must be part of a bigger plan, and once the deployment is complete, we must work with the data they produce. Only through this approach will we get real outcomes from honeypots, justifying the investment. See [my post](/log/framework-adversary-engagement/) to learn more about it.
 
 ### Where MITRE Engage Fits
 
@@ -44,11 +44,11 @@ Engage models adversary engagement as the strategic combination of three capabil
 
 - **Denial.** Preventing or impairing the adversary's ability to operate — restricting movement, limiting data collection, disrupting capabilities.
 - **Deception.** Intentional use of artifacts (facts and fictions) to mislead the adversary into incorrect estimations and self-defeating actions.
-- **Delay.** Retards the adversary actions by adding fake documents and delayed responses to waste their time.
+- **Delay.** Slows adversary actions by seeding fake documents and delayed responses to waste their time.
 
-Inside that strategy, the practical pieces line up neatly: a **honeypot** is a deceptive *system*; a **honeytoken** is a deceptive *artifact*; the **honeywall** is a denial *control*; the **narrative** is the *story* that makes deception work; the **gating criteria** are the *rules* for when to disengage. Once the vocabulary clicks, conversations with executives get a lot easier — you're no longer arguing about whether honeypots are "still a thing" but about how much denial and deception your program should fund.
+Inside that strategy, the practical pieces line up neatly: a **honeypot** is a deceptive *system*; a **honeytoken** is a deceptive *artifact*; the **honeywall** is a denial *control*; the **narrative** is the *story* that makes deception work; the **gating criteria** are the *rules* for when to disengage. Once the vocabulary clicks, conversations with executives get a lot easier as you're no longer arguing about whether honeypots are "still a thing" but about how much denial and deception your program should fund.
 
-If you only adopt one external framework, adopt this one. The full vocabulary is in the appendix.
+I compiled a comprehensive vocabulary in the appendix.
 
 ### Honeypot Taxonomy
 
@@ -60,15 +60,15 @@ To build an effective strategy, you need to understand the flavours. Based on my
 
 These are full-fledged operating systems (bare metal or VMs) waiting to be compromised. Because they're complete, independent systems, **they require their own dedicated IP addresses on the network.** Think of an unpatched Windows VM in a specific network segment, complete with fake documents and a deliberately vulnerable service. Once an attacker breaches it, they get a real OS to play with.
 
-They yield the richest intelligence available. They're also the most painful to operate: stealthy monitoring without alerting the adversary, strict data control to ensure the host isn't weaponized against third parties, and explicit "Gating Criteria" (MITRE Engage's term) for when to tear the environment down. If you're not ready for that operational burden, don't start here.
+They yield the richest intelligence available. They're also the most painful to operate: stealthy monitoring without alerting the adversary, strict data control to ensure the host isn't weaponized against third parties, and explicit stop conditions for when to tear the environment down. If you're not ready for that operational burden, don't start here.
 
 The pros and cons of using high-interaction honeypots must be carefully considered in operations. At the end of the day, the intelligence gained from them must be better than what you can achieve via articles, reports, and CTI partners. Otherwise, you'll be raising the risk in vain. Don't let your curiosity and vanity speak louder than common sense. Act with wisdom.
 
 ##### Low-Interaction Honeypots
 
-These are software daemons that emulate services — a Python process pretending to be an SSH server, an FTP listener that captures payloads without ever offering a real shell. They capture initial exploitation attempts and payloads but can't sustain a deep, post-compromise interaction.
+These are software daemons that emulate services, like a Python process pretending to be an SSH server, an FTP listener that captures payloads without ever offering a real shell. They capture initial exploitation attempts and payloads but can't sustain a deep, post-compromise interaction.
 
-Because they're just processes, they containerise beautifully. **A single host can run multiple low-interaction honeypots simultaneously, sharing one IP** (with caveats — see the Christmas Tree warning below). This makes them safe, scalable, and the right default for internal production environments.
+Because they're just processes, they containerise beautifully. **A single host can run multiple low-interaction honeypots simultaneously, sharing one IP** (with caveats; see the Christmas Tree warning below). This makes them safe, scalable, and the right default for internal production environments.
 
 :::{.callout-note}
 Low-interaction honeypots are safer, but not invulnerable. If an attacker finds a zero-day in your honeypot daemon, they can execute code on the host — turning your safe, contained deployment into a high-interaction nightmare. Modern stacks mitigate this with rootless containers (Podman, in particular), aggressive seccomp profiles, and strict egress controls on the host. The risk is real but manageable.
@@ -76,10 +76,10 @@ Low-interaction honeypots are safer, but not invulnerable. If an attacker finds 
 
 #### Intent
 
-- **Production Honeypots** improve operational security. They're typically internal, low-interaction, low-maintenance — designed to generate high-fidelity alerts for the SOC. *Any* interaction is, by definition, suspicious. Sanders's *Intrusion Detection Honeypots* is the canonical reference for this mode.
-- **Research Honeypots** serve Threat Intelligence and Adversary Engagement teams. They're usually higher-interaction, heavily instrumented, and deployed externally to study malware, botnets, and human-driven TTPs. *Virtual Honeypots* is the canonical reference here, even two decades later.
+- **Production Honeypots** improve operational security. They're typically internal, low-interaction, low-maintenance — designed to generate high-fidelity alerts for the SOC. Sanders's *Intrusion Detection Honeypots* is the canonical reference for this mode.
+- **Research Honeypots** serve Threat Intelligence and Adversary Engagement teams. They're heavily instrumented and deployed externally to study malware, botnets, and human-driven TTPs. *Virtual Honeypots* is the canonical reference here, even two decades later.
 
-The two intents demand different operational mindsets. Production honeypots want low-touch alerts and integration with your detection pipeline. Research honeypots want depth, narrative, and an analysis backend that can extract intelligence from large volumes of telemetry. Conflating them is a common mistake — and the fastest way to ship a honeypot that does both jobs poorly.
+The two intents demand different operational mindsets. Production honeypots want low-touch alerts and integration with your detection pipeline. Research honeypots want depth, narrative, and an analysis backend that can extract intelligence from large volumes of telemetry. Conflating them is the fastest way to ship a honeypot that does both jobs poorly.
 
 There are even granular ways of defining honeypots and honeytokens. We can split honeypots into honey systems (decoy is the OS) and honey services (the service is the decoy). For honeytokens, we can use the token type as the category, like honey user, honey credential, honey folder (the token is the abstraction, forming the superclass). But taxonomy is just a human way of organizing stuff. Don't feel limited by it.
 
@@ -89,13 +89,13 @@ As discussed in [another post](/log/framework-adversary-engagement/), production
 
 #### Type
 
-Honeypots is the most common term that usually encompasses all kinds of cyber traps. However, more recently the term honeytoken was coined to represent more specific and abstract assets. Let's see.
+**Honeypot** is the most common term that usually encompasses all kinds of cyber traps. However, more recently the term **honeytoken** was coined to represent more specific and abstract assets.
 
 **Honeypots** usually represent OSes in bare metal or virtualized environments deployed as decoys (high interaction). This term also includes services created as traps, usually emulated (low interaction). Hence, a Windows OS or an SSH service left in the environment to attract attackers are examples of honeypots.
 
-On the other hand, **honeytokens** are related to credentials, files, configurations, etc. that once interacted with, stimulate services (automatically or not) that sound alarms. Token in this sense can be seen as a randomly-generated string that is read by the target system to decide if it should sound the alarm or not. The classic example is a token in a URL, like `https://example.com/token=a1c75ffa78541f9221bed7ec5f18425f4d47df47`. Once the web server gets this request, it logs it and looks for issued tokens. Since the probability of guessing that string at random is negligible, any hit is treated as a trap trigger.
+On the other hand, **honeytokens** are related to credentials, files, configurations, etc. that once interacted with, stimulate services (automatically or not) that sound alarms. A token in this sense can be seen as a randomly-generated string that is read by the target system to decide if it should sound the alarm or not. The classic example is a token in a URL, like `https://example.com/?token=a1c75ffa78541f9221bed7ec5f18425f4d47df47`. Once the web server gets this request, it logs it and looks for issued tokens. Since the probability of guessing that string at random is negligible, any hit is treated as a trap trigger.
 
-There are multiple subdivisions of honeytokens, based on the technology used. The example I've just presented is usually called "web bug". A token in a file, like .doc or .xls, is a honeyfile. A folder is a honeyfolder and so on. You can find plenty of these examples in Intrusion Detection Honeypots.
+There are multiple subdivisions of honeytokens, based on the technology used. The example I've just presented is usually called *web bug*. A token in a file, like .doc or .pdf, is a honeyfile. A folder is a honeyfolder and so on. You can find plenty of these examples in Intrusion Detection Honeypots.
 
 ## Part II: Operational Layer
 
@@ -111,31 +111,43 @@ Back in 2007, a Honeywall was typically a Layer 2 bridging device. Operating tra
 ```{mermaid}
 graph TD
     Atk((Attacker))
+    R[Router]
 
-    subgraph ExtNet [External / Research Honeynet]
-        EHW{Honeywall}
-        RH[Low/High-Interaction Honeypots<br/>Dedicated IP addresses]
-        EHW -->|controlled routing| RH
+    Atk -->|internet| R
+
+    subgraph PubNet [Public Corporate Network]
+        subgraph ResNet [Research Honeynet VLAN]
+            EHW{Honeywall}
+            RH[High/Low-Interaction Honeypots<br/>Dedicated IPs]
+            EHW -->|controlled routing| RH
+        end
     end
 
-    subgraph IntNet [Internal / Production Honeynet]
-        PH[Low-Interaction Honeypots]
+    EFW{{Edge Firewall}}
+
+    subgraph LAN [Internal LAN]
+        Foothold[Compromised<br/>Production Asset]
+        PH[Low-Interaction<br/>Production Honeypots]
+        HT[/Honeytokens/]
+        Foothold -.->|lateral movement| PH
+        Foothold -.->|lateral movement| HT
     end
 
-    Atk -->|from internet| EHW
-    Atk -->|lateral movement| PH
+    R -->|exposed VLAN| EHW
+    R --> EFW
+    EFW -->|breach| Foothold
 
-    EHW -->|network capture + egress control| DP[(Data Pipeline<br/>Intel Team)]
+    EHW -->|capture + egress control| DP[(Data Pipeline<br/>Intel Team)]
     RH -->|host telemetry| DP
-
-    PH -->|application logs| SIEM
+    PH -->|application logs| SIEM[(SIEM)]
+    HT -->|alarm triggers| SIEM
 ```
 
 ### Crafting the Narrative
 
 A honeypot's illusion is only as good as the narrative it presents. To engage a sophisticated adversary, the technology stack has to be completely convincing.
 
-Say you're running a low-interaction script on a Linux server to emulate a Windows Domain Controller. You can't just slap a fake RDP banner on it and call it a day. The network layer itself has to mimic Windows: TCP window size, TTL values, the way the stack responds to malformed packets — all of it has to match the OS you're spoofing. Tools and configurations based on the Nmap OS fingerprint database are a good starting point.
+Say you're running a low-interaction honeypot on a Linux server to emulate a Windows Domain Controller. You can't just slap a fake RDP banner on it and call it a day. The network layer itself has to mimic Windows: TCP window size, TTL values, the way the stack responds to malformed packets... all of it has to match the OS you're spoofing. Tools and configurations based on the Nmap OS fingerprint database are a good starting point.
 
 A good narrative, although neglected by many honeypot operators, is what separates good telemetry from bad. If your decoys smell like traps, even when probed, they won't catch anything beyond that. Think like a hunter: you must disguise your traps, make them discoverable and appealing to your prey. The devil is in the details: what does it look like? What does it smell like? You'll have to make it seem real to catch your prey.
 
@@ -143,7 +155,7 @@ The same applies to cyber decoys, and the narrative is the cornerstone of this p
 
 ### Beware the Christmas Tree Effect
 
-Because low-interaction honeypots containerise so easily, it's tempting to run a dozen on one host. Don't. If an attacker scans an IP and sees it lit up with 30 unrelated open ports, like SSH, SMB, RDP, Redis, and Elasticsearch, the illusion breaks instantly. Real servers have focused roles. A database host doesn't typically run a public FTP service. **Distribute your low-interaction containers across multiple IP addresses to mimic realistic server profiles.**
+Because low-interaction honeypots containerise so easily, it's tempting to run a dozen on one host. Don't. If an attacker scans an IP and sees it lit up with 30 unrelated open ports, like SSH, SMB, RDP, Redis, and Elasticsearch, the illusion breaks instantly. Real servers have focused roles. A database host doesn't typically run a public FTP service. Distribute your low-interaction containers across multiple IP addresses to mimic realistic server profiles.
 
 This is one of the most common mistakes I see in public honeypot writeups. People deploy T-Pot, see all the dashboards light up with traffic, and post screenshots, but a careful adversary would dismiss the whole subnet on first scan. Automated scanners and script kiddies attack anything with an open port; the entire *point* of a research honeypot is to attract attackers more sophisticated than those.
 
@@ -153,7 +165,7 @@ An alert from a production honeypot is a starting point, not an answer. "Honeypo
 
 To deliver real value, the alert needs enrichment. Who was assigned the source IP at that exact moment? What VLAN did the traffic originate from? Is the source an admin-managed endpoint or a guest Wi-Fi connection? By correlating honeypot events with identity, asset, and network data, a one-line alert becomes a high-fidelity incident report.
 
-In practice, the *enrichment pipeline* matters more than the honeypot itself. I've seen elaborate deception deployments rendered useless because the resulting alerts didn't carry the context the SOC needed to triage them. Build the pipeline first.
+In practice, the honeypot placement must be carefully considered and under monitoring, especially for honeytokens. You'll want to know who was behind actions that triggered alarms. This is achievable by enrichment beyond the honeypot logs.
 
 ## Part III: Getting Started
 
@@ -162,8 +174,9 @@ The good news is that the entry barrier in 2026 is much lower than it was in 200
 ### What to read
 
 1. [Virtual Honeypots](/log/review-virtual-honeypots/) (Provos & Holz, 2007): The architectural foundations — interaction level, honeywall design, narrative. The implementation details (Honeyd, User-Mode Linux) are dated, but the principles are timeless. Read it for the *why*, not the *how*.
-2. [Intrusion Detection Honeypots](/log/review-intrusion-detection-honeypots/) (Sanders, 2020): The production/detection use case end to end. See–Think–Do placement, the honey-token family, deployment patterns. This is the practical companion to Provos & Holz and is closer to current tooling.
+2. [Intrusion Detection Honeypots](/log/review-intrusion-detection-honeypots/) (Sanders, 2020): The production/detection use case end to end and the lessons on honeytokens are unique. See–Think–Do placement, the honey-token family, deployment patterns. This is the practical companion to Provos & Holz and is closer to current tooling.
 3. [MITRE Engage](https://engage.mitre.org): Web-based, free, and the cleanest vocabulary in the field. Read the matrix once, then come back to it whenever you find yourself fighting with terminology.
+4. [Pragmatic Adversary Engagement Framework](/log/framework-adversary-engagement/): My own pragmatic framework for Adversary Engagement. Straight to the point, low bureaucracy, focused on what matters. Built upon these sources.
 
 ### What to deploy
 
@@ -175,13 +188,13 @@ The good news is that the entry barrier in 2026 is much lower than it was in 200
 
 ### What to build
 
-If you've followed the path this far, the next step is to build *one* end-to-end deception capability of your own. It doesn't matter which one. Pick a honey-credential capability, or a single honeypot with a real enrichment pipeline behind it, and run it for three months. The operational lessons you'll collect (placement that didn't work, alerts that turned out to be your own scanner, the narrative gap that a real attacker exploited) are worth more than another book.
+If you've followed the path this far, the next step is to build *one* end-to-end deception capability of your own. It doesn't matter which one. Pick a honey-credential capability, or a single honeypot with a real enrichment pipeline behind it, and run it for three months. The operational lessons you'll collect are worth more than another book — placement that didn't work, alerts that turned out to be your own scanner, the narrative gap that a real attacker exploited.
 
 ## Wrap Up
 
 The cat-and-mouse game has evolved since *Virtual Honeypots* was published, but the foundations are rock solid. Honeypots flip the asymmetry: instead of defenders needing to be right 100% of the time, the attacker only has to be wrong once — by touching a system that shouldn't exist.
 
-If I had to compress this entire post into three sentences: **place your decoys where adversaries already want to go, treat the honeywall as non-negotiable, and ship a honey-token capability before you ship your first honeypot.** Everything else — the narrative work, the containerisation, the enrichment pipeline — falls out of those three commitments.
+If I had to compress this entire post into three sentences: **place your decoys where adversaries already want to go, treat the honeywall as non-negotiable, and ship a honeytoken capability before you ship your first honeypot.** Everything else, the narrative work, the containerisation, the enrichment pipeline, falls out of those three commitments.
 
 I've seen many people publishing flashy posts about the honeypots they deployed and the "attacks" they caught. All of that without direction, only following default scripts and making poor or no use of data. Let me tell you something: you don't need to deploy a honeypot to know the internet is full of scanners. It's common sense. Good planning includes narrative and placement. It's what leads to good, insightful, manual interactions with decoys. Then, a plan must consider what to do with the data collected, otherwise you're just a hobbyist wasting money.
 
