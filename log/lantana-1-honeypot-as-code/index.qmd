@@ -35,16 +35,16 @@ I added Docker to the stack and deployed a containerized Cowrie instance — ano
 
 After about two stressful development weeks and many parallel research threads (not full-time, obviously), I found I'd have to disable Docker's iptables integration entirely to move forward. It was around then that I discovered [Podman](https://podman.io/). It doesn't configure the firewall by default and is praised for being daemonless. Part of my security concern with Docker centered on container escape: even with containers configured to run as unprivileged users, Docker's daemon runs as root, leaving a privilege escalation path open on the host. Podman's rootless mode closes that gap, as the entire runtime runs as a regular user.
 
-It led to the first major change in the project: Docker out, Podman in. The Docker/iptables conflict also made it clear I was using a legacy tool. [nftables](https://wiki.nftables.org/wiki-nftables/index.php/Main_Page) is the modern standard for Linux firewalls. On top of that, I realized I needed to modernize my approach to Linux server management: in came [iproute2](https://en.wikipedia.org/wiki/Iproute2) and [systemd](https://systemd.io/), both default in Debian. No more ad hoc commands to configure the server, no more scripts left scattered across the environment; only standardized, predictable deployments.
+It led to the first major change in the project: Docker out, Podman in. The Docker/iptables conflict also made it clear I was using a legacy tool. [nftables](https://wiki.nftables.org/wiki-nftables/index.php/Main_Page) is the modern standard for Linux firewalls. On top of that, I realized I needed to modernize my approach to Linux server management: adopted [iproute2](https://en.wikipedia.org/wiki/Iproute2) and [systemd](https://systemd.io/), both default in Debian. No more ad hoc commands to configure the server, no more scripts left scattered across the environment; only standardized, predictable deployments.
 
 At this point, I finally started touching the pipeline. Dealing with logs is tricky because they're always coming, like a stream. That's why ETL systems often work with D+1 data availability: rotate the logs at midnight, then process the rotated file since it won't be updated anymore. After some research, I discovered [Vector](https://vector.dev/), an open-source data pipeline tool maintained by Datadog. Vector can tail log files and process them in near real-time. At first, I planned to use it for basic enrichment (GeoIP) and OCSF parsing, but at this stage it would just collect and forward log data to the data lake.
 
-The data lake: at last, the core of my work. I had never built one before, so I had to read up on how to design a simple one. I settled on the [Medallion architecture](https://www.databricks.com/blog/what-is-medallion-architecture). In short, it divides data processing into bronze, silver, and gold layers: from raw data to business-ready aggregations. Vector would drop logs with minimal enrichment, plus OCSF parsing, into the bronze layer, and I'd build Python scripts from there.
+**The data lake:** at last, the core of my work. I had never built one before, so I had to read up on how to design a simple one. I settled on the [Medallion architecture](https://www.databricks.com/blog/what-is-medallion-architecture). In short, it divides data processing into bronze, silver, and gold layers: from raw data to business-ready aggregations. Vector would drop logs with minimal enrichment, plus OCSF parsing, into the bronze layer, and I'd build Python scripts from there.
 
 Finally, during this period, I realized I could replace Falco with [Suricata](https://suricata.io/) and monitor the host at a different level. But I'd postpone that until I had a working system. With all these changes, I reached an MVP by early January. I deployed it on my VPS, and when the first logs started arriving, I was genuinely proud. I had deployed a customized Cowrie instance following the narrative I'd defined, on a public server, with a single command. In under ten minutes after hitting `enter`. Honeypot as Code. 🪄
 
 ::: {.callout-note}
-I didn't elaborate on the importance of narrative here because it's out of scope for this post — this is about Lantana's engineering. If you want to learn more about it, read [this post](url-here).
+I didn't elaborate on the importance of narrative here because it's out of scope for this post — this is about Lantana's engineering. If you want to learn more about it, read [Adversary Engagement 101](/log/adversary-engagement-101/).
 :::
 
 ## Full Architecture Review
@@ -76,42 +76,42 @@ It took one or two weeks to come up with this design. Then I implemented what I 
 flowchart TD
   ATK(["Attacker"])
 
-  subgraph HWZ["Honeywall Zone"]
+  subgraph HWZ["HONEYWALL ZONE"]
   NFT["nftables<br/>packet filter + log"]
   SUR["Suricata<br/>NIDS"]
   AUTH["auth logs"]
   end
 
-  subgraph SENS["Sensor Zone"]
+  subgraph SENS["SENSOR ZONE"]
   COW["Cowrie<br/>SSH, Telnet"]
   DIO["Dionaea<br/>HTTP, MySQL…"]
   end
 
-  subgraph CLZ["Collector Zone"]
-  subgraph STREAM["Vector (all zones) — streaming"]
-    GEO["GeoIP<br/>MaxMind GeoLite2"] -.-> NRM["OCSF normalization"]
+  subgraph CLZ["COLLECTOR ZONE"]
+  subgraph STREAM["Vector (all zones)"]
+    GEO["GeoIP<br/>MaxMind GeoLite2"] --> NRM["OCSF normalization"]
   end
   BRZ[("🥉 BRONZE<br/>raw, GeoIP, OCSF")]
   subgraph BATCH["D+1"]
-    IOC["IOC extraction"] -.-> CACHE[("cache")]
-    CACHE -. "miss" .-> EXT["VirusTotal, GreyNoise…"]
-    EXT -. "store" .-> CACHE
+    IOC["IOC extraction"] --> CACHE[("cache")]
+    CACHE -- "miss" --> EXT["VirusTotal, GreyNoise…"]
+    EXT -- "store" --> CACHE
   end
   SLV[("🥈 SILVER<br/>enriched logs")]
   GLD[("🥇 GOLD<br/>top IPs, credentials, geo…")]
 
-  NRM -.-> BRZ -.-> IOC
-  CACHE -. "enriched" .-> SLV -.-> GLD
+  NRM --> BRZ --> IOC
+  CACHE -- "enriched" --> SLV --> GLD
   end
 
-  ATK -- "attack traffic" --> NFT
-  NFT -- "attack traffic" --> SENS
+  ATK -. "attack traffic" .-> NFT
+  NFT -. "attack traffic" .-> SENS
 
-  NFT & SUR & AUTH -. "logs" .-> GEO
-  COW & DIO -. "commands, credentials, files…" .-> GEO
+  NFT & SUR & AUTH -- "logs" --> STREAM
+  COW & DIO -- "commands, credentials, files…" --> STREAM
 ```
 
-In this diagram, solid edges represent attack traffic (the thing being studied) and dotted edges represent log/data flow (the output). Although the pipeline was yet to be implemented, its design was already complete. Note the D+1 subgraph in the Collector zone. Here's the breakdown:
+In this diagram, dotted edges represent attack traffic (the thing being studied) and solid edges represent log/data flow (the output). Although the pipeline was yet to be implemented, its design was already complete. Note the D+1 subgraph in the Collector zone. Here's the breakdown:
 
 - Logs are ingested and written to disk from the honeywall and sensor zone.
 - Vector reads this data in streaming mode, adding geolocation for IP addresses through MaxMind's GeoLite2 MMDB files. It also parses logs into OCSF format, saving the results in the bronze layer of the data lake.
@@ -125,20 +125,24 @@ IPv4 and IPv6 were requirements from the start, but I hadn't anticipated how poo
 
 ## AI's Help
 
-By the end of November 2025, OpenAI and Anthropic shipped significant updates to Codex and Claude Code that substantially changed how AI fits into a development workflow. However, I wouldn't experiment with them until late March 2026, after Alpha was done. Between December and early March, I used Google Gemini Pro the same way we used to work 40 years ago, in 2025: open a chat, share as much context as you can, and interact with the model. Sometimes I'd open Gemini CLI and try to extract something useful from it, but most of the time it would break things.
+By November 2025, Google, OpenAI and Anthropic shipped significant updates that substantially changed how AI fits into a development workflow. Basically, they improved their architectures to unlock "System 2" thinking—allowing the AI to pause, plan, and execute deep reasoning across complex, multi-hour tasks. This supercharged existing tools like Anthropic's Claude Code, transforming them from helpful terminal assistants into autonomous agents that could navigate massive codebases on their own  — read more [here](https://tao-hpu.medium.com/the-november-2025-ai-model-landscape-a-pivotal-week-reshapes-the-industry-23bdb4d20a35). However, I wouldn't experiment with them until late March 2026, after Alpha was done.
+
+Between December and early March, I used Google Gemini Pro the same way we used to work 38 years ago, in 2025: open a chat, share as much context as you can, and interact with the model. Sometimes I'd open Gemini CLI and try to extract something useful from it, but most of the time it would break things.
 
 I'd create a new thread with proper context on a specific topic (the trade-offs of switching from Docker to Podman, for instance) and discuss it with Gemini as if it were a fellow practitioner. On the technical side, I'd open threads to build Ansible playbooks or configuration files like logrotate configs. Most of the time, the answers were partially correct and I had to fix small but important details.
 
-Compared to how I work with AI today, in June 2026, it feels prehistoric. AI was sloppy, prone to hallucination, and required constant supervision. But it genuinely helped me reason through important design decisions. Even if I had to research first, gather the insight, and bring it back for discussion. Google's [NotebookLM](https://notebooklm.google.com/) excelled at this, by the way. And the proof is in the result: the foundation I settled on by early March held up as even newer models validated it.
+Compared to how I work with AI today in June 2026, my workflow back then feels prehistoric. The models were sloppy, prone to hallucination, and demanded constant supervision. Lacking proper context window control, I constantly battled context saturation; a frustrating loop that frequently ended in pure prompt rage. Still, despite the friction, the AI genuinely helped me reason through critical design decisions. The proof is in the result: the foundation I settled on by early March held up perfectly, fully validated by the smarter models that came later.
 
-::: {.callout-note}
-[AUTHOR: verify exact product names and version numbers here before publishing.] There was a breakthrough in November 2025 when OpenAI delivered significant updates to Codex CLI, and Anthropic released Claude Opus 4.5 along with improvements to Claude Code — specifically, better reasoning during tool use. In my view, these marked a step change in how AI assists with real engineering work: more precise answers, fewer hallucinations, and the ability to sustain longer context before degrading.
-:::
-
-After delivering Alpha, I decided to step back from Lantana and spend some time studying the new AI landscape. The buzz was real: something had fundamentally changed. Since my employer was also pushing in this direction, I adopted Claude, and it was the best decision. Claude and this new way of working with AI would help me accelerate Lantana by 100x.
+After delivering Alpha, I decided to step back from Lantana and spend some time studying the new AI landscape. The buzz was real: something had fundamentally changed. Since my employer was also pushing in this direction, I adopted Claude, and it was the best decision. Claude and this new way of working with AI would help me accelerate Lantana big time.
 
 ## What Comes Next
 
 Alpha version was done by early March 2026. The foundation was solid, but the data pipeline was still unwritten — and the AI tooling I'd be using to build it was about to change completely.
 
 In the next part, I'll pick up in April, when I returned to Lantana with Claude Code. That's where the real pipeline work happened: Vector transforms, Polars processing across the three data layers, Suricata wired into the stack, and all the integration friction that only surfaces when you start connecting everything. The post ends with Lantana v1 live.
+
+## Lantana Series
+
+- Lantana 1: Honeypot as code
+- Lantana 2: TBW
+- Lantana 3: TBW
