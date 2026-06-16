@@ -20,8 +20,8 @@ As the title suggests, the focus is on *detection* honeypots (decoys placed insi
 
 Two conceptual scaffolds carry the rest of the book:
 
-- **Barton Whaley's deception framework** — two goals (*hiding* and *showing*) and three forms for each — hiding: masking, repackaging, dazzling; showing: mimicking, inventing, decoying.
-- **See-Think-Do** — Sanders's own framework for designing deception: think like the attacker, then ask what they'll *see*, *think*, and *do* when they hit your trap. Dead simple, no bureaucracy.
+- **Barton Whaley's deception framework**: two goals (*hiding* and *showing*) and three forms for each — hiding: masking, repackaging, dazzling; showing: mimicking, inventing, decoying.
+- **See-Think-Do**: Sanders's own framework for designing deception: think like the attacker, then ask what they'll *see*, *think*, and *do* when they hit your trap. Dead simple, no bureaucracy.
 
 Sanders rounds out the theory with the three properties every decoy must have to be useful: **discoverable**, **interactive**, and **monitored**. Together, these concepts (goals, framework, and properties) turn honeypot planning from instinct into strategy.
 
