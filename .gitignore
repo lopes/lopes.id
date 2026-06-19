@@ -9,3 +9,4 @@ venv
 **/*.quarto_ipynb
 _site
 *.html
+!_goatcounter.html

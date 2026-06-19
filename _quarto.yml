@@ -33,6 +33,7 @@ website:
 
 format:
   html:
+    include-after-body: _goatcounter.html
     respect-user-color-scheme: true
     html-math-method: plain
     theme:
