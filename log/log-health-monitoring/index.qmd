@@ -104,9 +104,9 @@ For heartbeat sources, the silence threshold is derived from the 99th-percentile
 
 Treat the tiers as direction, not hard rules. It's perfectly fine to set a source to 168h if that's what the data says — the tiers are just a mental model to keep the fleet consistent and avoid ad hoc choices. The only hard limit is 336h: above that, use suppressions for planned downtime or `excluded_log_types` for permanent exclusions. The heartbeat query only scans 14 days back, so anything requiring >336h tolerance would fire constantly regardless.
 
-The rest of this post follows the PDCA loop. **Plan** covers assessing your environment before touching any table. **Do** covers building and deploying the stack. **Check** covers what you watch once it's running. **Act** covers tuning it over time.
+This post follows two PDCA loops. The first is the deployment cycle: assess your environment, build and deploy the stack, then validate it works and make early adjustments. The second is the operational cycle that runs indefinitely once the system is live: daily monitoring and investigation, threshold tuning when alert quality drifts, and a quarterly reassessment that re-profiles the full estate and updates the configuration. Both cycles are covered in the sections below.
 
-## Assessment *(Plan)*
+## Assessment
 
 Start by verifying the metrics are there with the query below. It should return a near real-time timestamp and a row count for the last 24 hours. If so, Chronicle is feeding ingestion metrics into BigQuery and you're good to go. If not, you need to configure that export first.
 
@@ -352,7 +352,7 @@ As a time series model, ARIMA+ is only as good as the signal it's fed. Three thi
 
 That's the CV and coverage split from the assessment query. Sources that pass both thresholds get meaningful predictions. Sources that don't get heartbeat.
 
-## Setup *(Do)*
+## Setup
 
 With the monitoring stack seeded, it's time to schedule the queries that will keep it running. Start with the monthly model retrain.
 
@@ -378,7 +378,7 @@ Another weekly monitoring, now for the `UNSPECIFIED_LOG_TYPE`. It's a Chronicle 
 - Frequency: Weeks, every Monday at **11:05 UTC** (adjust for your timezone)
 - Query: see [`log-health-unspecified-growth-weekly`](#log-health-unspecified-growth-weekly) in the Appendix
 
-## Notifications
+### Notifications
 
 With all schedules in place, the last piece is the notification layer. I used Slack, but the logic is the same for any webhook — only the delivery method changes. Apps Script is the natural fit here since everything else runs on Google.
 
@@ -465,7 +465,25 @@ WHERE source_key IN ('GCP_SECURITYCENTER_THREAT', 'MISP_IOC', 'WORKSPACE_ALERTS'
 ORDER BY source_key;
 ```
 
-## Operations *(Check)*
+## Operations
+
+The deployment is done. From here the system runs on its own — scheduled queries detect anomalies, the model retrains monthly, pipeline health runs weekly. Your job shifts to monitoring and adjusting. The diagram below shows the three operational cadences:
+
+```{mermaid}
+flowchart TD
+    monitor[Monitor fleet] --> check{Anomaly?}
+    check -->|Yes| investigate[Investigate\nand act]
+    investigate --> monitor
+    check -->|No| monitor
+
+    monitor -->|Alert quality drifts| tune[Tune thresholds\nor reclassify sources]
+    tune --> monitor
+
+    monitor -. Every 90 days .-> reassess[Quarterly reassessment\nRe-profile · replan · apply]
+    reassess --> monitor
+```
+
+### Monitoring
 
 Once deployed, the monitoring runs mostly on autopilot. While the hourly query detects anomalies, the monthly retrain keeps the model current. Two weekly jobs watch the pipeline itself. What you actually do is review — and act when something looks wrong.
 
@@ -581,7 +599,7 @@ No collection of queries can cover every investigation scenario — the data wil
 
 Use AI to help with this. Share the schema and ask it to write investigation queries for whatever you're seeing. In my experience it's precise — more on that in the AI section.
 
-## Tuning *(Act)*
+### Tuning
 
 When a source needs reclassification or a configuration change, use transaction-wrapped SQL to keep the changes atomic and auditable. Here's an example from production, reclassifying a few sources and adjusting silence thresholds after the first week of operation:
 
