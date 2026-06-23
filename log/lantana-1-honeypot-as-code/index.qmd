@@ -1,6 +1,6 @@
 ---
 title: "Lantana 1: Honeypot as Code"
-date: 2026-06-24
+date: 2026-06-23
 description: "Engineering decisions behind Lantana, a Honeypot as Code platform."
 categories: ["engineering", "deception"]
 image: "og-lantana-1-honeypot-as-code.webp"
