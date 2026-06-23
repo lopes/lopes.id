@@ -2,7 +2,7 @@
 title: "Cordyceps: The Making of Rust Ransomware"
 date: 2025-09-26
 description: "An educational Rust ransomware for security research."
-categories: ["dev"]
+categories: ["engineering"]
 image: "og-cordyceps-rust-ransomware.webp"
 ---
 

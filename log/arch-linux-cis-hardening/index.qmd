@@ -2,7 +2,7 @@
 title: "Linux Hardening with CIS Controls"
 date: 2020-07-08
 description: "Applying CIS controls to secure Arch Linux."
-categories: ["unix", "hardening"]
+categories: ["hardening"]
 image: "og-arch-linux-cis-hardening.webp"
 ---
 

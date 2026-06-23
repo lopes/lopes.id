@@ -2,7 +2,7 @@
 title: "Integrating MISP with Chronicle SIEM"
 date: 2024-06-26
 description: "Integrate CTI and CSIRT automatically and efficiently."
-categories: ["detection", "intel"]
+categories: ["detection", "intel", "engineering"]
 image: "og-misp-chronicle-integration.webp"
 ---
 

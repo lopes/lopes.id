@@ -2,7 +2,7 @@
 title: "Project Nebula: Debriefing"
 date: 2024-09-25
 description: "Final thoughts and improvements for the Nebula detection lab."
-categories: ["detection", "logging"]
+categories: ["detection", "logging", "engineering"]
 image: "og-nebula-4-debriefing.webp"
 ---
 

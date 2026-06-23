@@ -2,7 +2,7 @@
 title: "How to Sign Commits in Git(Hub)"
 date: 2024-05-13
 description: "Use cryptography to secure Git commits and boost reliability."
-categories: ["dev"]
+categories: ["engineering"]
 image: "og-git-sign-commits-guide.webp"
 ---
 

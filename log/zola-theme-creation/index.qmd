@@ -2,7 +2,7 @@
 title: "Criando um Tema para o Zola"
 date: 2020-05-11
 description: "Aprenda a criar um tema para Zola e contribua com a comunidade."
-categories: ["dev"]
+categories: ["random"]
 image: "og-zola-theme-creation.webp"
 lang: "pt-BR"
 ---

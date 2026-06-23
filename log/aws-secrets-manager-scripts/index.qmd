@@ -2,7 +2,7 @@
 title: "Using AWS Secrets Manager in Scripts"
 date: 2023-01-05
 description: "Learn to authenticate in tools seamlessly."
-categories: ["dev", "cloud", "hardening"]
+categories: ["engineering", "hardening"]
 image: "og-aws-secrets-manager-scripts.webp"
 ---
 

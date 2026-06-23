@@ -2,7 +2,7 @@
 title: "Insights into Effective SIEM Deployment"
 date: 2023-11-29
 description: "Strategies and tips for successful SIEM deployment."
-categories: ["logging", "detection", "dfir"]
+categories: ["logging", "detection", "dfir", "engineering"]
 image: "og-siem-deployment-insights.webp"
 ---
 
