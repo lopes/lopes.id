@@ -2,7 +2,7 @@
 title: "Recovering Arch Linux from a PAM Issue"
 date: 2021-10-26
 description: "How to recover Arch with a misconfigured PAM configuration."
-categories: ["unix"]
+categories: ["random"]
 image: "og-recover-arch-linux-pam.webp"
 ---
 

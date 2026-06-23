@@ -2,7 +2,7 @@
 title: "Project Nebula: Build a Simple Detection Lab"
 date: 2024-09-18
 description: "Easy guide to setting up a simple detection engineering lab."
-categories: ["detection"]
+categories: ["detection", "engineering"]
 image: "og-nebula-1-detection-lab.webp"
 ---
 

@@ -2,7 +2,7 @@
 title: "Using AI and GPT for SEO Advice"
 date: 2023-03-17
 description: "Using OpenAI's GPT-3 to generate SEO-friendly post metadata."
-categories: ["dev"]
+categories: ["engineering"]
 image: "og-ai-seo-advice-gpt.webp"
 ---
 

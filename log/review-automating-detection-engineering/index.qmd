@@ -2,7 +2,7 @@
 title: "Review: Automating Security Detection Engineering"
 date: 2025-03-27
 description: "Review of Automating Security Detection Engineering book."
-categories: ["detection", "dev"]
+categories: ["detection", "engineering"]
 image: "og-review-automating-detection-engineering.webp"
 ---
 

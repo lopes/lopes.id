@@ -2,7 +2,7 @@
 title: "Set Static IP Address in Arch Linux"
 date: 2021-10-27
 description: "Set a static IP in Arch Linux without DHCP support."
-categories: ["unix"]
+categories: ["random"]
 image: "og-arch-linux-static-ip.webp"
 ---
 

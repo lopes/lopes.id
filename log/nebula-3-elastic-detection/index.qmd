@@ -2,7 +2,7 @@
 title: "Project Nebula: Detecting with Elastic"
 date: 2024-09-23
 description: "Elastic Stack deployment for log monitoring."
-categories: ["detection", "logging"]
+categories: ["detection", "logging", "engineering"]
 image: "og-nebula-3-elastic-detection.webp"
 ---
 

@@ -2,7 +2,7 @@
 title: "Installing Nerd Fonts on Arch Linux"
 date: 2020-07-27
 description: "Learn how to install and use Nerd Fonts."
-categories: ["unix"]
+categories: ["random"]
 image: "og-arch-linux-nerd-fonts.webp"
 ---
 
