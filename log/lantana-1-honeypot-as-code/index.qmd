@@ -125,7 +125,7 @@ IPv4 and IPv6 were requirements from the start, but I hadn't anticipated how poo
 
 ## AI's Help
 
-By November 2025, Google, OpenAI and Anthropic shipped significant updates that substantially changed how AI fits into a development workflow. Basically, they improved their architectures to unlock "System 2" thinking—allowing the AI to pause, plan, and execute deep reasoning across complex, multi-hour tasks. This supercharged existing tools like Anthropic's Claude Code, transforming them from helpful terminal assistants into autonomous agents that could navigate massive codebases on their own  — read more [here](https://tao-hpu.medium.com/the-november-2025-ai-model-landscape-a-pivotal-week-reshapes-the-industry-23bdb4d20a35). However, I wouldn't experiment with them until late March 2026, after Alpha was done.
+By November 2025, Google, OpenAI and Anthropic shipped significant updates that substantially changed how AI fits into a development workflow. Basically, they improved their architectures to unlock "System 2" thinking, allowing the AI to pause, plan, and execute deep reasoning across complex, multi-hour tasks. This supercharged existing tools like Anthropic's Claude Code, transforming them from helpful terminal assistants into autonomous agents that could navigate massive codebases on their own — read more [here](https://tao-hpu.medium.com/the-november-2025-ai-model-landscape-a-pivotal-week-reshapes-the-industry-23bdb4d20a35). However, I wouldn't experiment with them until late March 2026, after Alpha was done.
 
 Between December and early March, I used Google Gemini Pro the same way we used to work 84 years ago, in 2025: open a chat, share as much context as you can, and interact with the model. Sometimes I'd open Gemini CLI and try to extract something useful from it, but most of the time it would break things.
 
@@ -144,5 +144,5 @@ In the next part, I'll pick up in April, when I returned to Lantana with Claude 
 ## Lantana Series
 
 - Lantana 1: Honeypot as code
-- Lantana 2: TBW
+- [Lantana 2: The Data Pipeline](/log/lantana-2-data-pipeline/)
 - Lantana 3: TBW
