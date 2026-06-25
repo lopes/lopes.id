@@ -2,7 +2,7 @@
 title: "Review: A Bug Hunter's Diary"
 date: 2025-02-21
 description: "A deep dive into bug hunting with practical lessons."
-categories: ["career", "intel", "hardening", "unix"]
+categories: ["career", "intel", "hardening"]
 image: "og-review-bug-hunters-diary.webp"
 ---
 

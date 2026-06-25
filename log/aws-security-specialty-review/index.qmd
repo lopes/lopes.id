@@ -2,7 +2,7 @@
 title: "AWS Certified Security - Specialty Review"
 date: 2021-08-24
 description: "The materials and strategy I used to get this certification."
-categories: ["career", "cloud"]
+categories: ["career"]
 image: "og-aws-security-specialty-review.webp"
 ---
 

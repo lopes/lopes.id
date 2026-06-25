@@ -2,7 +2,7 @@
 title: "Calculating and Decomposing Syslog Priority"
 date: 2021-09-02
 description: "Calculate and decompose Syslog message priority."
-categories: ["logging", "unix"]
+categories: ["logging"]
 image: "og-syslog-priority-calculation.webp"
 html-math-method: mathjax
 ---

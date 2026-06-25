@@ -2,7 +2,7 @@
 title: "Review: The Missing Readme"
 date: 2024-12-05
 description: "A guide to modern software engineering and career development."
-categories: ["career", "dev"]
+categories: ["career", "engineering"]
 image: "og-review-missing-readme.webp"
 ---
 

@@ -2,7 +2,7 @@
 title: "Gap Analysis with MITRE Navigator"
 date: 2025-12-10
 description: "Automate MITRE ATT&CK gap analysis combining Navigator layers."
-categories: ["intel", "detection"]
+categories: ["intel", "detection", "engineering"]
 image: "og-gap-analysis-mitre-navigator.webp"
 ---
 

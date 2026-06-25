@@ -2,7 +2,7 @@
 title: "Review: Git for Teams"
 date: 2025-01-31
 description: "Best practices and workflow tips from Git for Teams."
-categories: ["career", "dev"]
+categories: ["career", "engineering"]
 image: "og-review-git-for-teams.webp"
 ---
 

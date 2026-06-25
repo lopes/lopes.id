@@ -2,7 +2,7 @@
 title: "My Minimalistic Approach to Mac System Setup"
 date: 2022-09-30
 description: "Set up your Mac with fewer apps for a simpler system."
-categories: ["unix"]
+categories: ["random"]
 image: "og-mac-minimalist-setup.webp"
 ---
 

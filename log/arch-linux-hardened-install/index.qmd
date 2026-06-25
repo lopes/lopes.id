@@ -2,7 +2,7 @@
 title: "Arch Linux Hardened Installation Guide"
 date: 2020-07-07
 description: "Step-by-step guide for a hardened Arch Linux install."
-categories: ["unix", "hardening"]
+categories: ["hardening"]
 image: "og-arch-linux-hardened-install.webp"
 ---
 

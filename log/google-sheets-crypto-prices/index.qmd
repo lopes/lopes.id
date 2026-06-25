@@ -2,7 +2,7 @@
 title: "Getting Cryptocurrency Prices in Google Sheets"
 date: 2022-12-26
 description: "Retrieve crypto prices in Sheets using a 3rd party service."
-categories: ["dev"]
+categories: ["engineering"]
 image: "og-google-sheets-crypto-prices.webp"
 ---
 

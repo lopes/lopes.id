@@ -2,7 +2,7 @@
 title: "Real-time Log Forwarding with Python and Syslog"
 date: 2021-09-01
 description: "Create a smart log forwarding script using Python and Syslog."
-categories: ["dev", "logging", "unix"]
+categories: ["engineering", "logging"]
 image: "og-python-syslog-log-forwarding.webp"
 ---
 

@@ -2,7 +2,7 @@
 title: "Logging Python Messages to Syslog in macOS"
 date: 2021-08-17
 description: "Send log messages from Python to Syslog in macOS."
-categories: ["dev", "logging", "unix"]
+categories: ["engineering", "logging"]
 image: "og-python-logging-syslog-macos.webp"
 ---
 

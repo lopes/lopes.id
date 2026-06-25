@@ -2,7 +2,7 @@
 title: "SOAR Playbooks Aren't Scripts"
 date: "2026-05-29"
 description: "Treating SOAR playbooks as pipelines, not scripts."
-categories: ["detection", "dfir"]
+categories: ["detection", "dfir", "engineering"]
 image: "og-soar-playbooks-scripts.webp"
 ---
 
