@@ -218,6 +218,86 @@ python3 derive-seeds.py emit plan.csv \
   --dataset log_health > seeds.sql
 ```
 
+## Deployment
+
+The eight tables below make up the `log_health` dataset. `source_config` is the configuration backbone — every detection query joins against it. `anomaly_candidates` and `anomalies` are the two-stage output layer. The remaining tables are either inputs (`ingestion_hourly`), controls (`suppressions`, `excluded_log_types`), or pipeline health outputs (`pipeline_health_status`, `unspecified_growth_status`). The dataset also holds `arima_ingestion`, a BigQuery ML model trained from `ingestion_hourly` — not a table, so not shown here.
+
+```{mermaid}
+erDiagram
+    direction LR
+    source_config {
+        STRING source_key PK
+        BOOL enabled
+        STRING detection_method
+        FLOAT64 anomaly_prob_threshold
+        INT64 max_silence_hours
+    }
+    suppressions {
+        STRING source_key FK
+        STRING reason
+        TIMESTAMP until
+    }
+    excluded_log_types {
+        STRING log_type PK
+        STRING reason
+    }
+    ingestion_hourly {
+        STRING source_key
+        TIMESTAMP hour_bucket
+        INT64 log_count
+    }
+    anomaly_candidates {
+        TIMESTAMP detected_at
+        STRING source_key FK
+        STRING anomaly_type
+        TIMESTAMP hour_bucket
+        FLOAT64 log_count
+        FLOAT64 lower_bound
+        FLOAT64 upper_bound
+        FLOAT64 anomaly_probability
+        FLOAT64 severity_pct
+        BOOL promoted
+    }
+    anomalies {
+        TIMESTAMP detected_at
+        STRING source_key FK
+        STRING anomaly_type
+        TIMESTAMP hour_bucket
+        FLOAT64 log_count
+        FLOAT64 lower_bound
+        FLOAT64 upper_bound
+        FLOAT64 anomaly_probability
+        BOOL sent_to_slack
+        FLOAT64 actual_value
+        FLOAT64 expected_value
+        FLOAT64 delta_value
+        FLOAT64 severity_pct
+        STRING value_unit
+        TIMESTAMP breach_first_at
+        TIMESTAMP breach_last_at
+        INT64 breach_hits
+        INT64 breach_overflow_evts
+        FLOAT64 breach_overflow_pct
+    }
+    pipeline_health_status {
+        STRING statement_type
+        TIMESTAMP last_run
+        STRING last_state
+        TIMESTAMP checked_at
+    }
+    unspecified_growth_status {
+        INT64 current_week
+        INT64 prior_week
+        FLOAT64 growth_pct
+        TIMESTAMP checked_at
+    }
+
+    source_config ||--o{ suppressions : "mutes"
+    source_config ||--o{ anomaly_candidates : "detects"
+    source_config ||--o{ anomalies : "alerts"
+    anomaly_candidates }o--o{ anomalies : "promotes to"
+```
+
 The next step is to initialize the monitoring dataset on BigQuery. This query creates the `log_health` dataset — change the location if needed:
 
 ```sql
@@ -435,35 +515,7 @@ If the validation is OK at this point, deployment went fine. It's now a matter o
 
 See my example. After moving it to production, I noticed a lot of alerts from GITHUB, all spikes. However, GitHub is one of my oldest log sources. It's been stable at the company for ages. ARIMA+ should be aware of that. It was only when I sat with the problem that it clicked: due to the AI hype and the constant increase of people using it (plus more and more agents running in the environment) the use of GitHub had greatly increased. It made ARIMA+'s predictions wrong because the baseline had shifted. With this information, I had to decide either to accept that spike alert or raise the ARIMA+ threshold to suppress it, accepting that it would make the predictions less accurate. At the end of the day, as with any detection logic, there's no right or wrong. It's just what better fits your scenario.
 
-Below is a common tuning script covering the usual adjustments: demoting sources from ARIMA to heartbeat, bumping silence thresholds, and moving a deprecated source to the exclusion list. Use it as a template.
-
-```sql
-BEGIN TRANSACTION;
-
--- (a) Demote alert feeds: ARIMA → HEARTBEAT BURSTY (72h).
---     RECORDED_FUTURE_IOC and WORKSPACE_ALERTS already sit at 72h; this flips
---     detection_method and clears the unused anomaly_prob_threshold.
---     GUARDDUTY and GCP_SECURITYCENTER_THREAT additionally move 3h → 72h.
-UPDATE `chronicle.log_health.source_config`
-SET detection_method       = 'HEARTBEAT',
-    anomaly_prob_threshold = NULL,
-    max_silence_hours      = 72
-WHERE source_key IN ('GCP_SECURITYCENTER_THREAT', 'MISP_IOC', 'WORKSPACE_ALERTS');
-
--- (b) Re-tier THINKST_CANARY: DAILY (48h) → SPARSE (336h). Honeypots fire on
---     real adversary contact; months of silence is normal and expected.
-UPDATE `chronicle.log_health.source_config`
-SET max_silence_hours = 336
-WHERE source_key = 'THINKST_CANARY';
-
-COMMIT TRANSACTION;
-
--- Verification.
-SELECT source_key, detection_method, anomaly_prob_threshold, max_silence_hours
-FROM `chronicle.log_health.source_config`
-WHERE source_key IN ('GCP_SECURITYCENTER_THREAT', 'MISP_IOC', 'WORKSPACE_ALERTS', 'THINKST_CANARY')
-ORDER BY source_key;
-```
+The tuning recipes below cover all common scenarios. Expect to apply several of them in the first week.
 
 ## Operations
 
@@ -525,14 +577,6 @@ SELECT a.source_key,
 FROM a CROSS JOIN window_size w
 GROUP BY a.source_key, w.days
 ORDER BY anomalies_total DESC;
-```
-
-If you ever decide to change a threshold, use this template and re-run the previous query to check.
-
-```sql
-UPDATE `chronicle.log_health.source_config`
-SET anomaly_prob_threshold = 0.998
-WHERE source_key = '<source>';
 ```
 
 Every now and then, you need a view of what's under monitoring. The next query can help with that. It'll give you an overview of the log sources in scope, including hours silent and their statuses.
@@ -601,34 +645,95 @@ Use AI to help with this. Share the schema and ask it to write investigation que
 
 ### Tuning
 
-When a source needs reclassification or a configuration change, use transaction-wrapped SQL to keep the changes atomic and auditable. Here's an example from production, reclassifying a few sources and adjusting silence thresholds after the first week of operation:
+No set of recipes can anticipate every situation, but the operations below cover the common cases. Each is self-contained and copy-paste ready. Multi-step operations are wrapped in `BEGIN TRANSACTION / COMMIT TRANSACTION` to stay atomic. After any change, re-run the fleet-overview query from the previous section to verify the result.
+
+#### Raise silence threshold
+
+Repeated `FULL_STOP` alerts for the same source with no real outage behind them — the source legitimately goes quiet for longer than its current tier allows. Step up one tier at a time; see the tier table in Design for reference.
+
+```sql
+UPDATE `chronicle.log_health.source_config`
+SET max_silence_hours = <hours>
+WHERE source_key = '<source>';
+```
+
+#### Raise ARIMA threshold
+
+`SPIKE` or `DROP` alerts repeating for the same source without a real event behind them. The alert-quality query in Monitoring signals this when `per_day > 2`. Step up one increment at a time: 0.99 → 0.995 → 0.998 → 0.999.
+
+```sql
+UPDATE `chronicle.log_health.source_config`
+SET anomaly_prob_threshold = <threshold>
+WHERE source_key = '<source>';
+```
+
+#### Demote ARIMA → HEARTBEAT
+
+A source's behavior has shifted since classification — too bursty, too sparse, or the confidence band has become meaninglessly wide. Between reassessments this is a direct edit; at the quarterly reassessment it's handled through `replan.csv`.
+
+```sql
+UPDATE `chronicle.log_health.source_config`
+SET detection_method       = 'HEARTBEAT',
+    anomaly_prob_threshold = NULL,
+    max_silence_hours      = <hours>
+WHERE source_key = '<source>';
+```
+
+#### Add a source
+
+A `NEW_SOURCE` alert fired for a log type that should be monitored. Classify it as `HEARTBEAT` — new sources don't have 90 days of history yet, so ARIMA isn't an option. At the next quarterly reassessment, promote it if it qualifies.
+
+```sql
+INSERT INTO `chronicle.log_health.source_config`
+  (source_key, enabled, detection_method, max_silence_hours)
+VALUES ('<source>', TRUE, 'HEARTBEAT', <hours>);
+```
+
+#### Exclude a source permanently
+
+Source is deprecated, decommissioned, or sends junk Chronicle can't parse. Adding it to `excluded_log_types` also filters it from `ingestion_hourly`, so it won't pollute ARIMA+ training data.
 
 ```sql
 BEGIN TRANSACTION;
 
--- (1) ORCA — drop from source_config, add to excluded_log_types.
 DELETE FROM `chronicle.log_health.source_config`
-WHERE source_key = 'ORCA';
+WHERE source_key = '<source>';
 
 INSERT INTO `chronicle.log_health.excluded_log_types` (log_type, reason)
-VALUES ('ORCA', 'Under deployment — exclude from monitoring');
-
--- (2) WORKSPACE_ALERTS — bump max_silence_hours 3h → 72h (alerts feed, not raw telemetry).
-UPDATE `chronicle.log_health.source_config`
-SET max_silence_hours = 72
-WHERE source_key = 'WORKSPACE_ALERTS';
-
--- (3) Ten HEARTBEAT sources — bump max_silence_hours 6h → 48h.
-UPDATE `chronicle.log_health.source_config`
-SET max_silence_hours = 48
-WHERE source_key IN (
-  'AUDITD',
-  'MISP_IOC',
-  'OKTA_USER_CONTEXT',
-  'WORKSPACE_ACTIVITY'
-);
+VALUES ('<source>', '<reason>');
 
 COMMIT TRANSACTION;
+```
+
+#### Re-include an excluded source
+
+A previously excluded source is back in production and should be monitored again. Start as `HEARTBEAT` — it needs to accumulate history before ARIMA is an option.
+
+```sql
+BEGIN TRANSACTION;
+
+DELETE FROM `chronicle.log_health.excluded_log_types`
+WHERE log_type = '<source>';
+
+INSERT INTO `chronicle.log_health.source_config`
+  (source_key, enabled, detection_method, max_silence_hours)
+VALUES ('<source>', TRUE, 'HEARTBEAT', <hours>);
+
+COMMIT TRANSACTION;
+```
+
+#### Suppress a source temporarily
+
+Planned maintenance, a known outage window, or a holiday period where silence is expected. The suppression expires automatically at `until`. `NULL` means indefinite — use sparingly; for anything permanent, prefer `excluded_log_types`.
+
+```sql
+-- Add suppression
+INSERT INTO `chronicle.log_health.suppressions` (source_key, reason, until)
+VALUES ('<source>', '<reason>', TIMESTAMP '<YYYY-MM-DD HH:MM:SS UTC>');
+
+-- Remove early if maintenance ends sooner than expected
+DELETE FROM `chronicle.log_health.suppressions`
+WHERE source_key = '<source>';
 ```
 
 ### Quarterly Reassessment
