@@ -8,7 +8,11 @@ image: "og-ai-first-software-development.webp"
 
 As an Infosec Engineer, my relationship with code has historically been pragmatic. I write code to solve specific security problems, but my tools are typically narrower in scope than the sprawling architectures built by full-time software engineers.
 
-Recently, however, after exploring new paradigms in AI-assisted programming, I decided to test these concepts in the wild. I applied this methodology to build the [Antlion](https://github.com/lopes/antlion) project, and the experience fundamentally shifted my perspective on software development. By integrating [Claude Code](https://claude.com/product/claude-code) and modern AI-assisted workflows, I realized that the way we interact with code has irrevocably changed.
+Recently, however, after exploring new paradigms in AI-assisted programming, I decided to test these concepts in the wild. I applied this methodology to build the [Foxglove](https://github.com/lopes/foxglove) project, and the experience fundamentally shifted my perspective on software development. By integrating [Claude Code](https://claude.com/product/claude-code) and modern AI-assisted workflows, I realized that the way we interact with code has irrevocably changed.
+
+:::{.callout-note title="Update 2026-06-26"}
+The Antlion project was renamed to Foxglove to match the poisonous plant theme.
+:::
 
 This post is a deep dive into my personal evolution: from traditional scripting, to awkwardly forcing AI into old habits, to fully embracing the new paradigm of *agentic* development.
 
@@ -48,11 +52,11 @@ While the AI provided direct, tailored answers, this ad-hoc approach introduced 
 
 I was still the developer doing all the heavy lifting; the AI was just a smarter, occasionally frustrating textbook. It was like copy-pasting from Stack Overflow, just generated on the fly. The solution wasn't to "prompt harder." The solution was to step back, review my entire workflow, and integrate AI much earlier in the software lifecycle, using its capabilities in a structured, deterministic way.
 
-## The New Way with LLM: Designing Antlion to Learn the Paradigm
+## The New Way with LLM: Designing Foxglove to Learn the Paradigm
 
 Entering 2026, I realized the only way out of this frustrating cycle was to stop forcing the AI into my old habits. I decided to actually *study* the new way of working. I researched *agentic* workflows, structured AI tooling, and LLM orchestration.
 
-Only *after* internalizing this new paradigm did I design the [Antlion](https://github.com/lopes/antlion) project. Antlion wasn't just another script; it was deliberately conceived as a sandbox to practice an AI-native methodology.
+Only *after* internalizing this new paradigm did I design the [Foxglove](https://github.com/lopes/foxglove) project. Foxglove wasn't just another script; it was deliberately conceived as a sandbox to practice an AI-native methodology.
 
 This was a profound mindset shift. I finally understood that modern AI tools are no longer intuitive "chatbots": they are complex orchestrators. Studying a tool's architecture and best practices before deploying it is exactly how a senior engineer approaches any new technology. The tool and the paradigm must dictate the workflow, not the other way around.
 
@@ -111,7 +115,7 @@ When things inevitably broke (such as a proxy issue with [LiteLLM](https://www.l
 
 ### 8. The Final Polish
 
-The code under `antlion/src` eventually felt a bit cluttered, so I prompted Claude to refactor it applying enterprise Python best practices. It modularized the project instantly. The resulting architecture was clean, professional, and highly maintainable.
+The code under `foxglove/src` eventually felt a bit cluttered, so I prompted Claude to refactor it applying enterprise Python best practices. It modularized the project instantly. The resulting architecture was clean, professional, and highly maintainable.
 
 ## Takeaways: The Paradigm Shift
 
@@ -119,7 +123,7 @@ Looking back, my 2025 endeavor was basically my legacy workflow with an AI bot d
 
 1. **Change the process, not just the tool.** You cannot simply bolt AI onto your existing stack. You have to step back, study *agentic* methodologies, and fundamentally restructure how you build software.
 2. **From code to specifications.** Development is now less about writing syntax and more about defining rigid prerequisites and system specifications. However, foundational engineering skills are still what separate production-grade tools from hobbyist scripts. You have to know what to ask for, and you must know how to review the output.
-3. **Unprecedented velocity.** Historically, a project like Antlion would have taken me two to three weeks working 4 hours a day. Using this *agentic* workflow, the project was delivered in about 15 commits, taking less than 6 hours total. The efficiency gains are staggering.
+3. **Unprecedented velocity.** Historically, a project like Foxglove would have taken me two to three weeks working 4 hours a day. Using this *agentic* workflow, the project was delivered in about 15 commits, taking less than 6 hours total. The efficiency gains are staggering.
 4. **Clarity is king.** Defining clear goals and mandating TDD was the ultimate differentiator. Had I blindly accepted the code Claude initially offered without strict constraints, the project would have collapsed into an unmaintainable mess.
 
 I am incredibly excited for what comes next. By taking the time to learn the available tools and paradigms, I stopped fighting the AI and started orchestrating it. Other capabilities, like [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview), are ready to be explored, and I will absolutely be integrating them into my future engineering workflows. 🤖 🚀
