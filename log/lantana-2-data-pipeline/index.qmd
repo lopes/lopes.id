@@ -1,6 +1,6 @@
 ---
 title: "Lantana 2: The Data Pipeline"
-date: 2026-07-01
+date: 2026-06-30
 description: "Building Lantana's data pipeline and first end-to-end deployment."
 categories: ["engineering", "detection", "deception"]
 image: "og-lantana-2-data-pipeline.webp"
@@ -71,7 +71,7 @@ Right after reviewing and improving the codebase, Opus started what I was callin
 ::: {.callout-note}
 After watching [Steve Yegge's episode](https://www.youtube.com/watch?v=aFsAOu2bgFk) on **The Pragmatic Engineer** podcast, I decided to (even reluctantly) leave the driver's seat. Just like Steve, I spent some days mourning and realizing AI was commoditizing code. It happened while developing the first version of [Foxglove](https://github.com/lopes/foxglove) and the story was told in the "[AI-First Software Development](/log/ai-first-software-development/)" post.
 
-When I envisioned Lantana, I thought I'd use it to learn more about Python's data features and important libraries like Polars and Streamlit. However, after learning the new AI capabilities, I realized my new role was closer to that of an orchestrator, a peer reviewer, a guide to Claude. All development would be done by my new ~~tool~~ ~~peer~~ ally. For a few days, my life became monochromatic but eventually I saw the upside and opportunities the new era was offering, and decided to fully embrace it. I started letting Claude assume the driver's seat in some moments.
+When I envisioned Lantana, I thought I'd use it to learn more about Python's data features and important libraries like Polars and Streamlit. However, after learning the new AI capabilities, I realized my new role was closer to that of an orchestrator, a peer reviewer, a guide to Claude. All development would be done by my new ~~tool~~ ~~peer~~ **ally**. For a few days, my life became monochromatic but eventually I saw the upside and opportunities the new era was offering, and decided to fully embrace it. I started letting Claude assume the driver's seat in some moments.
 :::
 
 Once we reached around 50% of the context window, I instructed it to wrap up, persist lessons learned, and update the plan — I asked Claude to persist it in a temporary `PLAN.md` file. It took around four sessions before Claude considered the plan finished. By then, we had plenty of unit tests in place to ensure new code wouldn't break existing functionality. At that point, Claude confirmed we had a working pipeline, but I was skeptical. So I started asking it to create scripts to reprocess logs from the Alpha version — recall from the last post that I left it running early in March. I pulled the raw logs from the server and started testing locally.
@@ -89,11 +89,39 @@ While the Beta version was running, I started reviewing my notes and analyzing r
 At this point I could witness the data pipeline working for the first time, and I must admit it felt amazing. Raw logs from Cowrie were written to disk like this:
 
 ```json
-{"eventid":"cowrie.session.connect","timestamp":"2026-06-07T00:00:18.800035Z","src_ip":"101.36.122.139","src_port":52912,"dst_ip":"::ffff:203.0.113.97","dst_port":2222,"session":"0c3197d4ef25","message":"New connection: 101.36.122.139:52912 (::ffff:203.0.113.97:2222) [session: 0c3197d4ef25]","sensor":"1e4f54c1da3d","protocol":"ssh"}
-
-{"eventid":"cowrie.client.version","timestamp":"2026-06-07T00:00:18.800937Z","src_ip":"101.36.122.139","session":"0c3197d4ef25","version":"SSH-2.0-libssh_0.9.6","message":"Remote SSH version: SSH-2.0-libssh_0.9.6","sensor":"1e4f54c1da3d","protocol":"ssh"}
-
-{"eventid":"cowrie.login.failed","timestamp":"2026-06-07T00:00:19.906380Z","src_ip":"101.36.122.139","username":"igor","password":"igor123","session":"0c3197d4ef25","message":"login attempt [igor/igor123] failed","sensor":"1e4f54c1da3d","protocol":"ssh"}
+{
+  "eventid": "cowrie.session.connect",
+  "timestamp": "2026-06-07T00:00:18.800035Z",
+  "src_ip": "101.36.122.139",
+  "src_port": 52912,
+  "dst_ip": "::ffff:203.0.113.97",
+  "dst_port": 2222,
+  "session": "0c3197d4ef25",
+  "message": "New connection: 101.36.122.139:52912 (::ffff:203.0.113.97:2222) [session: 0c3197d4ef25]",
+  "sensor": "1e4f54c1da3d",
+  "protocol": "ssh"
+}
+{
+  "eventid": "cowrie.client.version",
+  "timestamp": "2026-06-07T00:00:18.800937Z",
+  "src_ip": "101.36.122.139",
+  "session": "0c3197d4ef25",
+  "version": "SSH-2.0-libssh_0.9.6",
+  "message": "Remote SSH version: SSH-2.0-libssh_0.9.6",
+  "sensor": "1e4f54c1da3d",
+  "protocol": "ssh"
+}
+{
+  "eventid": "cowrie.login.failed",
+  "timestamp": "2026-06-07T00:00:19.906380Z",
+  "src_ip": "101.36.122.139",
+  "username": "igor",
+  "password": "igor123",
+  "session": "0c3197d4ef25",
+  "message": "login attempt [igor/igor123] failed",
+  "sensor": "1e4f54c1da3d",
+  "protocol": "ssh"
+}
 ```
 
 Vector picks up the raw log, adds pipeline metadata (dataset, operation, source_type, server), and runs an offline MaxMind GeoLite2 lookup at wire speed — no external API call, no latency. The geo struct is the only enrichment at this stage, as seen in the next listing, which is how a log lands on Bronze layer.
