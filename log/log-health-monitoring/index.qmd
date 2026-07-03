@@ -6,13 +6,13 @@ categories: ["engineering", "logging"]
 image: "og-log-health-monitoring.webp"
 ---
 
-I can't count the number of times I've heard that log ingestion is a problem. I have myself felt the pain. You have an expensive SIEM, you put logs in. Eventually, you need to investigate something but the logs aren't there and are absent for weeks. Unfortunately, cutting-edge SIEMs have plenty of nice features but none of them in my experience tackle the log ingestion problem seriously.
+I can't count the number of times I've heard that log ingestion is a problem. I've felt the pain myself. You buy an expensive SIEM and feed logs in. Eventually you need to investigate something and the logs aren't there, silent for weeks. Cutting-edge SIEMs have plenty of nice features, but in my experience none of them tackle log ingestion seriously.
 
-Feeling tired of this pain, I decided to own the problem. This post documents what I built and what I learned building it alongside AI.
+Tired of the pain, I decided to own the problem. This post documents what I built and what I learned building it alongside AI.
 
 ## Context
 
-Before getting into the solution, some context on the environment. I'm a Google Chronicle (now SecOps) administrator and it was the goal of the monitoring I was creating. Thus, I decided to keep the stack on Google for better pricing and maintainability:
+Before getting into the solution I must share some context on the environment. I'm a Google Chronicle (now SecOps) administrator, so Chronicle is the SIEM my monitoring targets. Keeping the rest of the stack on Google made sense for pricing and maintainability, so I picked five tools I'll cover in detail later:
 
 - **Chronicle SIEM** for log ingestion,
 - **BigQuery** for storage and analytics,
@@ -20,35 +20,37 @@ Before getting into the solution, some context on the environment. I'm a Google 
 - **Apps Script** for the automation layer, and
 - **Slack** for notifications.
 
-You can swap any of those components but the logic is what matters. The monitoring covers four failure modes:
+You can swap any of these. The logic is what matters.
+
+With this stack, I cover four failure modes that are pertinent to my environment and, I'd argue, to any team running a SIEM:
 
 1. **Full stop:** a log source goes completely silent
 2. **New source:** an unknown log type starts sending data to the SIEM without previous alignment
 3. **Spike:** a source sends significantly more data than expected
 4. **Dip:** a source sends significantly less data than expected, but hasn't stopped entirely
 
-Full stop and new source are cheap to detect and apply to every source. Spike and dip require statistical modeling and only work on sources with predictable volume — more on that in a moment. The naming mirrors BQML ARIMA+'s own vocabulary (`has_spikes_and_dips`) — an anomaly above the confidence band is a spike; below the band, a dip.
+Full stop and new source are cheap to detect and apply to every source. Spike and dip require statistical modeling and only work on sources with predictable volume, more on that in a moment. The naming mirrors BQML ARIMA+'s own vocabulary (`has_spikes_and_dips`): an anomaly above the confidence band is a spike; below the band, a dip.
 
 One thing to highlight from the start is that log sources don't behave uniformly. A firewall logs every packet, so it's sending data every minute, 24/7. A honeypot may be silent for weeks and that's completely normal. A cloud audit feed logs bursts of activity around business hours. Treating all of them the same way leads to either constant false positives or blind spots.
 
-That asymmetry shapes the whole design. And it makes log health monitoring an ongoing process, not a one-time deployment. Log sources get added, deprecated, and change behavior over time. The environment is a living creature, so solution has to account for that; which is why I approached this as a **PDCA loop**: Plan, Do, Check, Act, repeat.
+That asymmetry shapes the whole design. And it makes log health monitoring an ongoing process, not a one-time deployment. Log sources get added, deprecated, and change behavior over time. The environment is a living organism, so the solution has to account for that, which is why I approached this as a **PDCA loop**: Plan, Do, Check, Act, repeat.
 
-This post follows two PDCA loops. The first is the deployment cycle: assess your environment, build and deploy the stack, then validate it works and make early adjustments. The second is the operational cycle that runs indefinitely once the system is live: daily monitoring and investigation, threshold tuning when alert quality drifts, and a quarterly reassessment that re-profiles the full estate and updates the configuration. The next two sections, Research and Design are related to architectural decision. The later sections cover these two loops.
+This post follows two PDCA loops. The first is the deployment cycle: assess your environment, build and deploy the stack, then validate it works and make early adjustments. The second is the operational cycle that runs indefinitely once the system is live: daily monitoring and investigation, threshold tuning when alert quality drifts, and a quarterly reassessment that re-profiles the full estate and updates the configuration. The next two sections, Research and Design, cover architectural decisions. The later sections cover these two loops.
 
 ## Research
 
-Before writing a line of SQL, I spent time with Claude.ai (Opus 4) in research mode to map the problem space and discuss my ideas, pretty much like a coworker. I asked it to interview me before writing anything and I've learned that skipping that step leads to solving the wrong problem.
+Before writing a line of SQL, I spent time with Claude (Opus 4.7) in research mode, treating it pretty much like a coworker, to map the problem space and discuss my ideas. I asked it to interview me before writing anything, because I've learned that skipping that step leads to solving the wrong problem.
 
-It asked three things: build versus buy preference, where the logic should live and run, and what "log source" meant in my context: the log type in Chronicle, or the physical appliance or service behind it — `PAN_FIREWALL` tag or each firewall's hostname. Those were small questions with large scope implications. The scope answer forced me to commit early: **I'd monitor at the log type level**, which Chronicle exposes directly through its ingestion metrics. Appliance-level correlation would come later, if at all.
+It asked three things: build versus buy preference, where the logic should live and run, and what "log source" meant in my context, whether the log type in Chronicle or the physical appliance behind it (a `PAN_FIREWALL` tag versus each firewall's hostname). Those were small questions with large scope implications. The scope answer forced me to commit early: **I'd monitor at the log type level**, which Chronicle exposes directly through its ingestion metrics. Appliance-level correlation would come later, if at all.
 
 I asked for three options: one using Chronicle's native features if any existed, one with a new tool to buy, and one built from scratch with what I already had. I also asked it to follow a standard RFC structure and end with a clear recommendation and reasoning.
 
-Once the interview was done, Claude wrote the document. I read it top to bottom. By the time I reached the recommendation section, I already had my own preference and it matched Claude's — a nice surprise.
+Once the interview was done, Claude wrote the RFC and I read it top to bottom. By the time I reached the recommendation section, I already had my own preference and it matched Claude's. A nice surprise.
 
 The winning option was to build from scratch on BigQuery. What surprised me most wasn't the match itself, but the recommendation: I didn't know BigQuery had ML models, let alone that they were easy to use. The capability I needed was already sitting in my stack, I just hadn't looked. ARIMA+ for forecasting expected log volume, a heartbeat check for sources that don't fit the model, Apps Script and Slack for notifications. All tools in my current stack, green light to proceed.
 
 :::{.callout-note}
-ARIMA+ (AutoRegressive Integrated Moving Average) is a time series forecasting model. You feed it historical data (in this case, hourly log counts per source) and it learns the normal pattern: how much a source typically sends on a Tuesday at 3 AM, how it behaves on weekends, how it shifts after a deploy. At detection time, it scores incoming data against that learned baseline and flags anything that falls outside the expected range. Think of it as a statistical anomaly detector that adapts to each source's own rhythm, rather than a fixed threshold someone set manually.
+ARIMA+ (AutoRegressive Integrated Moving Average) is a time series forecasting model. You feed it historical data (in this case, hourly log counts per source) and it learns the normal pattern: how much a source typically sends on a Tuesday at 3 AM, how it behaves on weekends. At detection time, it scores incoming data against that learned baseline and flags anything that falls outside the expected range. Think of it as a statistical anomaly detector that adapts to each source's own rhythm, rather than a fixed threshold someone set manually.
 :::
 
 ## Design
@@ -60,7 +62,7 @@ The design splits log sources into two monitoring tracks based on how they behav
 
 Which track a source gets depends on two metrics from 90 days of historical data: **coverage** (what percentage of hourly buckets had at least one event) and **CV** (coefficient of variation: standard deviation divided by mean, which measures volume stability). A source with ≥80% coverage and CV ≤1.0 qualifies for ARIMA. Everything else gets heartbeat.
 
-Together, Claude and me designed the pipeline shown in the next diagram, implementing this monitoring scheme.
+Together, Claude and I designed the pipeline shown in the next diagram, implementing this monitoring scheme.
 
 ```{mermaid}
 graph TD
@@ -107,14 +109,14 @@ The split between candidates and anomalies is intentional and worth understandin
 
 This matters because treating model outputs as alerts directly is one of the most common failure modes in ML-based detection. The model doesn't know what's actionable; it just knows what's statistically unusual. In a dynamic environment, statistically unusual happens constantly: a new service rolls out, a batch job runs on a new schedule, a team starts using a tool more. None of those warrant an alert. The promotion layer is where the signal gets filtered from the noise. Without it, alert fatigue kills the system faster than any configuration problem.
 
-The promotion layer is the architectural centerpiece of the whole pipeline, and it's what makes an imperfect model operationally useful. ARIMA+ has real limitations on this data shape (see [Deployment](#deployment)) — no amount of hyperparameter tuning will fully fix them, and BQML's auto-selection exposes limited knobs anyway. Rather than chase a perfect model, this design lets ARIMA+ do what it's good at (finding statistical outliers) and hands off to explicit business rules (persistence ≥ 4 in 24h, magnitude ≥ 200%, 12h cooldown) to decide what deserves an alert. It's a modest architectural investment with an outsized payoff: it turns *"the model is imperfect"* from a problem into a design principle.
+The promotion layer is the architectural centerpiece of the whole pipeline, and it's what makes an imperfect model operationally useful. ARIMA+ has real limitations on this data shape — see [Deployment](#deployment). No amount of hyperparameter tuning will fully fix them, and BQML's auto-selection exposes limited knobs anyway. Rather than chase a perfect model, this design lets ARIMA+ do what it's good at (finding statistical outliers) and hands off to explicit business rules (persistence ≥ 4 in 24h, magnitude ≥ 200%, 12h cooldown) to decide what deserves an alert. It's a modest architectural investment with an outsized payoff: it turns *"the model is imperfect"* from a problem into a design principle.
 
-There's one more filter before candidates even reach the promotion layer. The SPIKE/DIP detection query drops micro-deviations, which means a breach only counts if it exceeds the breached bound (`upper_bound` for spikes, `lower_bound` for dips) by at least 10 events *or* at least 5% of that bound. Without this, a source doing 10 million events an hour would trigger every time it drifted a few events past expected — statistically anomalous but operationally noise. The 10-events / 5% pair is deliberate: 10 events is small enough that a quiet source still gets scrutinized, and 5% is loose enough that a busy source's rounding wobble doesn't pollute the candidate table.
+There's one more filter before candidates even reach the promotion layer. The SPIKE/DIP detection query drops micro-deviations, which means a breach only counts if it exceeds the breached bound (`upper_bound` for spikes, `lower_bound` for dips) by at least 10 events *or* at least 5% of that bound. Without this, a source doing 10 million events an hour would trigger every time it drifted a few events past expected, statistically anomalous but operationally noise. The 10-events / 5% pair is deliberate: 10 events is small enough that a quiet source still gets scrutinized, and 5% is loose enough that a busy source's rounding wobble doesn't pollute the candidate table.
 
 ::: {.callout-note}
-**Sustained-breach cooldown.** Once a `(source, anomaly_type)` pair promotes to `anomalies`, the promotion query won't re-alert the same pair for 12 hours. This caps a sustained breach at ~2 alerts per day per source, matching how humans triage: one alert, act, look again in a few hours. The persistence rule (≥4 candidates / 24h) and magnitude rule (severity ≥ 200%) still evaluate every hour, but they can't punch through the cooldown.
+Once a `(source, anomaly_type)` pair promotes to `anomalies`, the promotion query won't re-alert the same pair for 12 hours — I call it **cooldown**. This limits a sustained breach at ~2 alerts per day per source, matching how humans triage: one alert, act, look again in a few hours. The persistence rule (≥4 candidates / 24h) and magnitude rule (severity ≥ 200%) still evaluate every hour, but they can't punch through the cooldown.
 
-The 12h value came from tuning. An earlier version used 24h and produced a nasty failure mode: after a sustained spike fired its first alert, no follow-up alerts reached Slack for 16 hours even though candidates kept piling up. 12h fires re-alerts soon enough to notice without spamming Slack.
+The 12h value came from tuning. An earlier version used 24h and produced a nasty failure mode: after a sustained spike fired its first alert, no follow-up alerts reached Slack for 16 hours even though candidates kept piling up. 12h re-fires alerts soon enough to notice without spamming Slack.
 :::
 
 For heartbeat sources, the silence threshold is set per source from its own history: take the 99th-percentile gap between events over the last 90 days (`p99_gap`), multiply by 1.5, round up, and keep the result between 6h and 336h. In practice, most sources land in one of five tiers:
@@ -127,10 +129,10 @@ For heartbeat sources, the silence threshold is set per source from its own hist
 | **BURSTY** | 72h | Alert and finding feeds | 3 days without a finding = feed is broken |
 | **SPARSE** | 336h | IAM analyses, honeypots, compliance scans | Expected to be rarely active |
 
-Treat the tiers as direction, not hard rules. It's perfectly fine to set a source to 168h if that's what the data says — the tiers are just a mental model to keep the fleet consistent and avoid ad hoc choices. The only hard limit is 336h: above that, use suppressions for planned downtime or `excluded_log_types` for permanent exclusions.
+Treat the tiers as direction, not hard rules. It's perfectly fine to set a source to 168h if that's what the data says. The tiers are just a mental model to keep the fleet consistent and avoid ad hoc choices. The only hard limit is 336h: above that, use suppressions for planned downtime or `excluded_log_types` for permanent exclusions.
 
 ::: {.callout-note}
-**Why 336h is the ceiling.** The hourly detection query scans `ingestion_metrics` for the `FULL_STOP` heartbeat check, and to keep that scan cheap it only looks back 14 days — 336h. Any source silent beyond that returns `latest_event = NULL` and fires `FULL_STOP` regardless of `max_silence_hours` — the scan window short-circuits the threshold check. Scanning further back is possible but scales cost linearly, and 14 days is the pragmatic tradeoff. Sources that legitimately need >336h tolerance belong in `suppressions` (temporary) or `excluded_log_types` (permanent) instead — both cost nothing to evaluate.
+**Why 336h is the ceiling.** The hourly detection query scans `ingestion_metrics` for the `FULL_STOP` heartbeat check, and to keep that scan cheap it only looks back 14 days (336h). Any source silent beyond that returns `latest_event = NULL` and fires `FULL_STOP` regardless of `max_silence_hours`; the scan window short-circuits the threshold check. Scanning further back is possible but scales cost linearly, and 14 days is the pragmatic tradeoff. Sources that legitimately need >336h tolerance belong in `suppressions` (temporary) or `excluded_log_types` (permanent) instead. Both cost nothing to evaluate.
 :::
 
 With all architectural decisions in mind, it's time to start implementing the log health monitoring.
@@ -151,7 +153,7 @@ Chronicle exports data to BigQuery through two mechanisms. **Advanced BigQuery E
 Snippets in this post use two project placeholders you should replace with yours: `chronicle-google` for the project holding `ingestion_metrics` (Google-owned under Advanced BQ Export; your own under BYOBQ) and `chronicle-self` for the project holding the monitoring stack (`log_health` dataset, ARIMA+ model, scheduled queries). Advanced BQ Export users will have two distinct projects; BYOBQ users can substitute the same name in both places or keep them separate for clean isolation.
 :::
 
-Next, run the query below to profile all log sources. It calculates coverage and CV over 90 days of hourly data and suggests a monitoring track using the ARIMA+ qualification introduced in the [Design](#design) section — `coverage ≥ 80%` AND `CV ≤ 1.0`). Sources that miss either threshold go to heartbeat. For bursty or sparse sources the confidence band would be too wide to catch real anomalies, and brand-new sources won't qualify until they've accumulated enough history.
+Next, run the query below to profile all log sources. It calculates coverage and CV over 90 days of hourly data and suggests a monitoring track using the ARIMA+ qualification introduced in the [Design](#design) section — `coverage ≥ 80%` AND `CV ≤ 1.0`. Sources that miss either threshold go to heartbeat. For bursty or sparse sources the confidence band would be too wide to catch real anomalies, and brand-new sources won't qualify until they've accumulated enough history.
 
 ```sql
 WITH hourly AS (
@@ -184,9 +186,9 @@ FROM prof
 ORDER BY avg_per_hour DESC;
 ```
 
-This query returns one row per log source. The most important columns are `source_key`, `suggested_track` (`ARIMA` or `HEARTBEAT`), and `suggested_threshold`. Save the full result as `estate.csv` — you'll need it in the next step.
+This query returns one row per log source. The most important columns are `source_key`, `suggested_track` (`ARIMA` or `HEARTBEAT`), and `suggested_threshold`. Save the full result as `estate.csv`, you'll need it in the next step.
 
-Next, run the signal profile query below. Where the estate query answered *"does this source qualify for ARIMA?"*, this one answers *"what should ARIMA actually be able to learn from it?"* — vetting whether each source has meaningful daily and weekly patterns before you commit to a track. It's purely informational as it doesn't feed `derive-seeds.py` (later). But it shapes your expectations while reviewing `plan.csv` in the next step and gives you a baseline to cross-check the trained model against.
+Next, run the signal profile query below. Where the estate query answered *"does this source qualify for ARIMA?"*, this one answers *"what should ARIMA actually be able to learn from it?"*, vetting whether each source has meaningful daily and weekly patterns before you commit to a track. It's purely informational and doesn't feed `derive-seeds.py`. But it shapes your expectations while reviewing `plan.csv` in the next step and gives you a baseline to cross-check the trained model against.
 
 ```sql
 WITH hourly AS (
@@ -239,12 +241,12 @@ ORDER BY s.acf_168h DESC;
 
 Save as `signals.csv`. Read source-by-source:
 
-- `wd_we_ratio`: ratio of median weekday-hour volume to weekend-hour. `> 1.3` or `< 0.7` = human-driven source with weekly rhythm. `≈ 1.0` = automation-dominated, no weekly pattern.
-- `acf_24h`: autocorrelation at lag 24 hours. `> 0.5` expected on any live source. If weak, the source is bursty and ARIMA will fit poorly regardless of coverage.
-- `acf_168h`: autocorrelation at lag 168 hours (weekly). `> 0.5` = weekly seasonality present in the raw data. Keep this number; after training, cross-check that the model actually picked up `WEEKLY` on these sources. Often it won't — see the Deployment section for why.
-- `p99_p50_ratio`: heavy-tail signal. `> 20` = spiky source; confidence bands will be wide even at high thresholds.
+- `wd_we_ratio`: ratio of median weekday-hour volume to weekend-hour volume. `>1.3` or `<0.7` = human-driven source with weekly rhythm. `≈1.0` = automation-dominated, no weekly pattern.
+- `acf_24h`: autocorrelation at lag 24 hours. `>0.5` expected on any live source. If weak, the source is bursty and ARIMA will fit poorly regardless of coverage.
+- `acf_168h`: autocorrelation at lag 168 hours (weekly). `>0.5` = weekly seasonality present in the raw data. Keep this number; after training, cross-check that the model actually picked up `WEEKLY` on these sources. Often it won't; see the Deployment section for why.
+- `p99_p50_ratio`: heavy-tail signal. `>20` = spiky source; confidence bands will be wide even at high thresholds.
 
-None of this changes the ARIMA-vs-HEARTBEAT gate — coverage and CV are still the split. Signal profile just sets expectations about what the trained model can and can't learn.
+None of this changes the ARIMA-vs-HEARTBEAT gate. Coverage and CV are still the split. Signal profile just sets expectations about what the trained model can and can't learn.
 
 Next, run the query below to measure silence gaps, specifically how long each log source typically goes quiet between events. This is what drives the heartbeat threshold.
 
@@ -276,7 +278,7 @@ GROUP BY source_key
 ORDER BY p99_gap DESC;
 ```
 
-Save it as `gaps.csv`. Check that the `source_key` sets match between the two CSVs — the gap query is a subset of the estate query, so the count should be equal or smaller. Chronicle's metrics include internal sources like `UDM`, `UNSPECIFIED_LOG_TYPE`, and a set of `LT_*` types — `LT_0` through `LT_20`. They'll show up in both queries. No action needed here as `derive-seeds.py` excludes them automatically via a built-in list. If your environment has additional garbage sources, you can extend that list in the script.
+Save it as `gaps.csv`. Check that the `source_key` sets match between the two CSVs; the gap query is a subset of the estate query, so the count should be equal or smaller. Chronicle's metrics include internal sources like `UDM`, `UNSPECIFIED_LOG_TYPE`, and a set of `LT_*` types (`LT_0` through `LT_20`). They'll show up in both queries. No action needed here as `derive-seeds.py` excludes them automatically via a built-in list. If your environment has additional garbage sources, you can extend that list in the script.
 
 With both CSV files in hand, run `derive-seeds.py` (source in [References](#references)) to generate a monitoring plan:
 
@@ -286,14 +288,14 @@ python3 derive-seeds.py plan \
   gaps.csv > plan.csv
 ```
 
-Open `plan.csv` in your editor. It has one row per log source with `suggested_track` (`ARIMA` or `HEARTBEAT`), `arima_threshold`, and `max_silence_hours`. Then, for each row, decide: keep the suggested track or flip it, adjust the threshold if you know the source is noisy, adjust `max_silence_hours` for sources you know are legitimately sparse, and add a `note` for anything you're excluding.
+Open `plan.csv` in your editor. It has one row per log source with `suggested_track`, `arima_threshold`, and `max_silence_hours`. Then, for each row, decide: keep the suggested track or flip it, adjust the threshold if you know the source is noisy, adjust `max_silence_hours` for sources you know are legitimately sparse, and add a `note` for anything you're excluding.
 
-Personally, I don't touch the ARIMA+ threshold at this stage. Let it run a few days and tune from real alerts. This way, you will ensure a behavior is normal before changing anything. On the exclusion side, use `EXCLUDE` with a note rather than deleting rows — future you (or a teammate) will want to know why the source was set aside, and a deleted row can't tell you. The exception is truly dead sources from past deployments: delete those, or you'll get `NEW_SOURCE` alerts for each one on day one.
+Personally, I don't touch the ARIMA+ threshold at this stage. Let it run a few days and tune from real alerts. That way, you can confirm what normal looks like before changing anything. On the exclusion side, use `EXCLUDE` with a note rather than deleting rows. Future you (or a teammate) will want to know why the source was set aside, and a deleted row can't tell you. The exception is truly dead sources from past deployments: delete those, or you'll get `NEW_SOURCE` alerts for each one on day one.
 
 For sources with `p99_gap > 168h`, ping the owning team before deciding. A broken feed should be fixed in Chronicle or deprecated there, not silenced in the monitoring layer. Intentionally sparse feeds (honeypots, compliance scans) should be kept with an oversized `max_silence_hours` to avoid false positives.
 
 ::: {.callout-tip}
-Take a moment to carefully review the monitoring plan. Query log sources in the SIEM, verify the data is correct, and confirm silence thresholds reflect reality. The goal of this phase is to get the environment clean, not to create synthetic metrics. Exclusions are a last resort for Chronicle's internal garbage sources or genuinely intentional gaps. Threshold bumps should be done after ensuring the log source is really behaving normaly. If you finish the assessment with a long exclusion list or too many loose thresholds, something is wrong upstream. Fix it there.
+Take a moment to carefully review the monitoring plan. Query log sources in the SIEM, verify the data is correct, and confirm silence thresholds reflect reality. The goal of this phase is to get the environment clean, not to create synthetic metrics. Exclusions are a last resort for Chronicle's internal garbage sources or genuinely intentional gaps. Threshold bumps should only happen after confirming the log source is behaving normally. If you finish the assessment with a long exclusion list or too many loose thresholds, something is wrong upstream. Fix it there.
 :::
 
 Once the plan is reviewed, emit the seed SQL. Use the `--project` and `--dataset` flags to match your environment:
@@ -308,7 +310,7 @@ At this point, the assessment is done and all necessary information is collected
 
 ## Deployment
 
-Before starting, it's nice to give an overview of what will be created. The tables shown in the next diagram make up the `log_health` dataset. `source_config` is the configuration backbone — every detection query joins against it. `anomaly_candidates` and `anomalies` are the two-stage output layer. The remaining tables are either inputs (`ingestion_hourly`), controls (`suppressions`, `excluded_log_types`), or pipeline health outputs (`pipeline_health_status`, `unspecified_growth_status`). The dataset also holds `arima_ingestion`, a BigQuery ML model trained from `ingestion_hourly` — not a table, so not shown here.
+Before starting, it's nice to give an overview of what will be created. The tables shown in the next diagram make up the `log_health` dataset. `source_config` is the configuration backbone; every detection query joins against it. `anomaly_candidates` and `anomalies` are the two-stage output layer. The remaining tables are either inputs (`ingestion_hourly`), controls (`suppressions`, `excluded_log_types`), or pipeline health outputs (`pipeline_health_status`, `unspecified_growth_status`). The dataset also holds `arima_ingestion`, a BigQuery ML model trained from `ingestion_hourly`; not a table, so not shown here.
 
 ```{mermaid}
 erDiagram
@@ -386,7 +388,7 @@ erDiagram
     anomaly_candidates }o--o{ anomalies : "promotes to"
 ```
 
-Start the deployment by initializing the monitoring dataset on BigQuery. The next query creates the `log_health` dataset — change the location if needed:
+Start the deployment by initializing the monitoring dataset on BigQuery. The next query creates the `log_health` dataset. Change the location if needed:
 
 ```sql
 CREATE SCHEMA IF NOT EXISTS `chronicle-self.log_health` OPTIONS(location = 'US');
@@ -395,7 +397,7 @@ CREATE SCHEMA IF NOT EXISTS `chronicle-self.log_health` OPTIONS(location = 'US')
 Now, create the tables.
 
 ```sql
--- source_config — routing table that drives the whole pipeline
+-- source_config: routing table that drives the whole pipeline
 CREATE OR REPLACE TABLE `chronicle-self.log_health.source_config` (
   source_key STRING NOT NULL,
   enabled BOOL DEFAULT TRUE,
@@ -404,20 +406,20 @@ CREATE OR REPLACE TABLE `chronicle-self.log_health.source_config` (
   max_silence_hours INT64 DEFAULT 3
 );
 
--- suppressions — TEMPORARY mute for a real source (planned maintenance, holiday)
+-- suppressions: TEMPORARY mute for a real source (planned maintenance, holiday)
 CREATE OR REPLACE TABLE `chronicle-self.log_health.suppressions` (
   source_key STRING,
   reason STRING,
   until TIMESTAMP
 );
 
--- excluded_log_types — PERMANENT exclusion list for junk log_types
+-- excluded_log_types: PERMANENT exclusion list for junk log_types
 CREATE OR REPLACE TABLE `chronicle-self.log_health.excluded_log_types` (
   log_type STRING NOT NULL,
   reason STRING
 );
 
--- anomalies — append-only history of every alert that goes to Slack.
+-- anomalies: append-only history of every alert that goes to Slack.
 -- Detection queries populate the normalized columns; raw log_count/
 -- lower_bound/upper_bound are kept for ad-hoc SQL.
 CREATE OR REPLACE TABLE `chronicle-self.log_health.anomalies` (
@@ -438,7 +440,7 @@ CREATE OR REPLACE TABLE `chronicle-self.log_health.anomalies` (
   delta_value FLOAT64,
   severity_pct FLOAT64,
   value_unit STRING,
-  -- Cluster summary — SPIKE/DIP only (NULL elsewhere). breach_overflow_pct
+  -- Cluster summary: SPIKE/DIP only (NULL elsewhere). breach_overflow_pct
   -- is weighted: SUM(|log_count - bound|) / SUM(bound) * 100 across the cluster.
   breach_first_at TIMESTAMP,
   breach_last_at TIMESTAMP,
@@ -447,7 +449,7 @@ CREATE OR REPLACE TABLE `chronicle-self.log_health.anomalies` (
   breach_overflow_pct FLOAT64
 );
 
--- anomaly_candidates — raw SPIKE/DIP detections; a companion promotion query lifts a subset to anomalies
+-- anomaly_candidates: raw SPIKE/DIP detections; a companion promotion query lifts a subset to anomalies
 CREATE OR REPLACE TABLE `chronicle-self.log_health.anomaly_candidates` (
   detected_at TIMESTAMP,
   source_key STRING,
@@ -462,11 +464,11 @@ CREATE OR REPLACE TABLE `chronicle-self.log_health.anomaly_candidates` (
 );
 ```
 
-Once the stage is set, it's time to seed it up. Copy the content of `seeds.sql` and execute it on BigQuery. Note the inserts are enclosed by begin/commit transaction statements to ensure atomicity. If for any reason one of those lines fail to execute, the whole block will fail, so you'll be able to fix things and execute it again without any losses.
+Once the stage is set, it's time to seed it. Copy the content of `seeds.sql` and execute it on BigQuery. Note that the inserts are enclosed by begin/commit transaction statements to ensure atomicity. If any of those lines fails to execute, the whole block fails, so you can fix things and run it again without loss.
 
-At this point, you've initialized the monitoring environment in BigQuery with your baselines for exclusion, ARIMA, and heartbeat. Next step is to materialize `ingestion_hourly`, a small (few MB) hourly rollup of the last 90 days of `ingestion_metrics`, with junk log types filtered out, for two reasons. First, it makes every downstream consumer cheap: ARIMA+ training scans a few MB instead of tens of GB, and quarterly reassessment queries reuse the same rollup at near-zero cost.
+At this point, you've initialized the monitoring environment in BigQuery with your baselines for exclusion, ARIMA, and heartbeat. The next step is to materialize `ingestion_hourly`, a small (few MB) hourly rollup of the last 90 days of `ingestion_metrics`, with junk log types filtered out, for two reasons. First, it makes every downstream consumer cheap: ARIMA+ training scans a few MB instead of tens of GB, and quarterly reassessment queries reuse the same rollup at near-zero cost.
 
-Second, and more importantly, the 90-day window is rolling, rebuilt monthly by scheduled query (next step): each retrain drops ~30 days off the tail and adds the most recent ~30, so by month 4 every byte of the original bootstrap data has aged out completely. That's how the model stays honest about current reality — drift adapts, sources promoted to ARIMA+ at the quarterly reassessment get their 90d history pulled into the next train, and decommissioned sources stop polluting the model. The materialization looks like an optimization and the rolling rebuild is what makes it work.
+Second, and more importantly, the 90-day window is rolling, rebuilt monthly by scheduled query (next step): each retrain drops ~30 days off the tail and adds the most recent ~30, so by month 4 every byte of the original bootstrap data has aged out completely. That's how the model stays honest about current reality: drift adapts, sources promoted to ARIMA+ at the quarterly reassessment get their 90d history pulled into the next train, and decommissioned sources stop polluting the model. The materialization looks like an optimization and the rolling rebuild is what makes it work.
 
 ```sql
 CREATE OR REPLACE TABLE `chronicle-self.log_health.ingestion_hourly` AS
@@ -502,7 +504,7 @@ WHERE c.enabled AND c.detection_method = 'ARIMA';
 In my experience, the original `ingestion_metrics` had ~29 GB of data; `ingestion_hourly`, the filtered table used to train ARIMA+, had only 27 MB. The whole training run against this 90-day window took 13 seconds. Super cheap.
 :::
 
-It's important to note that **`holiday_region` is intentionally omitted.** ARIMA+'s holiday-effect modeling requires two conditions: the time series must be **daily or weekly** (not hourly), and it must span **more than a year**. This pipeline is hourly, which alone disqualifies it — extending the training window past a year doesn't help either. I tried it, and every source still came back with `has_holiday_effect = FALSE`. BQML silently disables the option at hourly frequency regardless of history length; setting it looks like a knob, but does nothing here. If your setup is on daily or weekly aggregation with >1 year of history, set it to a country code (`'US'`, `'BR'`, ...) or region group (`'NA'`, `'LAC'`, `'EMEA'`, `'JAPAC'`, `'GLOBAL'`).
+It's important to note that **`holiday_region` is intentionally omitted.** ARIMA+'s holiday-effect modeling requires two conditions: the time series must be **daily or weekly** (not hourly), and it must span **more than a year**. This pipeline is hourly, which alone disqualifies it; extending the training window past a year doesn't help either. I tried it, and every source still came back with `has_holiday_effect = FALSE`. BQML silently disables the option at hourly frequency regardless of history length; setting it looks like a knob, but does nothing here. If your setup is on daily or weekly aggregation with >1 year of history, set it to a country code (`'US'`, `'BR'`, ...) or region group (`'NA'`, `'LAC'`, `'EMEA'`, `'JAPAC'`, `'GLOBAL'`).
 
 Once the model is trained, validate what seasonality it actually captured.
 
@@ -516,7 +518,7 @@ FROM ML.ARIMA_EVALUATE(MODEL `chronicle-self.log_health.arima_ingestion`);
 
 Cross-reference the `seasonal_periods` column against the `acf_168h` values you saved in `signals.csv` during Assessment. If a source had strong weekly autocorrelation there (`acf_168h > 0.5`) but the model reports only `DAILY` here, you've hit a known BQML behavior: ARIMA+'s auto-selection is systematically conservative on `WEEKLY` seasonality with high-volume hourly count data. The pattern is present in the raw signal, but the selector favors daily and doesn't add weekly on top. I verified this experimentally by disabling the spike/dip cleaner (`clean_spikes_and_dips=FALSE`) and it didn't recover weekly either. It's a genuine limitation of the auto-selection algorithm on this data shape, not something you can preprocess away.
 
-That's not a reason to abandon ARIMA+ though. It's a reason to know its blind spots and design around them — which is exactly what the promotion layer does. The persistence and magnitude gates on `anomaly_candidates` were built for this: the model doesn't need to be perfect, it needs to be *statistically useful* and paired with logic that filters model noise from operator signal.
+That's not a reason to abandon ARIMA+ though. It's a reason to know its blind spots and design around them, which is exactly what the promotion layer does. The persistence and magnitude gates on `anomaly_candidates` were built for this: the model doesn't need to be perfect, it needs to be *statistically useful* and paired with logic that filters model noise from operator signal.
 
 As a time series model, ARIMA+ is only as good as the signal it's fed. Three things break it:
 
@@ -527,11 +529,11 @@ As a time series model, ARIMA+ is only as good as the signal it's fed. Three thi
 That's the CV and coverage split from the assessment query. Sources that pass both thresholds get meaningful predictions. Sources that don't get heartbeat.
 
 ::: {.callout-note}
-You might think: *"why not train the model on labeled data instead?"* As a security engineers coming from detection engineering, I reach for this — a hand-curated training set with clean, labeled spikes and dips should produce a more accurate model, right?
+You might think: *"why not train the model on labeled data instead?"* As a security engineer coming from detection engineering, I reach for this: a hand-curated training set with clean, labeled spikes and dips should produce a more accurate model, right?
 
 First, **ARIMA+ is unsupervised**: it's a forecaster, not a classifier. There's no input slot for *"this hour was an anomaly."* The model learns what normal looks like from historical data and flags deviations at inference time and labels don't participate. Second, **training on synthetic clean data makes production worse, not better**. If you fabricate a training set with tidy weekly patterns and no real noise, the model learns *that* pattern; deployed against actual traffic (with drift, real weekend behavior, real incidents already in history), its confidence bands are miscalibrated and everything looks anomalous.
 
-The version of the idea that *does* have merit is injecting synthetic anomalies into real data for **benchmarking** (*does the model catch a known 30% dip injected at 3 AM last Wednesday?*) which validates sensitivity without touching production. And if you truly want a labeled approach, you're leaving ARIMA+ behind entirely: that's a supervised classifier (random forest, gradient boost, LSTM), a different pipeline, and a different ongoing cost — someone has to label incidents forever. Almost never the right trade for log-ingestion monitoring at fleet scale.
+The version of the idea that *does* have merit is injecting synthetic anomalies into real data for **benchmarking** (*does the model catch a known 30% dip injected at 3 AM last Wednesday?*) which validates sensitivity without touching production. And if you truly want a labeled approach, you're leaving ARIMA+ behind entirely: that's a supervised classifier (random forest, gradient boost, LSTM), a different pipeline, and a different ongoing cost, because someone has to label incidents forever. Almost never the right trade for log-ingestion monitoring at fleet scale.
 :::
 
 ## Setup
@@ -545,16 +547,16 @@ With the monitoring stack seeded, it's time to schedule the queries that will ke
 Next, schedule the hourly detection query. This is the **core** of the pipeline. It runs every hour and detects anomalies across all monitored sources.
 
 - Name: `log-health-detect-hourly`
-- Frequency: Hours, every 1 hour, time-of-day minute `:18` — any date; what matters is the `:18` mark, giving buckets ~18 min to settle
+- Frequency: Hours, every 1 hour, time-of-day minute `:18`. Any date works; what matters is the `:18` mark, giving buckets ~18 min to settle
 - Query: see [`log-health-detect-hourly`](#log-health-detect-hourly) in the Appendix
 
-Now, create the weekly monitoring. This monitors the monitoring pipeline — *who watches the watchmen?*. Overwrites `pipeline_health_status` each Monday. Empty table means healthy environment; any rows mean something to investigate. Apps Script polls the table and posts to Slack when non-empty.
+Now, create the weekly monitor. This one watches the monitoring pipeline itself (*who watches the watchmen?*). It overwrites `pipeline_health_status` each Monday. Empty table means healthy environment; any rows mean something to investigate. Apps Script polls the table and posts to Slack when non-empty.
 
 - Name: `log-health-pipeline-health-weekly`
 - Frequency: Weeks, every Monday at **11:00 UTC** (adjust for your timezone)
 - Query: see [`log-health-pipeline-health-weekly`](#log-health-pipeline-health-weekly) in the Appendix
 
-Another weekly monitoring, now for the `UNSPECIFIED_LOG_TYPE`. It's a Chronicle SIEM-specific check that oversees if Chronicle is receiving garbage. Overwrites `unspecified_growth_status` each Monday. Empty table means stable environment; any row means week-over-week growth exceeded 20%. Apps Script polls the table and posts to Slack when non-empty.
+Another weekly monitor, this one for `UNSPECIFIED_LOG_TYPE`. It's a Chronicle-specific check that watches whether Chronicle is receiving garbage. Overwrites `unspecified_growth_status` each Monday. Empty table means stable environment; any row means week-over-week growth exceeded 20%. Apps Script polls the table and posts to Slack when non-empty.
 
 - Name: `log-health-unspecified-growth-weekly`
 - Frequency: Weeks, every Monday at **11:05 UTC** (adjust for your timezone)
@@ -564,16 +566,16 @@ Another weekly monitoring, now for the `UNSPECIFIED_LOG_TYPE`. It's a Chronicle 
 
 Detection is only useful if someone reads it, so the notification layer closes the loop. I used Slack, but the logic is the same for any webhook; only the delivery method changes. Apps Script is the natural fit since everything else runs on Google.
 
-The full script can be found in the [References](#references) section. It has four trigger functions that map to the four jobs: real-time anomaly delivery (`checkAnomalies`), a daily inventory digest (`dailyDigest`), a weekly pipeline-health check (`weeklyPipelineHealth`), and a weekly `UNSPECIFIED_LOG_TYPE` growth check (`weeklyUnspecifiedGrowth`). Put the code in the editor, save it as `log-health.gs`, and link it to your GCP project so it can read and write BigQuery. Then set up one trigger per function in the Triggers sidebar — I used UTC, adjust for your timezone:
+The full script can be found in the [References](#references) section. It has four trigger functions that map to the four jobs: real-time anomaly delivery (`checkAnomalies`), a daily inventory digest (`dailyDigest`), a weekly pipeline-health check (`weeklyPipelineHealth`), and a weekly `UNSPECIFIED_LOG_TYPE` growth check (`weeklyUnspecifiedGrowth`). Put the code in the editor, save it as `log-health.gs`, and link it to your GCP project so it can read and write BigQuery. Then set up one trigger per function in the Triggers sidebar. I used UTC; adjust for your timezone:
 
 - `checkAnomalies`: Time-driven → Minutes timer → **Every 10 minutes**.
 - `dailyDigest`: Time-driven → Day timer → **11:00 to 12:00 UTC**.
-- `weeklyPipelineHealth`: Time-driven → Week timer → **Mondays 12:00 to 13:00 UTC** — an hour after the 11:00 UTC scheduled query it reads from.
-- `weeklyUnspecifiedGrowth`: Time-driven → Week timer → **Mondays 12:00 to 13:00 UTC** — an hour after the 11:05 UTC scheduled query it reads from.
+- `weeklyPipelineHealth`: Time-driven → Week timer → **Mondays 12:00 to 13:00 UTC**, an hour after the 11:00 UTC scheduled query it reads from.
+- `weeklyUnspecifiedGrowth`: Time-driven → Week timer → **Mondays 12:00 to 13:00 UTC**, an hour after the 11:05 UTC scheduled query it reads from.
 
 ## Validate
 
-With all the pieces set on the chessboard, it's time to validate. All in BQ Studio — manual schedule runs from Scheduled queries → click name → Run now:
+With all the pieces set on the chessboard, it's time to validate. All in BQ Studio: manual schedule runs from Scheduled queries → click name → Run now:
 
 1. Run `log-health-detect-hourly` once then check both tables separately, one line at a time:
 
@@ -613,21 +615,21 @@ With all the pieces set on the chessboard, it's time to validate. All in BQ Stud
 
    All recent runs must show `state = DONE`. Hourly detector `gib_processed` ≲ 14 (336h heartbeat scan dominates).
 
-If the validation is OK at this point, deployment went fine. From here it's monitoring and tuning for the next days: adjusting thresholds, adding or suppressing sources where needed. Have the same discipline as during Assessment: **investigate first, tune second**. An ARIMA alert is a real statistical anomaly — reach for understanding the source's behavior before you reach for a higher threshold to silence it.
+If the validation is OK at this point, deployment went fine. From here it's monitoring and tuning for the next days: adjusting thresholds, adding or suppressing sources where needed. Keep the same discipline as during Assessment: **investigate first, tune second**. An ARIMA alert is a real statistical anomaly. Reach for understanding the source's behavior before you reach for a higher threshold to silence it.
 
-See my example. After moving it to production, I noticed a lot of alerts from GITHUB, all spikes. However, GitHub is one of my oldest log sources. It's been running at the company for ages. ARIMA+ should be aware of that. It was only when I sat with the problem that it clicked: due to the AI hype and the constant increase of people using it (plus more and more agents running in the environment) the use of GitHub had greatly increased. It made ARIMA+'s predictions wrong because the baseline had shifted. With this information, I had to decide either to accept that spike alert or bump the ARIMA+ threshold to suppress it, accepting that it would make the predictions less accurate. At the end of the day, as with any detection logic, there's no right or wrong. It's just what better fits your scenario.
+Take my own case. After moving to production, I noticed a lot of alerts from GITHUB, all spikes. But GitHub is one of my oldest log sources; it's been running at the company for ages, so ARIMA+ should know its pattern. It was only when I sat with the problem that it clicked: with the AI hype and a steady increase of people (plus more and more agents) using GitHub, my org's traffic had climbed significantly. That shifted the baseline and made ARIMA+'s predictions stale. From there, I had to decide: accept the spike alerts or bump the ARIMA+ threshold to suppress them, knowing that would make predictions less accurate. As with any detection logic, there's no right or wrong. It's just what fits your scenario better.
 
 ::: {.callout-note}
-I run this in a distributed, mixed-workforce setup with fast source churn, heavy 24/7 automation, and human-driven volume growing steadily — AI adoption on GitHub, for example.
+I run this in a distributed, mixed-workforce setup with fast source churn, heavy 24/7 automation, and human-driven volume growing steadily, like AI adoption on GitHub.
 
-When ARIMA+ kept picking up only daily seasonality, I assumed the environment was the problem: constant noise drowning out any weekly rhythm. Digging into the data disproved that. Human-driven sources have clean weekly patterns: weekend medians run 40–65% of weekday medians, and lag-168h autocorrelation sits above 0.7 on most. The issue was that BQML's auto-ARIMA is conservative about picking `WEEKLY` on hourly count data at this scale, and there's no knob that recovers it — I tested disabling the spike/dip cleaner, nothing changed.
+When ARIMA+ kept picking up only daily seasonality, I assumed the environment was the problem: constant noise drowning out any weekly rhythm. Digging into the data disproved that. Human-driven sources have clean weekly patterns: weekend medians run 40–65% of weekday medians, and lag-168h autocorrelation sits above 0.7 on most. The issue was that BQML's auto-ARIMA is conservative about picking `WEEKLY` on hourly count data at this scale, and there's no knob that recovers it. I tested disabling the spike/dip cleaner, nothing changed.
 :::
 
 The tuning recipes below cover all common scenarios. Expect to apply several of them in the first week.
 
 ## Operations
 
-The deployment is done. From here the system runs on its own — scheduled queries detect anomalies, the model retrains monthly, pipeline health runs weekly. Your job shifts to monitoring and adjusting. The diagram below shows the three operational cadences:
+The deployment is done. From here the system runs on its own with scheduled queries detecting anomalies, the model retraining monthly, and pipeline health running weekly. Your job shifts to monitoring and adjusting: a new PDCA loop, this one for keeping log health in shape. The diagram below shows the three operational cadences:
 
 ```{mermaid}
 flowchart TD
@@ -645,13 +647,11 @@ flowchart TD
 
 ### Monitoring
 
-Once deployed, the monitoring runs mostly on autopilot. While the hourly query detects anomalies, the monthly retrain keeps the model current. Two weekly jobs watch the pipeline itself. What you actually do is review — and act when something looks wrong.
+Once deployed, the monitoring runs mostly on autopilot. While the hourly query detects anomalies, the monthly retrain keeps the model current. Two weekly jobs watch the pipeline itself. The only thing you actually do is review and act when something looks wrong.
 
-A useful query for tracking ARIMA+ alert quality over time. Pay attention to `per_day > 2`: that's a signal to bump the `anomaly_prob_threshold` one step — from 0.99 to 0.995, then 0.998 or 0.999. `on_weekend / (on_weekend + on_weekday) > 50%` is the same signal from a different angle — since BQML often misses `WEEKLY` seasonality (see Deployment), weekend/weekday imbalance is a leading indicator that a source needs a higher threshold. Compare against the source's `wd_we_ratio` in `signals.csv`: if that ratio was well above 1.0 and weekend alerts dominate here, the model isn't compensating for the pattern the raw data has.
+The query below tracks ARIMA+ alert quality per source over the training window. If a source's `per_day` value comes out above 2, bump its `anomaly_prob_threshold` one step (0.99 → 0.995 → 0.998 → 0.999). The threshold is the minimum probability ARIMA+ needs before flagging a point as anomalous, so each step up raises the confidence bar, meaning fewer alerts fire, but the ones that do are the ones the model has the least doubt about.
 
-:::{.callout-note}
-The threshold is the minimum confidence ARIMA+ needs to flag a point as anomalous. The model scores each hourly data point with a probability between 0 and 1 — how unlikely is this observation given the learned pattern? At 0.99, anything ARIMA+ is 99% confident is anomalous gets flagged. At 0.999, only the 99.9% cases do. Each step up makes the filter stricter, so fewer points qualify and fewer alerts fire — but the ones that do are the ones ARIMA+ has the least doubt about.
-:::
+If the weekend share `on_weekend / (on_weekend + on_weekday)` exceeds 50%, apply the same bump. Since BQML often misses `WEEKLY` seasonality (see [Deployment](#deployment)), weekend/weekday imbalance is a leading indicator that a source's threshold needs to rise. Compare against the source's `wd_we_ratio` in `signals.csv`: if that ratio was well above 1.0 and weekend alerts dominate here, the model isn't compensating for the pattern the raw data has.
 
 ```sql
 WITH window_size AS (
@@ -688,10 +688,6 @@ ORDER BY anomalies_total DESC;
 ```
 
 Every now and then, you need a view of what's under monitoring. The next query can help with that. It'll give you an overview of the log sources in scope, including hours silent and their statuses.
-
-::: {.callout-note}
-**Chronicle phantom metadata rows.** `ingestion_metrics` writes rows with `event_count = NULL` or `0` for log types that are *configured* in Chronicle but haven't sent real events yet. That causes two silent failure modes: NEW_SOURCE fires for configured-but-not-yet-live sources (rows exist even though `SUM(event_count) = 0`), and FULL_STOP never fires for a dead source that Chronicle keeps writing 0-count metadata rows for (`MAX(start_time)` stays recent). Fix: add `AND event_count > 0` to any query that uses `MAX(start_time)` as a proof-of-life signal — the fleet-inventory query below and the FULL_STOP + NEW_SOURCE queries in the Appendix. Queries that use `SUM(event_count)` (the SPIKE/DIP detection query, the `ingestion_hourly` rollup) don't need it because 0-count rows contribute nothing to the totals anyway.
-:::
 
 ```sql
 WITH latest_per_source AS (
@@ -752,9 +748,13 @@ ORDER BY
   c.detection_method, c.source_key;
 ```
 
-No collection of queries can cover every investigation scenario — the data will surprise you in ways no playbook anticipates. The best investment is time with the schema: understand the tables (`source_config`, `anomaly_candidates`, `anomalies`, `ingestion_hourly`), their relationships, and what each field actually means. Combine that with a basic feel for how ARIMA+ scores data and you'll be able to write your own queries, read the signal, and make tuning decisions with confidence.
+::: {.callout-note}
+Chronicle's `ingestion_metrics` writes rows with `event_count = NULL` or `0` for log types that are *configured* in Chronicle but haven't sent real events yet. That causes two silent failure modes: `NEW_SOURCE` fires for configured-but-not-yet-live sources (rows exist even though `SUM(event_count) = 0`), and `FULL_STOP` never fires for a dead source that Chronicle keeps writing 0-count metadata rows for (`MAX(start_time)` stays recent). To fix that, add `AND event_count > 0` to any query that uses `MAX(start_time)` as a proof-of-life signal, like in the fleet-inventory query below. Queries that use `SUM(event_count)` don't need it because 0-count rows contribute nothing to the totals anyway.
+:::
 
-Use AI to help with this. Share the schema and ask it to write investigation queries for whatever you're seeing. In my experience it's precise — more on that in the AI section.
+No collection of queries can cover every investigation scenario. The best investment for a good operation is time with the schema: understand the tables (`source_config`, `anomaly_candidates`, `anomalies`, `ingestion_hourly`), their relationships, and what each field actually means. Combine that with a basic feel for how ARIMA+ scores data and you'll be able to write your own queries, read the signal, and make tuning decisions with confidence.
+
+Use AI to help with this. Share the schema and ask it to write investigation queries for whatever you're seeing. In my experience it's precise. More on that in the AI section.
 
 ### Tuning
 
@@ -762,7 +762,7 @@ No set of recipes can anticipate every situation, but the operations below cover
 
 #### Raise silence threshold
 
-Repeated `FULL_STOP` alerts for the same source with no real outage behind them — the source legitimately goes quiet for longer than its current tier allows. Step up one tier at a time; see the tier table in Design for reference.
+Repeated `FULL_STOP` alerts for the same source with no real outage behind them, because the source legitimately goes quiet for longer than its current tier allows. Step up one tier at a time; see the tier table in Design for reference.
 
 ```sql
 UPDATE `chronicle-self.log_health.source_config`
@@ -772,7 +772,7 @@ WHERE source_key = '<source>';
 
 #### Raise ARIMA threshold
 
-`SPIKE` or `DIP` alerts repeating for the same source without a real event behind them. The alert-quality query in Monitoring signals this when `per_day > 2`. Step up one increment at a time: 0.99 → 0.995 → 0.998 → 0.999.
+`SPIKE` or `DIP` alerts repeating for the same source without a real event behind them. The alert-quality query in [Monitoring](#monitoring) signals this when `per_day > 2`. Step up one increment at a time: 0.99 → 0.995 → 0.998 → 0.999.
 
 ```sql
 UPDATE `chronicle-self.log_health.source_config`
@@ -782,7 +782,7 @@ WHERE source_key = '<source>';
 
 #### Demote ARIMA → HEARTBEAT
 
-A source's behavior has shifted since classification — too bursty, too sparse, or the confidence band has become meaninglessly wide. Between reassessments this is a direct edit; at the quarterly reassessment it's handled through `replan.csv`.
+A source's behavior has shifted since classification: too bursty, too sparse, or the confidence band has become meaninglessly wide. Between reassessments this is a direct edit; at the quarterly reassessment it's handled through `replan.csv`.
 
 ```sql
 UPDATE `chronicle-self.log_health.source_config`
@@ -794,7 +794,7 @@ WHERE source_key = '<source>';
 
 #### Add a source
 
-A `NEW_SOURCE` alert fired for a log type that should be monitored. Classify it as `HEARTBEAT` — new sources don't have 90 days of history yet, so ARIMA isn't an option. At the next quarterly reassessment, promote it if it qualifies.
+A `NEW_SOURCE` alert fired for a log type that should be monitored. Classify it as `HEARTBEAT` because new sources don't have 90 days of history yet, so ARIMA isn't an option. At the next quarterly reassessment, promote it if it qualifies.
 
 ```sql
 INSERT INTO `chronicle-self.log_health.source_config`
@@ -820,7 +820,7 @@ COMMIT TRANSACTION;
 
 #### Re-include an excluded source
 
-A previously excluded source is back in production and should be monitored again. Start as `HEARTBEAT` — it needs to accumulate history before ARIMA is an option.
+A previously excluded source is back in production and should be monitored again. Start as `HEARTBEAT` because it needs to accumulate history before ARIMA is an option.
 
 ```sql
 BEGIN TRANSACTION;
@@ -837,7 +837,7 @@ COMMIT TRANSACTION;
 
 #### Suppress a source temporarily
 
-Planned maintenance, a known outage window, or a holiday period where silence is expected. The suppression expires automatically at `until`. `NULL` means indefinite — use sparingly; for anything permanent, prefer `excluded_log_types`.
+Planned maintenance, a known outage window, or a holiday period where silence is expected. The suppression expires automatically at `until`. `NULL` means indefinite, so use sparingly; for anything permanent, prefer `excluded_log_types`.
 
 ```sql
 -- Add suppression
@@ -851,25 +851,23 @@ WHERE source_key = '<source>';
 
 ### Quarterly Reassessment
 
-The initial setup was a blank-slate plan from raw discovery. From day 90 onward, every 90 days you **replan**, but unlike the bootstrap, you **merge** fresh discovery against current state, preserving manual tuning (threshold overrides, oversized `max_silence_hours` for sparse feeds, your full `excluded_log_types`).
-
-Quarterly reassessments match the ARIMA training window so cohort decisions and model retraining stay on the same clock. Set a calendar reminder. First reassessment at day 90, then every 90 days.
+The initial setup was a blank-slate plan from raw discovery. From day 90 onward, every 90 days you **replan**, but unlike the bootstrap, you **merge** fresh discovery against current state, preserving manual tuning (threshold overrides, oversized `max_silence_hours` for sparse feeds, your full `excluded_log_types`). Quarterly reassessments match the ARIMA training window so cohort decisions and model retraining stay on the same clock. Set a calendar reminder. First reassessment at day 90, then every 90 days.
 
 Between reassessments you can:
 
 - Add a new source as `HEARTBEAT` when `NEW_SOURCE` fires
 - Add a source to `excluded_log_types`
 - Adjust an existing source's threshold or `max_silence_hours`
+- Remove a source from monitoring entirely
 
 The reassessment workflow is required for:
 
 - **Promote** HEARTBEAT to ARIMA (needs 90d of training data and cohort review)
 - **Demote** ARIMA to HEARTBEAT
-- Removing a source from monitoring entirely
 
 #### Export current state from BigQuery
 
-**BQ Studio**, new query (+), run each, **Save results as CSV** into the effort folder.
+Start the reassessment by opening **BQ Studio**. Click on new query (+), paste the next snippet, run, and click on **Save results as CSV** as `reassess-current-config.csv`.
 
 ```sql
 SELECT source_key, enabled, detection_method, anomaly_prob_threshold, max_silence_hours
@@ -877,7 +875,7 @@ FROM `chronicle-self.log_health.source_config`
 ORDER BY source_key;
 ```
 
-Save as `reassess-current-config.csv`.
+Delete the previous query and execute the next, saving the CSV as `reassess-current-excluded.csv`.
 
 ```sql
 SELECT log_type, reason
@@ -885,11 +883,9 @@ FROM `chronicle-self.log_health.excluded_log_types`
 ORDER BY log_type;
 ```
 
-Save as `reassess-current-excluded.csv`.
-
 #### Re-discovery against post-deployment data
 
-Re-run the estate and gap queries from Assessment, but reading from `chronicle-self.log_health.ingestion_hourly` instead of raw `ingestion_metrics`. It's cheap: the rollup is refreshed monthly by the retrain job.
+Re-run the estate and gap queries from [Assessment](#assessment), but reading from `chronicle-self.log_health.ingestion_hourly` instead of raw `ingestion_metrics`. It's cheap: the rollup is refreshed monthly by the retrain job. Similarly to the previous step, two queries must be run here. Start running the next snippet to reassess the estate and save results as `reassess-estate.csv`.
 
 ```sql
 WITH prof AS (
@@ -913,7 +909,7 @@ FROM prof
 ORDER BY avg_per_hour DESC;
 ```
 
-Save as `reassess-estate.csv`.
+The second one is the next snippet and will reassess gaps. Save its results as `reassess-gaps.csv`.
 
 ```sql
 WITH gaps AS (
@@ -937,9 +933,9 @@ GROUP BY source_key
 ORDER BY p99_gap DESC;
 ```
 
-Save as `reassess-gaps.csv`.
-
 #### Generate the replan
+
+With all necessary artifacts in hand, use `derive-seeds.py` to replan, as shown in the next command.
 
 ```bash
 python3 derive-seeds.py replan \
@@ -948,7 +944,7 @@ python3 derive-seeds.py replan \
   > replan.csv
 ```
 
-Output is a plan CSV with **current tracks/thresholds preserved** — not reset to fresh suggestions. The `note` column flags decisions:
+Output is a plan CSV with **current tracks/thresholds preserved**, not reset to fresh suggestions. The `note` column flags decisions:
 
 | `note` value | Meaning |
 | --- | --- |
@@ -959,19 +955,23 @@ Output is a plan CSV with **current tracks/thresholds preserved** — not reset 
 | `GONE — was in config, no data in 90d. Keep, EXCLUDE, or delete row.` | In current config but absent from fresh data. Decide. |
 | `EXCLUDED — <reason>` | Carried forward from current `excluded_log_types`. |
 
-The script prints a summary to stderr: counts of PROMOTE, DEMOTE, NEW, GONE, and carried-forward EXCLUDED rows.
+The script prints a summary to stderr: counts of `PROMOTE`, `DEMOTE`, `NEW`, `GONE`, and carried-forward `EXCLUDED` rows.
 
 #### Review and edit `replan.csv`
 
-Walk the file in your editor:
+This script will help find opportunities for improvement, but it doesn't have the context of an operation. Hence, its output must be critically reviewed. Walk the file in your editor:
 
 - `PROMOTE candidate`: confirm the source has been HEARTBEAT-but-ARIMA-suggested **since the prior reassessment** (anti-flapping). If yes, change `suggested_track` to `ARIMA`. If no, leave it.
 - `DEMOTE candidate`: same logic in reverse. Usually means the ARIMA+ model is producing too-wide bands or too many false positives.
-- `NEW source`: already added as HEARTBEAT. Override only with strong domain knowledge (e.g., "this is a high-volume audit feed I'm sure about").
-- `GONE`: three options: keep monitoring (leave as-is, FULL_STOP keeps firing), exclude (change track to `EXCLUDE`, write reason in `note`), or **delete the row entirely** (lets it fire NEW_SOURCE next time it ever sends data).
+- `NEW source`: any log_type present in the fresh discovery but missing from your current `source_config`.
+- `GONE`: three options: keep monitoring (leave as-is, FULL_STOP keeps firing), exclude (change track to `EXCLUDE`, write reason in `note`), or **delete the row entirely**.
 - `EXCLUDED`: leave alone unless bringing it back. To re-enable: change track to `HEARTBEAT` (or `ARIMA` if it qualifies and you have prior-cycle confirmation) and clear the `EXCLUDED —` prefix from `note`.
 
+Note that `NEW` and `GONE` entries deserve extra attention: both should have been caught by daily `NEW_SOURCE` and `FULL_STOP` alerts respectively, and handled in daily or weekly operations. A large count of either at reassessment means those alerts aren't being acted on in day-to-day ops. In other words, your operational review is missing.
+
 #### Emit MERGE statements
+
+Once the review is done, it's necessary to update the tables with new values. Run the snippet below to do that.
 
 ```bash
 python3 derive-seeds.py emit replan.csv --merge \
@@ -981,7 +981,9 @@ python3 derive-seeds.py emit replan.csv --merge \
 
 Output is a transaction-wrapped pair of `MERGE` statements: one for `excluded_log_types`, one for `source_config`. Each updates existing rows, inserts new ones, and removes anything absent from `replan.csv`.
 
-**The `enabled` flag on `source_config` is NOT touched by the MERGE.** Sources you've manually `UPDATE`d to `enabled = FALSE` stay disabled across reassessments.
+:::{.callout-warning}
+**The `enabled` flag on `source_config` is not touched by the MERGE.** Sources you've manually `UPDATE`d to `enabled = FALSE` stay disabled across reassessments.
+:::
 
 #### Apply
 
@@ -989,59 +991,51 @@ Open BQ Studio, create a new query, paste `replan.sql`, and run it. The `BEGIN T
 
 #### Retrain ARIMA+ on the new cohort
 
-If any PROMOTE/DEMOTE applied, manually run `log-health-retrain-monthly` once — picks up the new cohort immediately instead of waiting up to 30 days for the next scheduled retrain. Otherwise, skip.
+If any PROMOTE/DEMOTE applied, manually run `log-health-retrain-monthly` once to pick up the new cohort immediately instead of waiting up to 30 days for the next scheduled retrain. Otherwise, skip.
 
-#### Snapshot
-
-Optional — re-export the current config to a dated filename (`reassess-2026-09-15-source_config.csv`) for audit. Or rely on git history of `replan.csv` in the effort folder.
+Optionally, re-export the current config to a dated filename (`reassess-2026-09-15-source_config.csv`) for audit. Or rely on git history of `replan.csv` in your working folder.
 
 #### Document decisions
 
-For any non-obvious decision (kept a GONE source despite no data, overrode a fresh threshold suggestion, brought back an EXCLUDED source), write a short note somewhere, like a comment in the SQL or a line in a doc. The CSV diffs in git capture *what* changed; the note captures *why*.
+For any non-obvious decision, write a short note somewhere, like a comment in the SQL or a line in a doc. The CSV diffs in git capture *what* changed; the note captures *why*. A pro-tip: Keep the artifacts in a Git repo, including a logbook for tracking operational tasks. Create a simple template to ensure the data is normalized and all important data is captured.
 
-## AI
+## How I Used AI Here
 
-The RFC and architecture were done with Claude. That story is in the Research section. What I want to reflect on here is what happened during implementation, because that's where the collaboration got interesting.
+The RFC and architecture were done with Claude. That story is in the [Research](#research) section. What I want to reflect on here is what happened during implementation, because that's where the collaboration got interesting.
 
-The MVP went up with hourly model retraining. Claude had recommended it, since more frequent retraining means fresher predictions. That logic held in isolation. But I'm a frugal engineer and I know companies burn money on cloud when no one's watching. Something felt off. On a Friday night, watching the World Cup after my toddler went to bed, I opened Gemini on my phone and shared the context. It spotted the problem immediately: retraining hourly is wasteful because 30 days of data barely moves in an hour. The model learns nothing new. The freshness gain was noise, the cost was real. I went back to Claude on Saturday and proposed monthly retraining. It agreed immediately and helped me make the change.
+The MVP went up with hourly model retraining. Claude had recommended it, since more frequent retraining means fresher predictions. That logic held in isolation. But I'm a frugal engineer and I know companies burn money on cloud when no one's watching. Something felt off. That night, after finishing the MVP, I was watching the World Cup after my toddler went to bed. I opened Gemini on my phone and shared the context. It spotted the problem immediately: retraining hourly is wasteful because 30 days of data barely moves in an hour. The model learns nothing new; we were just burning money. I jumped to my workstation and disabled the scheduled retraining. Fortunately it had only run five times. I went back to Claude on Saturday and proposed monthly retraining. It agreed immediately and helped me make the change.
 
-That sequence matters. Claude didn't flag the cost issue during the MVP. It optimized for model freshness without accounting for operational frugality (a constraint I hadn't stated explicitly). Gemini, coming in cold, reasoned about it differently. Getting a second opinion was the right call, and I now do it more deliberately.
+That sequence matters. Claude didn't flag the cost issue during the MVP. It optimized for model freshness without accounting for operational frugality (a constraint I hadn't stated explicitly). Gemini, coming in cold, reasoned about it differently. Getting a second opinion was the right call, and I now do it more deliberately. It highlights an important thing when working with AI: if you don't have sufficient knowledge on a subject to challenge AI's decisions, you might be in hot water. My experience with Claude had been exceptional so far (see [Lantana](/log/lantana-1-honeypot-as-code/)), but I was always using it in my field of expertise. Once we moved into the Data Science domain, I had to rely almost entirely on Claude's decisions, as I had no depth to push back. Looking at other cases I'm aware of, like designers writing code and publishing secrets on GitHub, I see the problem is real. AI maximizes everything: if you're an expert doing the right thing, right thing squared. If not, wrong thing squared.
 
-The other turning point was the alert volume after go-live. I was seeing too many ARIMA alerts. I asked Claude several times whether I should raise the thresholds, always reminding it I'm not an ML expert and it was OK to push back. It pushed back firmly: the anomalies were real, the environment was too dynamic for ARIMA+ to model weekly seasonality properly, and touching thresholds prematurely would just mask problems without fixing them. Wait, it said.
+The other turning point was the alert volume after go-live. I was seeing too many ARIMA alerts. I asked Claude several times whether I should raise the thresholds, always reminding it I'm not an ML expert and it was OK to push back. It pushed back firmly: the anomalies were real, the environment was too dynamic for ARIMA+ to model weekly seasonality properly, and touching thresholds prematurely would just mask problems without fixing them. Wait, it said. More on it next.
 
-I agreed, made a coffee, went to sit in the backyard and thought about it. The insight came from detection engineering, not ML: every alert should have an associated action — otherwise it's informational, not a detection. If ARIMA+ was generating too many candidates that didn't warrant paging, the answer wasn't to change the model, it was to add a layer between the model and the pager. That's the `anomaly_candidates` table and the promotion query that runs alongside detection — the architectural centerpiece of the whole pipeline. The idea was mine; Claude Opus validated it and did the implementation heavy lifting — designing the persistence and magnitude gates, working through the cooldown timing, iterating with me on thresholds until the shape matched how a human on-call would triage. A genuine joint effort: I brought the framing from detection engineering, Claude brought the depth to translate it into working SQL, and we tightened the design together as we went. I challenged it more than once — wouldn't raising thresholds be simpler? It held the line: the two-table approach was more principled.
+I agreed, made a coffee, went to sit in the backyard and thought about it. The insight came from detection engineering, not ML: every alert should have an associated action; otherwise it's informational, not a detection. If ARIMA+ was generating too many candidates that didn't warrant paging, the answer wasn't to change the model, it was to add a layer between the model and the pager. That's the `anomaly_candidates` table and the promotion query that runs alongside detection, the architectural centerpiece of the whole pipeline. It was a genuine joint effort: I brought the framing from detection engineering, Claude brought the depth to translate it into working SQL, and we tightened the design together as we went. I challenged it more than once: wouldn't raising thresholds be simpler? It held the line: the two-table approach was more principled.
 
-Months later, a data-scientist-lens investigation (also with Claude) turned up something surprising. The initial diagnosis — *"the environment is too dynamic for ARIMA+ to model weekly seasonality"* — was partly wrong. The raw data has clean weekly patterns on human-driven sources; BQML's auto-ARIMA just doesn't pick them up on this data shape, and can't be tuned to do so. The architectural response was right anyway. The promotion layer wasn't compensating for a chaotic environment (as we first thought) — it was compensating for a model limitation we didn't fully understand yet. Same layer, better justification. That's a nice lesson: solid architecture holds up even when the diagnosis behind it turns out to be incomplete. Don't wait for a perfect understanding of the underlying problem to build a robust structure around it.
+Weeks later, a data-scientist-lens investigation (also with Claude) turned up something surprising. The initial diagnosis (*"the environment is too dynamic for ARIMA+ to model weekly seasonality"*) was partly wrong. The raw data has clean weekly patterns on human-driven sources; BQML's auto-ARIMA just doesn't pick them up on this data shape, and can't be tuned to do so. The architectural response was right anyway. The promotion layer wasn't compensating for a chaotic environment (as we first thought). It was compensating for a model limitation we didn't fully understand yet. Same layer, better justification. That's a nice lesson: solid architecture holds up even when the diagnosis behind it turns out to be incomplete. Don't wait for a perfect understanding of the underlying problem to build a robust structure around it.
 
-Claude also pushed back when I wanted to start with Cloud Functions. It made the case that for a system this size, the lower operational overhead of Apps Script was the right tradeoff for an MVP. It was right.
+SQL was one thing that stood out beyond architecture. Once the schema was in place, Claude was precise at writing investigation queries against it: it understood the tables quickly and generated accurate SQL. Across all my sessions it made only a few minor mistakes, like referencing a field that didn't exist. Everything else was on target. If you're exploring the data and need a query for something specific, just share the schema and describe what you want to see. I assume this precision comes from the fact that SQL has been around for a long time and is heavily documented: books, blog posts, forum threads. It's clearly an advantage for any LLM.
 
-One thing that stood out beyond architecture: SQL. Once the schema was in place, Claude was precise at writing investigation queries against it — it understood the tables quickly and generated accurate SQL. Across all my sessions it made one mistake: referencing a field that didn't exist. Everything else was on target. If you're exploring the data and need a query for something specific, just share the schema and describe what you want to see.
+There's one more dimension worth naming: AI as a learning accelerator. I'm a security engineer, not a data scientist. I studied statistics at university but I'm far from a specialist. Metrics like CV and p99 were unfamiliar territory when I started this project, let alone ARIMA parameters. AI was extremely helpful here, not just for writing code, but for explaining what these concepts mean, why they matter in this context, and helping me build enough understanding to reason about the model and make informed decisions. A practical tip for security engineers approaching this: treat ARIMA+ as a black box. Parameters go in, anomaly scores come out as numbers. Your job is to understand what to feed it and what to do with the output, not the mathematics underneath. Don't try to become a machine learning specialist. Be a user of the tool.
 
-There's one more dimension worth naming: AI as a learning accelerator. I'm a security engineer, not a data scientist. I studied statistics at university but I'm far from a specialist. Metrics like CV and p99 were unfamiliar territory when I started this project, let alone ARIMA parameters. AI was extremely helpful here, not just for writing code, but for explaining what these concepts mean, why they matter in this context, and helping me build enough understanding to reason about the model and make informed decisions.
-
-A practical tip for security engineers approaching this: treat ARIMA+ as a black box. Parameters go in, anomaly scores come out as numbers. Your job is to understand what to feed it and what to do with the output, not the mathematics underneath. Don't try to become a machine learning specialist. Be a user of the tool.
-
-What I took from all of this: shift AI left. Bring it in at the problem-framing stage, not just when you have code to write. Let it interview you. Let it disagree. Consider it a peer that should feel OK to push back when it's for a greater good. The quality of what comes out depends on the quality of the conversation going in, and on you staying critical throughout. AI won't stop you from building the wrong thing if you don't give it the right context and the permission to challenge you.
+What I took from all of this was to shift AI left. Bring it in at the problem-framing stage, not just when you have code to write. Let it interview you. Let it disagree. Consider it a peer that should feel OK to push back when it's for a greater good. The quality of what comes out depends on the quality of the conversation going in, and on you staying critical throughout. AI won't stop you from building the wrong thing if you don't give it the right context and the permission to challenge you.
 
 ## Takeaways
 
-Log monitoring is essential for any SOC. Unfortunately, SIEMs and other related tools don't take it seriously — they have no embedded mechanisms to monitor it. The proposed solution, although specific to the Google stack, can be adapted to different scenarios.
+Log monitoring is essential for any SOC. Unfortunately, SIEMs and other related tools don't take it seriously, because they have no embedded mechanisms to monitor it. The proposed solution, although specific to the Google stack, can be adapted to different scenarios.
 
-I've seen many cases where the team has an expensive, magic-quadrant, modern SIEM, but when the time comes to respond to an incident, the required log source has been silent for days. Remember: a SIEM is as good as the logs it ingests. If it ingests no logs, it's useless. Log ingestion monitoring must be taken seriously — otherwise your whole security operation is at risk.
+I've seen many cases where the team has an expensive, magic-quadrant, modern SIEM, but when the time comes to respond to an incident, the required log source has been silent for days. Remember: a SIEM is as good as the logs it ingests. If it ingests no logs, it's useless. Log ingestion monitoring must be taken seriously, or your whole security operation is at risk.
 
 ## Future Work
 
-- Migrate Apps Script to Cloud Function for an "enterprise-grade" solution; Apps Script resides on user's Google Drive.
+- Migrate Apps Script to Cloud Functions for an "enterprise-grade" solution; Apps Script resides on the user's Google Drive.
 - Add a log source granularity beyond log type, useful for firewalls and other appliances aggregated under a single type.
 
-## Appendix — Scheduled Queries
+## Appendix: Scheduled Queries
 
 ### log-health-retrain-monthly
 
-Runs monthly on day 1 at 04:00 UTC. Rebuilds the 90-day rollup and retrains the ARIMA+ model on the fresh data.
-
 ```sql
--- Step A: rebuild 90-day rollup (~29 GB once/month, ~$0.18)
+-- Step A: rebuild 90-day rollup
 CREATE OR REPLACE TABLE `chronicle-self.log_health.ingestion_hourly` AS
 SELECT log_type AS source_key,
         TIMESTAMP_TRUNC(start_time, HOUR) AS hour_bucket,
@@ -1116,7 +1110,7 @@ WHERE a.is_anomaly
     WHERE x.source_key = a.source_key AND x.hour_bucket = a.hour_bucket
   );
 
--- Step C: FULL_STOP heartbeat (all enabled sources — both cohorts)
+-- Step C: FULL_STOP heartbeat (all enabled sources, both cohorts)
 -- event_count > 0 excludes Chronicle's phantom rows (configured but not ingesting).
 INSERT INTO `chronicle-self.log_health.anomalies`
   (detected_at, source_key, anomaly_type, hour_bucket)
@@ -1217,12 +1211,10 @@ WHERE c.promoted = FALSE
 ```
 
 ::: {.callout-note}
-**NEW_SOURCE arrivals window: 24h vs 1h.** The NEW_SOURCE detection query scans `ingestion_metrics` over the last 24 hours (`start_time >= NOW() - 24 HOUR`, `HAVING events_24h > 0`). Combined with the 24h dedup filter on `anomalies` at the bottom of that query, this gives one alert per calendar day per unclassified source — a friendly daily reminder to classify or exclude. Side effect: a source you just deprecated will keep qualifying for up to ~24h until the trailing edge of the window clears, so it can fire once or twice after the feed stops before going quiet. For most environments this is fine and it self-heals without intervention. If you deprecate sources often and want them to fall off the same hour they go silent, shrink the arrivals window to `INTERVAL 1 HOUR` and rename the accumulator (`events_24h` → `events_1h`). The 24h dedup filter stays either way — it's what makes NEW_SOURCE a daily reminder for live-but-unclassified sources.
+**NEW_SOURCE arrivals window: 24h vs 1h.** The NEW_SOURCE detection query scans `ingestion_metrics` over the last 24 hours (`start_time >= NOW() - 24 HOUR`, `HAVING events_24h > 0`). Combined with the 24h dedup filter on `anomalies` at the bottom of that query, this gives one alert per calendar day per unclassified source: a friendly daily reminder to classify or exclude. Side effect: a source you just deprecated will keep qualifying for up to ~24h until the trailing edge of the window clears, so it can fire once or twice after the feed stops before going quiet. For most environments this is fine and it self-heals without intervention. If you deprecate sources often and want them to fall off the same hour they go silent, shrink the arrivals window to `INTERVAL 1 HOUR` and rename the accumulator (`events_24h` → `events_1h`). The 24h dedup filter stays either way; it's what makes NEW_SOURCE a daily reminder for live-but-unclassified sources.
 :::
 
 ### log-health-pipeline-health-weekly
-
-Runs every Monday at 11:00 UTC. Overwrites `pipeline_health_status`. Empty = healthy; any rows = a scheduled job failed or didn't run.
 
 ```sql
 CREATE OR REPLACE TABLE `chronicle-self.log_health.pipeline_health_status` AS
@@ -1240,8 +1232,6 @@ WHERE last_state != 'DONE'
 ```
 
 ### log-health-unspecified-growth-weekly
-
-Runs every Monday at 11:05 UTC. Overwrites `unspecified_growth_status`. Empty = stable; any rows = `UNSPECIFIED_LOG_TYPE` grew more than 20% week-over-week.
 
 ```sql
 CREATE OR REPLACE TABLE `chronicle-self.log_health.unspecified_growth_status` AS
