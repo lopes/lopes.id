@@ -1258,5 +1258,5 @@ WHERE SAFE_DIVIDE(t.events_7d - p.events_7d, p.events_7d) > 0.20;
 
 ## References
 
-- [`derive-seeds.py`](https://tbd)
-- [`log-health.gs`](https://tbd)
+- [`derive-seeds.py`](https://gist.github.com/lopes/54809c3ac1f0ae007bb4f48cdd217f92)
+- [`log-health.gs`](https://gist.github.com/lopes/374242a4202e40121bd0d80d15dc5dce)
