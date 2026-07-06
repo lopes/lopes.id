@@ -760,7 +760,7 @@ Use AI to help with this. Share the schema and ask it to write investigation que
 
 No set of recipes can anticipate every situation, but the operations below cover the common cases. Each is self-contained and copy-paste ready. Multi-step operations are wrapped in `BEGIN TRANSACTION / COMMIT TRANSACTION` to stay atomic. After any change, re-run the fleet-overview query from the previous section to verify the result.
 
-#### Raise silence threshold
+#### Raise Silence Threshold
 
 Repeated `FULL_STOP` alerts for the same source with no real outage behind them, because the source legitimately goes quiet for longer than its current tier allows. Step up one tier at a time; see the tier table in Design for reference.
 
@@ -770,7 +770,7 @@ SET max_silence_hours = <hours>
 WHERE source_key = '<source>';
 ```
 
-#### Raise ARIMA threshold
+#### Raise ARIMA+ Threshold
 
 `SPIKE` or `DIP` alerts repeating for the same source without a real event behind them. The alert-quality query in [Monitoring](#monitoring) signals this when `per_day > 2`. Step up one increment at a time: 0.99 → 0.995 → 0.998 → 0.999.
 
@@ -780,7 +780,7 @@ SET anomaly_prob_threshold = <threshold>
 WHERE source_key = '<source>';
 ```
 
-#### Demote ARIMA → HEARTBEAT
+#### Demote ARIMA+ to HEARTBEAT
 
 A source's behavior has shifted since classification: too bursty, too sparse, or the confidence band has become meaninglessly wide. Between reassessments this is a direct edit; at the quarterly reassessment it's handled through `replan.csv`.
 
@@ -792,7 +792,7 @@ SET detection_method       = 'HEARTBEAT',
 WHERE source_key = '<source>';
 ```
 
-#### Add a source
+#### Add a Source
 
 A `NEW_SOURCE` alert fired for a log type that should be monitored. Classify it as `HEARTBEAT` because new sources don't have 90 days of history yet, so ARIMA isn't an option. At the next quarterly reassessment, promote it if it qualifies.
 
@@ -802,7 +802,7 @@ INSERT INTO `chronicle-self.log_health.source_config`
 VALUES ('<source>', TRUE, 'HEARTBEAT', <hours>);
 ```
 
-#### Exclude a source permanently
+#### Exclude a Source Permanently
 
 Source is deprecated, decommissioned, or sends junk Chronicle can't parse. Adding it to `excluded_log_types` also filters it from `ingestion_hourly`, so it won't pollute ARIMA+ training data.
 
@@ -818,7 +818,7 @@ VALUES ('<source>', '<reason>');
 COMMIT TRANSACTION;
 ```
 
-#### Re-include an excluded source
+#### Re-Include an Excluded Source
 
 A previously excluded source is back in production and should be monitored again. Start as `HEARTBEAT` because it needs to accumulate history before ARIMA is an option.
 
@@ -835,7 +835,7 @@ VALUES ('<source>', TRUE, 'HEARTBEAT', <hours>);
 COMMIT TRANSACTION;
 ```
 
-#### Suppress a source temporarily
+#### Suppress a Source Temporarily
 
 Planned maintenance, a known outage window, or a holiday period where silence is expected. The suppression expires automatically at `until`. `NULL` means indefinite, so use sparingly; for anything permanent, prefer `excluded_log_types`.
 
@@ -865,7 +865,7 @@ The reassessment workflow is required for:
 - **Promote** HEARTBEAT to ARIMA (needs 90d of training data and cohort review)
 - **Demote** ARIMA to HEARTBEAT
 
-#### Export current state from BigQuery
+#### Export Current State from BigQuery
 
 Start the reassessment by opening **BQ Studio**. Click on new query (+), paste the next snippet, run, and click on **Save results as CSV** as `reassess-current-config.csv`.
 
@@ -883,7 +883,7 @@ FROM `chronicle-self.log_health.excluded_log_types`
 ORDER BY log_type;
 ```
 
-#### Re-discovery against post-deployment data
+#### Re-Discovery Against Post-Deployment Data
 
 Re-run the estate and gap queries from [Assessment](#assessment), but reading from `chronicle-self.log_health.ingestion_hourly` instead of raw `ingestion_metrics`. It's cheap: the rollup is refreshed monthly by the retrain job. Similarly to the previous step, two queries must be run here. Start running the next snippet to reassess the estate and save results as `reassess-estate.csv`.
 
@@ -933,7 +933,7 @@ GROUP BY source_key
 ORDER BY p99_gap DESC;
 ```
 
-#### Generate the replan
+#### Generate the Replan
 
 With all necessary artifacts in hand, use `derive-seeds.py` to replan, as shown in the next command.
 
@@ -957,7 +957,7 @@ Output is a plan CSV with **current tracks/thresholds preserved**, not reset to 
 
 The script prints a summary to stderr: counts of `PROMOTE`, `DEMOTE`, `NEW`, `GONE`, and carried-forward `EXCLUDED` rows.
 
-#### Review and edit `replan.csv`
+#### Review and Edit `replan.csv`
 
 This script will help find opportunities for improvement, but it doesn't have the context of an operation. Hence, its output must be critically reviewed. Walk the file in your editor:
 
@@ -969,7 +969,7 @@ This script will help find opportunities for improvement, but it doesn't have th
 
 Note that `NEW` and `GONE` entries deserve extra attention: both should have been caught by daily `NEW_SOURCE` and `FULL_STOP` alerts respectively, and handled in daily or weekly operations. A large count of either at reassessment means those alerts aren't being acted on in day-to-day ops. In other words, your operational review is missing.
 
-#### Emit MERGE statements
+#### Emit MERGE Statements
 
 Once the review is done, it's necessary to update the tables with new values. Run the snippet below to do that.
 
@@ -989,13 +989,13 @@ Output is a transaction-wrapped pair of `MERGE` statements: one for `excluded_lo
 
 Open BQ Studio, create a new query, paste `replan.sql`, and run it. The `BEGIN TRANSACTION; ... COMMIT TRANSACTION;` wrapper makes the two merges atomic.
 
-#### Retrain ARIMA+ on the new cohort
+#### Retrain ARIMA+ on the New Cohort
 
 If any PROMOTE/DEMOTE applied, manually run `log-health-retrain-monthly` once to pick up the new cohort immediately instead of waiting up to 30 days for the next scheduled retrain. Otherwise, skip.
 
 Optionally, re-export the current config to a dated filename (`reassess-2026-09-15-source_config.csv`) for audit. Or rely on git history of `replan.csv` in your working folder.
 
-#### Document decisions
+#### Document Decisions
 
 For any non-obvious decision, write a short note somewhere, like a comment in the SQL or a line in a doc. The CSV diffs in git capture *what* changed; the note captures *why*. A pro-tip: Keep the artifacts in a Git repo, including a logbook for tracking operational tasks. Create a simple template to ensure the data is normalized and all important data is captured.
 
