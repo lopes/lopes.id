@@ -1,0 +1,320 @@
+/*-- scss:defaults --*/
+
+// =============================================================================
+// vigil-reveal-light — reveal.js theme, ported from vigil-light.scss
+//
+// Same four typefaces, same four jobs, same single-accent WIRED discipline.
+// Slide-heavy reading: Paper White canvas, Page Ink type.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 1. Typography
+// -----------------------------------------------------------------------------
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap");
+
+$font-family-display:    "Playfair Display", "Georgia", "Times New Roman", serif;
+$font-family-sans-serif: "Lora", "Georgia", "Times New Roman", serif;
+$font-family-heading:    "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+$font-family-monospace:  "JetBrains Mono", "SF Mono", "Consolas", "Menlo", monospace;
+
+// -----------------------------------------------------------------------------
+// 2. WIRED Palette — ported from vigil-light §3
+// -----------------------------------------------------------------------------
+$w-white:    #ffffff;
+$w-canvas:   #f7f7f7;
+$w-ink:      #1a1a1a;
+$w-caption:  #757575;
+$w-hairline: #e2e8f0;
+$w-black:    #000000;
+
+$w-blue:      #057dbc;
+$w-blue-dark: #045f94;
+
+// -----------------------------------------------------------------------------
+// 3. reveal.js Sass variable overrides
+// -----------------------------------------------------------------------------
+$backgroundColor: $w-white;
+
+$mainFont:        $font-family-sans-serif;
+$mainFontSize:    32px;
+$mainColor:       $w-ink;
+
+$headingFont:     $font-family-display;
+$headingColor:    $w-ink;
+$headingLineHeight: 1.05;
+$headingLetterSpacing: -0.02em;
+$headingTextTransform: none;
+$headingTextShadow: none;
+$headingFontWeight: 400;
+
+$heading1Size: 2.2em;
+$heading2Size: 1.6em;
+$heading3Size: 1.25em;
+$heading4Size: 1.0em;
+
+$codeFont: $font-family-monospace;
+
+$linkColor:      $w-blue;
+$linkColorHover: $w-blue-dark;
+
+$selectionBackgroundColor: rgba($w-blue, 0.2);
+$selectionColor:           $w-ink;
+
+$blockMargin: 20px;
+
+/*-- scss:rules --*/
+
+// =============================================================================
+// 4. WIRED discipline — square corners, no shadows, hairline rules
+// =============================================================================
+.reveal * {
+  box-shadow: none !important;
+}
+
+.reveal section img,
+.reveal img,
+.reveal .callout,
+.reveal pre,
+.reveal code {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.reveal hr {
+  border: none;
+  border-top: 1px solid $w-ink;
+  opacity: 1;
+}
+
+// =============================================================================
+// 5. Headings — Playfair for h1/h2, Source Sans for h3+
+// =============================================================================
+.reveal h1,
+.reveal h2 {
+  font-family: $font-family-display;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: $w-ink;
+  text-transform: none;
+}
+
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  font-family: $font-family-heading;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: $w-ink;
+  text-transform: none;
+}
+
+// =============================================================================
+// 6. Kicker — WiredMono ALL-CAPS above the slide title
+//    Usage: [SECTION LABEL]{.kicker}
+// =============================================================================
+.reveal .kicker {
+  display: block;
+  font-family: $font-family-monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  font-size: 0.4em;
+  font-weight: 400;
+  color: $w-caption;
+  margin-bottom: 0.5em;
+}
+
+// =============================================================================
+// 7. TLP badge — same mono-kicker treatment, framed
+//    Usage: [TLP:CLEAR]{.tlp-badge}
+// =============================================================================
+.reveal .tlp-badge {
+  display: inline-block;
+  font-family: $font-family-monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.35em;
+  font-weight: 700;
+  color: $w-ink;
+  border: 1.5px solid $w-ink;
+  padding: 0.3em 0.6em;
+  margin-bottom: 1em;
+  background: transparent;
+}
+
+// =============================================================================
+// 8. Body prose
+// =============================================================================
+.reveal p,
+.reveal li {
+  font-family: $font-family-sans-serif;
+  color: $w-ink;
+}
+
+.reveal strong,
+.reveal b {
+  font-weight: 600;
+}
+
+.reveal em {
+  font-style: italic;
+}
+
+// =============================================================================
+// 9. Blockquote — 2px black rule, italic Lora (matches site)
+// =============================================================================
+.reveal blockquote {
+  border-left: 2px solid $w-black;
+  padding-left: 1.25rem;
+  margin-left: 0;
+  font-style: italic;
+  color: $w-ink;
+  background: transparent;
+  box-shadow: none;
+}
+
+// =============================================================================
+// 10. Code — canvas gray background, mono, hairline border
+// =============================================================================
+.reveal pre {
+  background: $w-canvas;
+  color: $w-ink;
+  border: 1px solid $w-hairline;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 0.55em;
+  line-height: 1.4;
+  width: 100%;
+}
+
+.reveal pre code {
+  background: transparent;
+  color: $w-ink;
+  padding: 0.75em 1em;
+  max-height: none;
+  font-family: $font-family-monospace;
+}
+
+.reveal code {
+  font-family: $font-family-monospace;
+  background: $w-canvas;
+  color: $w-blue-dark;
+  padding: 0.1em 0.35em;
+  font-size: 0.85em;
+}
+
+// Highlighted line — line-numbers reveal
+.reveal .code-with-line-numbers .highlight,
+.reveal pre.numberSource .highlight {
+  background: rgba($w-blue, 0.12);
+}
+
+// =============================================================================
+// 11. Links
+// =============================================================================
+.reveal a {
+  color: $w-blue;
+  text-decoration: none;
+
+  &:hover {
+    color: $w-blue-dark;
+    text-decoration: underline;
+  }
+}
+
+// =============================================================================
+// 12. Columns — hairline gutter between .column halves
+// =============================================================================
+.reveal .columns {
+  display: flex;
+  gap: 2rem;
+}
+
+.reveal .column {
+  flex: 1;
+}
+
+// =============================================================================
+// 13. Slide number + controls — muted, mono
+// =============================================================================
+.reveal .slide-number {
+  font-family: $font-family-monospace;
+  font-size: 0.5em;
+  letter-spacing: 0.5px;
+  color: $w-caption;
+  background: transparent;
+}
+
+.reveal .controls {
+  color: $w-caption;
+}
+
+.reveal .progress {
+  color: $w-blue;
+  background: $w-hairline;
+}
+
+// =============================================================================
+// 14. Speaker-note view — inherits body prose
+// =============================================================================
+.reveal aside.notes {
+  font-family: $font-family-sans-serif;
+}
+
+// =============================================================================
+// 15. Figures / captions
+// =============================================================================
+.reveal figcaption {
+  color: $w-caption;
+  font-family: $font-family-sans-serif;
+  font-style: italic;
+  font-size: 0.5em;
+  margin-top: 0.5em;
+  text-align: center;
+}
+
+// =============================================================================
+// 16. Tables — hairline rules, mono headers
+// =============================================================================
+.reveal table {
+  border-collapse: collapse;
+  margin: auto;
+  border-spacing: 0;
+  font-size: 0.7em;
+}
+
+.reveal table th {
+  font-family: $font-family-monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  font-size: 0.85em;
+  font-weight: 700;
+  color: $w-ink;
+  border-bottom: 2px solid $w-ink;
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+.reveal table td {
+  border-bottom: 1px solid $w-hairline;
+  padding: 0.5em 0.75em;
+}
+
+// =============================================================================
+// 17. Iframe slides — escape-hatch apps sit full-bleed
+// =============================================================================
+.reveal iframe {
+  border: none;
+  background: $w-white;
+}
+
+// =============================================================================
+// 18. Focus ring
+// =============================================================================
+:focus-visible {
+  outline: 2px solid $w-blue;
+  outline-offset: 2px;
+  box-shadow: none;
+}

@@ -1,0 +1,138 @@
+---
+title: "Lantana: With a Little Help of My (Claude) Friend"
+subtitle: "How AI accelerated a honeypot-as-code project"
+description: "How I used Claude Code to ship Lantana v1 in two months — motivation, the 2025 way, and the workflow that unlocked things."
+image: og-lantana-little-help-claude.webp
+
+tlp: clear
+duration: 15
+event: "Internal AI share-out"
+date: 2026-07-06
+
+format:
+  revealjs:
+    theme: [default, ../../static/styles/vigil-reveal-dark.scss]
+    incremental: true
+    code-line-numbers: true
+    slide-number: c/t
+    toc: false
+    controls: true
+    progress: true
+    history: true
+    hash-type: number
+---
+
+## Lantana: With a Little Help of My (Claude) Friend {.center}
+
+[TLP:CLEAR]{.tlp-badge}
+
+[INTERNAL AI SHARE-OUT · 2026-07-06]{.kicker}
+
+How a honeypot-as-code project went from 2.5 months of Alpha to a v1 in two.
+
+::: notes
+Frame the talk: it's about workflow more than about honeypots. Lantana is the vehicle. The story is what changed when I stopped chatting with an LLM and started collaborating with an agent. 15 minutes, ~5 for Q&A, so keep it moving.
+:::
+
+## Why Lantana
+
+[MOTIVATION]{.kicker}
+
+- Deployed two SIEMs. Wanted to reason about the log pipeline end-to-end — without building fake sources.
+- I run Adversary Engagement at work. Honeypots as data source clicked instantly.
+- T-Pot is great but heavy: 20+ decoys, ELK-locked, weak on narrative.
+- I wanted the opposite: few decoys, strong narratives, IaC-first, open pipeline.
+
+::: notes
+One line each. The "why" audience gets is: this wasn't a honeypot project pretending to be an AI project — it was a real thing I needed, and AI happened to change how I built it.
+:::
+
+## 84 Years Ago, in 2025
+
+[THE PRE-MODERN WAY]{.kicker}
+
+- Dec 2025 – Mar 2026 — Alpha built with Google Gemini Pro. Just the chat.
+- Open thread. Paste context. Argue with the model like a fellow practitioner.
+- Ansible playbook? Copy the answer, fix the small-but-important details.
+- Context saturation → prompt rage → new thread → paste context *again*.
+- The design decisions held up. The workflow felt prehistoric.
+
+::: notes
+The point of this slide: it wasn't useless — the foundation Gemini and I settled on survived every later review. It was just *stressful and slow*. Set up the contrast for what comes next.
+:::
+
+## The numbers
+
+[BEFORE AND AFTER CLAUDE]{.kicker}
+
+:::: columns
+::: {.column width="33%"}
+[9×]{style="font-family: 'Playfair Display', serif; font-size: 5.5em; line-height: 1; color: #4db8e0;"}
+
+more lines written
+
+[~3K → ~29K]{style="font-family: 'JetBrains Mono', monospace; color: #cccccc; font-size: 0.85em;"}
+:::
+::: {.column width="33%"}
+[5×]{style="font-family: 'Playfair Display', serif; font-size: 5.5em; line-height: 1; color: #4db8e0;"}
+
+more commits
+:::
+::: {.column width="34%"}
+[3.5×]{style="font-family: 'Playfair Display', serif; font-size: 5.5em; line-height: 1; color: #4db8e0;"}
+
+more files touched
+:::
+::::
+
+Same project. Same person. Not full-time. 2.5 months before Claude → 2 months after.
+
+::: notes
+Exact figures if pressed: 46 → 234 commits (215 substantive + 19 dependency bumps). 65 → 226 files. +3,180 → +29,204 lines. Claude onboarded 2026-04-26 (commit f6f69f5). Last commit in the window: 2026-06-24. Don't read the numbers aloud — let the ratios land.
+:::
+
+## 6 hours → 5 minutes
+
+[THE INSIGHT]{.kicker}
+
+Enrichment was thrashing exhausted API rate limits.
+
+::: {.fragment .fade-up}
+> "…is it feasible and easy to create a check like this: if the X previous enrichment tries for that source failed due to rate_limit, skip the rest? it'd save much much time."
+:::
+
+- Claude: ~20 lines, one function, plus tests. Implemented in ~10 minutes.
+- Result: ~99% drop. Full-day enrichment now runs in under five minutes.
+
+::: notes
+This is the archetype of the collaboration for me. I saw the *shape* of the problem — a threat detection engineer notices API rate-limit thrash the way a mechanic hears a bad bearing. Claude implemented a per-provider consecutive-failure counter, with sensible thresholds, faster than I could have looked up the tenacity docs. Neither alone would have done this in an afternoon. Together, 10 minutes.
+:::
+
+## Caveats & Takeaways
+
+[WHAT I LEARNED]{.kicker}
+
+- **Configure the AI** — keep `CLAUDE.md` lean. Bloated context makes agents *worse* (ETH Zurich).
+- **Prompt properly** — plan mode first. Let Claude *interview you* before it writes code (Cherny).
+- **Manage context** — `/clear` between tasks beats `/compact`. Context rot is real.
+- **Let it verify itself** — TDD-style loops. And let it commit, on git-tracked projects.
+- Try old ideas every three months. The models keep getting better.
+
+::: notes
+The "let it commit" bullet has a story behind it — an experimental repo, no git yet, I was still committing myself, and a resort operation wiped a data file. Claude recovered it from its own session JSONL, which was lucky. That's when I decided: let Claude commit, with the right instructions in the user CLAUDE.md. If someone asks about the recovery story in Q&A, tell it then — otherwise skip to save time.
+:::
+
+## Alone we're both weaker
+
+[TOGETHER]{.kicker}
+
+- **Lantana** — `github.com/lopes/lantana`
+- **Posts** — `lopes.id/log/lantana-1-honeypot-as-code` · `lantana-2-data-pipeline`
+- **My CLAUDE.md** — `github.com/lopes/dotfiles/.../CLAUDE.md`
+- **Track — AI Literacy** — Yegge, Cherny, Chase H, Miessler
+
+Questions?
+
+::: notes
+Land the frame one more time: neither Claude nor I would have shipped this in two months alone. The AI didn't replace me — it made me faster where I was slow, and stayed out of the way where I was already fast. Then open the floor.
+:::

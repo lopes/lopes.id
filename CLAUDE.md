@@ -39,9 +39,25 @@ Required frontmatter fields: `title`, `description`, `image`. Image must be `.we
 ## Validation Rules (pre-commit hook)
 
 - Post filename: max 50 chars
-- Title: max 60 chars
-- Description: max 160 chars
+- Deck slug (directory name under `decks/`): max 50 chars
+- Title: max 60 chars (posts and decks)
+- Description: max 160 chars (posts and decks)
+- Deck `tlp:` field required; only `clear`, `white`, `green` accepted (see Deck Publication Policy)
+- Deck `format.revealjs.theme` must reference `vigil-reveal-{light,dark}.scss`
+- Escape-hatch HTML for decks lives at `decks/<slug>/apps/<name>.html` (nowhere else under `decks/`)
+- Non-`index.qmd` Markdown inside `decks/<slug>/` must be `_`-prefixed (Quarto's "don't render" convention) — otherwise it leaks to the site
 - Images: WebP/JPG/PNG/GIF/SVG/ICO, max 300 KB, filename max 70 chars
+
+## Deck Publication Policy
+
+This repo is public. **Sensitive presentations do NOT live here** — they belong in a separate private repo. The pre-commit hook accepts only publishable TLP values in decks:
+
+- Allowed: `tlp: clear` | `white` | `green`
+- Rejected at commit time: `tlp: amber` | `amber+strict` | `red`
+
+TLP is provenance metadata + a commit-time assertion. There is no runtime filter — because non-publishable values can't enter the repo, everything under `decks/` is publishable by construction. This assumes branch protection prevents direct pushes to `main` without PR CI (which runs pre-commit).
+
+Full deck authoring guide: `decks/README.md`.
 
 ## Branch Naming
 
@@ -51,4 +67,8 @@ Required frontmatter fields: `title`, `description`, `image`. Image must be `.we
 
 - `_quarto.yml` — Site-wide Quarto configuration (navigation, themes, listing)
 - `log/_metadata.yml` — Default metadata for all posts (author, license, freeze)
+- `decks/_metadata.yml` — Default metadata for decks (no freeze, no citation)
+- `decks/README.md` — Deck authoring guide (auto-excluded from render)
 - `scripts/pre-commit.sh` — Single source of truth for validation logic
+- `static/styles/vigil-{dark,light}.scss` — Post theme (dual mode, respects visitor scheme)
+- `static/styles/vigil-reveal-{dark,light}.scss` — Deck theme (per-deck baked at render time)
