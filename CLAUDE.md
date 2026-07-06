@@ -46,7 +46,7 @@ Required frontmatter fields: `title`, `description`, `image`. Image must be `.we
 - Deck `format.revealjs.theme` must reference `vigil-reveal-{light,dark}.scss`
 - Escape-hatch HTML for decks lives at `decks/<slug>/apps/<name>.html` (nowhere else under `decks/`)
 - Non-`index.qmd` Markdown inside `decks/<slug>/` must be `_`-prefixed (Quarto's "don't render" convention) — otherwise it leaks to the site
-- Images: WebP/JPG/PNG/GIF/SVG/ICO, max 300 KB, filename max 70 chars
+- Images: pre-commit accepts webp/jpg/png/gif/svg/ico (≤ 300 KB, filename ≤ 70 chars); authoring convention is `.webp` — convert non-webp raster on ingest
 
 ## Deck Publication Policy
 
@@ -67,7 +67,7 @@ Full deck authoring guide: `decks/README.md`.
 
 - `_quarto.yml` — Site-wide Quarto configuration (navigation, themes, listing)
 - `log/_metadata.yml` — Default metadata for all posts (author, license, freeze)
-- `decks/_metadata.yml` — Default metadata for decks (no freeze, no citation)
+- `decks/_metadata.yml` — Default metadata for decks (`freeze: auto`, no citation)
 - `decks/README.md` — Deck authoring guide (auto-excluded from render)
 - `scripts/pre-commit.sh` — Single source of truth for validation logic
 - `static/styles/vigil-{dark,light}.scss` — Post theme (dual mode, respects visitor scheme)

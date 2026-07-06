@@ -29,9 +29,9 @@ Feel free to adjust names. Keep it concise, direct. Tone is informal.
 
 Some extra context for "with a little help...":
 
-- image ./assets/claude-usage-statistics.png has the statistics before and after onboarding claude. It'd be nice to have this image + summary of statistics.
-- image assets/claude-enrichment-optimization.jpeg shows a case when I had an insight: during first phases of tests, enrichment was taking more than 6h to finish. Then I had that insight in the image. Claude implemented. Enrichment dropped to less than 5 minutes. an outstanding result, from an insight of mine and ~10 minutes of Claude working.
-- image assets/claude-recovery-from-session.jpeg shows an issue: in one project I was using to experiment AI (not lantana this one -- so possibly this slide could belong to takeaway or be entirely dropped, need help here). I was still controlling development by asking Claude to code and review, but I was committing -- and this repo had no Git yet. After that, I started letting Claude commit, giving proper instructions on that, like phasing projects and committing with more clear and direct messages, as seen in my user's claude.md file.
+- image ./assets/claude-usage-statistics.webp has the statistics before and after onboarding claude. It'd be nice to have this image + summary of statistics.
+- image assets/claude-enrichment-optimization.webp shows a case when I had an insight: during first phases of tests, enrichment was taking more than 6h to finish. Then I had that insight in the image. Claude implemented. Enrichment dropped to less than 5 minutes. an outstanding result, from an insight of mine and ~10 minutes of Claude working.
+- image assets/claude-recovery-from-session.webp shows an issue: in one project I was using to experiment AI (not lantana this one -- so possibly this slide could belong to takeaway or be entirely dropped, need help here). I was still controlling development by asking Claude to code and review, but I was committing -- and this repo had no Git yet. After that, I started letting Claude commit, giving proper instructions on that, like phasing projects and committing with more clear and direct messages, as seen in my user's claude.md file.
 
 ---
 
