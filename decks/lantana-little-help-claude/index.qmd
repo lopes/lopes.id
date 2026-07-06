@@ -129,7 +129,8 @@ The "let it commit" bullet has a story behind it — an experimental repo, no gi
 - **Lantana** — `github.com/lopes/lantana`
 - **Posts** — `lopes.id/log/lantana-1-honeypot-as-code` · `lantana-2-data-pipeline`
 - **My CLAUDE.md** — `github.com/lopes/dotfiles/.../CLAUDE.md`
-- **Track — AI Literacy** — Yegge, Cherny, Chase H, Miessler
+- **Pragmatic Engineer** — [Cherny · Building Claude Code](https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny) · [Yegge · From IDEs to AI Agents](https://newsletter.pragmaticengineer.com/p/from-ides-to-ai-agents-with-steve)
+- **Track — AI Literacy** — Chase H, Miessler
 
 Questions?
 
