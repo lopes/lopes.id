@@ -6,7 +6,9 @@ categories: ["engineering", "logging"]
 image: "og-log-health-monitoring.webp"
 ---
 
-I can't count the number of times I've heard that log ingestion is a problem. I've felt the pain myself. You buy an expensive SIEM and feed logs in. Eventually you need to investigate something and the logs aren't there, silent for weeks. Cutting-edge SIEMs have plenty of nice features, but in my experience none of them tackle log ingestion seriously.
+I can't count the number of times I've heard that log ingestion is a problem. I've felt the pain myself. You buy an expensive SIEM and feed logs in. Eventually you need to investigate something and the logs aren't there, silent for weeks.
+
+Cutting-edge SIEMs have plenty of nice features, but in my experience none of them tackle log ingestion seriously. Some offload it to external tooling or plugins where you build the monitoring logic yourself; others only cover the basic case, like detecting a fully silent source. What almost none do natively is the harder, more useful thing: alert you when a source's volume deviates from its own baseline, before the gap becomes weeks wide.
 
 Tired of the pain, I decided to own the problem. This post documents what I built and what I learned building it alongside AI.
 
