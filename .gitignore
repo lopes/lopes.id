@@ -10,3 +10,4 @@ venv
 _site
 *.html
 !_goatcounter.html
+!decks/_partials/*.html

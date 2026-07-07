@@ -1,7 +1,6 @@
 ---
 title: "Lantana: With a Little Help of My (Claude) Friend"
-subtitle: "From beta to v1 in 2 months"
-description: "How Claude Code accelerated Lantana v1"
+description: "From beta to v1 in two months, with a little help from Claude"
 image: og-lantana-little-help-claude.webp
 
 tlp: clear
@@ -174,25 +173,28 @@ Alone, neither of us would have done this in an afternoon. Together, ten minutes
 
 [WHAT I LEARNED]{.kicker}
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 0.5rem;">
+::: {.takeaways}
+::: {.takeaway}
+[Configure the AI]{.takeaway-label}
 
-<div style="border: 1px solid currentColor; padding: 1rem 1.2rem;">
-<strong>Configure the AI</strong><br/>Keep <code>CLAUDE.md</code> lean. Bloat makes agents <em>worse</em>.
-</div>
+Keep `CLAUDE.md` lean. Bloat makes agents *worse*.
+:::
+::: {.takeaway}
+[Plan first]{.takeaway-label}
 
-<div style="border: 1px solid currentColor; padding: 1rem 1.2rem;">
-<strong>Plan first</strong><br/>Let Claude interview <em>you</em> before it writes code.
-</div>
+Let Claude interview *you* before it writes code.
+:::
+::: {.takeaway}
+[Manage context]{.takeaway-label}
 
-<div style="border: 1px solid currentColor; padding: 1rem 1.2rem;">
-<strong>Manage context</strong><br/><code>/clear</code> between tasks. Context rot is real.
-</div>
+`/clear` between tasks. Context rot is real.
+:::
+::: {.takeaway}
+[Try again in 3 months]{.takeaway-label}
 
-<div style="border: 1px solid currentColor; padding: 1rem 1.2rem;">
-<strong>Try again in 3 months</strong><br/>Models keep improving faster than intuition.
-</div>
-
-</div>
+Models keep improving faster than intuition.
+:::
+:::
 
 ::: notes
 Configure — ETH Zurich showed LLM-generated context files made agents worse in 5/8 settings (via Chase H on Pragmatic Engineer). Plan first — Cherny's "make it interview you" pattern; the interview is the plan. Manage context — /clear beats /compact when switching tasks; context rot is a real degradation, not a vibe. Three months — Cherny's rule; try the same idea after a model bump before deciding it doesn't work. If a "let it commit" question comes up: yes, let Claude commit; give it clear phasing and message conventions in your user CLAUDE.md — that's what unlocked the second half of Lantana for me.

@@ -83,8 +83,10 @@ Pre-commit fires locally; PR CI reruns pre-commit and a full `quarto render`. Me
 ```yaml
 ---
 title: "..."                 # ★ ≤ 60 chars
-subtitle: "..."              # optional one-line hook
-description: "..."           # ★ ≤ 160 chars, no trailing period
+description: "..."           # ★ ≤ 160 chars, no trailing period. Doubles as the
+                             #   title-slide sub-line (via decks/_partials/title-slide.html)
+                             #   and the OG card description — write it once. Do not add
+                             #   `subtitle:`; it is unused.
 image: og-<slug>.webp        # ★ .webp only, ≤ 300 KB
 tlp: green                   # ★ clear | white | green
 duration: 15                 # minutes; drives the scaffold-deck budget

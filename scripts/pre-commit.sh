@@ -184,10 +184,13 @@ while IFS= read -r file; do
   # ---- Escape-hatch HTML — must live at decks/<slug>/assets/<name>.html ----
   # No arbitrary HTML at deck top level (that's the render's job, not a source file).
   # bash `*` in [[ == ]] matches `/`, so parse path parts explicitly.
+  # Exception: underscore-prefixed support dirs at the decks/ root (Quarto's
+  # "don't render" convention) hold Pandoc template partials — e.g.
+  # decks/_partials/title-slide.html — not escape-hatch iframe apps.
   if [[ "$file" == "$DECKS_DIR"/* && "$file" == *.html ]]; then
     rel="${file#"$DECKS_DIR"/}"
     IFS='/' read -ra parts <<< "$rel"
-    if [[ ${#parts[@]} -ne 3 || "${parts[1]}" != "assets" ]]; then
+    if [[ "${parts[0]}" != _* ]] && { [[ ${#parts[@]} -ne 3 ]] || [[ "${parts[1]}" != "assets" ]]; }; then
       echo "ERROR: $file escape-hatch HTML must live at decks/<slug>/assets/<name>.html"
       error=1
     fi
