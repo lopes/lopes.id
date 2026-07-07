@@ -118,6 +118,15 @@ $blockMargin: 20px;
 }
 
 // =============================================================================
+// 5b. Title-slide subtitle — muted, distinct from the h1 title
+//     Themed so every deck's auto-generated title slide inherits it.
+// =============================================================================
+.reveal .subtitle {
+  color: $w-muted;
+  font-weight: 400;
+}
+
+// =============================================================================
 // 6. Kicker — WiredMono ALL-CAPS above the slide title
 // =============================================================================
 .reveal .kicker {

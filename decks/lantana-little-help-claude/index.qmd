@@ -1,6 +1,6 @@
 ---
 title: "Lantana: With a Little Help of My (Claude) Friend"
-subtitle: "From beta to v1 in 2 months (review)"
+subtitle: "From beta to v1 in 2 months"
 description: "How Claude Code accelerated Lantana v1"
 image: og-lantana-little-help-claude.webp
 
@@ -205,8 +205,7 @@ Configure — ETH Zurich showed LLM-generated context files made agents worse in
 ::: {.nonincremental}
 - **Lantana** — [github.com/lopes/lantana](https://github.com/lopes/lantana) · [Lantana 1](/log/lantana-1-honeypot-as-code/) · [Lantana 2](/log/lantana-2-data-pipeline/)
 - **Pragmatic Engineer** — [Cherny · Building Claude Code](https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny) · [Yegge · From IDEs to AI Agents](https://newsletter.pragmaticengineer.com/p/from-ides-to-ai-agents-with-steve)
-- **The 6 Levels of Claude Code** — [Chase-H-AI](https://www.youtube.com/@Chase-H-AI)
-- **Personal AI Maturity Model** — [Miessler](https://danielmiessler.com/blog/personal-ai-maturity-model)
+- **The 6 Levels of Claude Code** — [Chase-H-AI](https://www.youtube.com/watch?v=TUKYbUIXLOE)
 - **My CLAUDE.md** — [github.com/lopes/dotfiles/.../CLAUDE.md](https://github.com/lopes/dotfiles/blob/master/.config/claude/CLAUDE.md)
 :::
 
