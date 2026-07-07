@@ -94,6 +94,9 @@ while IFS= read -r file; do
     elif [[ "$image" != *.webp ]]; then
       echo "ERROR: $file image reference must be .webp"
       error=1
+    elif [[ ! -f "$(dirname "$file")/$image" ]]; then
+      echo "ERROR: $file image '$image' not found at $(dirname "$file")/$image"
+      error=1
     fi
   fi
 
@@ -135,6 +138,9 @@ while IFS= read -r file; do
       error=1
     elif [[ "$image" != *.webp ]]; then
       echo "ERROR: $file image reference must be .webp"
+      error=1
+    elif [[ ! -f "$(dirname "$file")/$image" ]]; then
+      echo "ERROR: $file image '$image' not found at $(dirname "$file")/$image"
       error=1
     fi
 
