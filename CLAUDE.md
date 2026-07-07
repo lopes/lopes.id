@@ -61,7 +61,7 @@ Full deck authoring guide: `decks/README.md`.
 
 ## Branch Naming
 
-`<namespace>/<short-description>` where namespace is one of: `post`, `revise`, `typo`, `bugfix`, `design`, `infra`, `docs`, `release`.
+`<namespace>/<short-description>` where namespace is one of: `post`, `deck`, `revise`, `typo`, `bugfix`, `design`, `infra`, `docs`, `release`.
 
 ## Key Config Files
 
