@@ -1,0 +1,3 @@
+# Shared metadata for slide decks. Per-deck overrides go in <slug>/index.qmd.
+freeze: auto      # cache Jupyter-cell output under _freeze/; re-execute only when source changes
+citation: false   # decks are not academic artifacts
