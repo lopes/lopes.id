@@ -1,3 +1,11 @@
 # Shared metadata for slide decks. Per-deck overrides go in <slug>/index.qmd.
 freeze: auto      # cache Jupyter-cell output under _freeze/; re-execute only when source changes
 citation: false   # decks are not academic artifacts
+
+format:
+  revealjs:
+    # Override Quarto's default reveal.js title slide so the sub-line reads
+    # from `description:` (single source, also feeds the OG card) instead of
+    # a separate `subtitle:` field. See _partials/title-slide.html.
+    template-partials:
+      - _partials/title-slide.html

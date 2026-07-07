@@ -920,3 +920,55 @@ $blockMargin: 20px;
   letter-spacing: 1.2px;
   margin-top: 0.5em;
 }
+
+// .takeaways — 2 to 4 categorical claims / rules / caveats laid out as
+// bordered cards. Sibling of .aside-box (which is the *single* on-brand
+// callout); reach for .takeaways when several parallel takeaways land
+// together. Auto-fits: 2 = 50/50, 3 = thirds, 4 = quarters or 2×2 depending
+// on slide width.
+// Compose as:
+//   ::: {.takeaways}
+//   ::: {.takeaway}
+//   [Configure the AI]{.takeaway-label}
+//
+//   Keep `CLAUDE.md` lean. Bloat makes agents *worse*.
+//   :::
+//   ::: {.takeaway}
+//   [Plan first]{.takeaway-label}
+//
+//   Let Claude interview *you* before it writes code.
+//   :::
+//   :::
+.reveal .takeaways {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin: 0.75em 0;
+  max-width: 95%;
+}
+
+.reveal .takeaways .takeaway {
+  border: 1px solid $w-hairline;
+  padding: 1em 1.25em;
+}
+
+.reveal .takeaways .takeaway > p {
+  margin: 0;
+  font-size: 0.9em;
+  line-height: 1.4;
+  color: $w-ink;
+}
+
+.reveal .takeaways .takeaway > p + p {
+  margin-top: 0.5em;
+}
+
+.reveal .takeaways .takeaway .takeaway-label {
+  display: block;
+  font-family: $font-family-heading;
+  font-weight: 600;
+  color: $w-ink;
+  font-size: 1em;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+}
