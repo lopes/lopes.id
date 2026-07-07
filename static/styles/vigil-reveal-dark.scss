@@ -67,18 +67,23 @@ $blockMargin: 20px;
 
 // =============================================================================
 // 4. WIRED discipline — square corners, no shadows, hairline rules
+//    Portraits (.portrait) are the one documented exception — softly rounded.
 // =============================================================================
 .reveal * {
   box-shadow: none !important;
 }
 
-.reveal section img,
-.reveal img,
+.reveal section img:not(.portrait),
+.reveal img:not(.portrait),
 .reveal .callout,
 .reveal pre,
 .reveal code {
   border-radius: 0 !important;
   box-shadow: none !important;
+}
+
+.reveal .portrait {
+  border-radius: 12px;
 }
 
 .reveal hr {
@@ -316,4 +321,592 @@ $blockMargin: 20px;
   outline: 2px solid $w-blue;
   outline-offset: 2px;
   box-shadow: none;
+}
+
+// =============================================================================
+// 19. Slide footer — mono provenance line (TLP, event, etc.), visible per slide
+// =============================================================================
+.reveal .slide-footer,
+.reveal footer {
+  font-family: $font-family-monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  font-size: 0.5em;
+  color: $w-muted;
+}
+
+// =============================================================================
+// 20. Composition utilities — atomic elements for design-vocabulary slides
+//     Reach for these instead of writing bullet lists on content slides.
+//
+//     Existing:  .big-idea .stat/.stat-caption .pullquote .hero-overlay
+//     New:       .big-number .pull-quote .stat-grid .metric-delta
+//                .chat-snippet .aside-box .timeline .section-divider
+// =============================================================================
+
+// .big-idea — one huge Playfair sentence: the pivot / memory anchor of a section
+.reveal .big-idea {
+  font-family: $font-family-display;
+  font-weight: 400;
+  font-size: 2.4em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: $w-white;
+  margin: 0.5em 0;
+  max-width: 90%;
+}
+
+// .stat — giant number + small caption underneath. Compose as
+//   <div class="stat">70s<span class="stat-caption">saved per bail</span></div>
+.reveal .stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25em;
+  margin: 0.5em 0;
+  font-family: $font-family-display;
+  font-weight: 400;
+  font-size: 4em;
+  line-height: 1;
+  color: $w-blue;
+  letter-spacing: -0.03em;
+}
+
+.reveal .stat .stat-caption {
+  font-family: $font-family-heading;
+  font-size: 0.22em;
+  font-weight: 400;
+  color: $w-muted;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  line-height: 1.3;
+  margin-top: 0.4em;
+}
+
+// .pullquote — larger blockquote treatment for quoted lines / claims
+.reveal blockquote.pullquote,
+.reveal .pullquote {
+  border-left: 3px solid $w-blue;
+  padding-left: 1.5rem;
+  margin-left: 0;
+  font-family: $font-family-sans-serif;
+  font-style: italic;
+  font-size: 1.15em;
+  line-height: 1.4;
+  color: $w-text;
+  background: transparent;
+  box-shadow: none;
+  max-width: 90%;
+}
+
+// .hero-overlay — semi-transparent text pane sitting over a background image
+.reveal .hero-overlay {
+  display: inline-block;
+  background: rgba(#000, 0.65);
+  color: $w-white;
+  padding: 1em 1.25em;
+  font-family: $font-family-display;
+  font-weight: 400;
+  font-size: 1.6em;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  max-width: 80%;
+}
+
+// .big-number — a single dominant metric filling the slide.
+// Larger and more assertive than .stat; use when the number IS the slide.
+// Compose as:
+//   ::: {.big-number}
+//   [9×]{.big-number-value}
+//   [more lines written]{.big-number-label}
+//   [~3,180 → ~29,204 lines · same person · not full-time]{.big-number-footnote}
+//   :::
+.reveal .big-number {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4em;
+  margin: 0.5em 0;
+  max-width: 90%;
+}
+
+.reveal .big-number .big-number-value {
+  font-family: $font-family-display;
+  font-weight: 400;
+  font-size: 6.5em;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: $w-blue;
+}
+
+.reveal .big-number .big-number-label {
+  font-family: $font-family-heading;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: $w-white;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+}
+
+.reveal .big-number .big-number-footnote {
+  font-family: $font-family-monospace;
+  font-size: 0.55em;
+  color: $w-muted;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  line-height: 1.3;
+}
+
+// .pull-quote — attributed verbatim excerpt. Use INSTEAD of embedding a
+// screenshot of a chat conversation. Extract the load-bearing sentence,
+// attribute it, put the screenshot in speaker notes.
+// Contrast with .pullquote (no dash): un-attributed italic one-liner.
+// Compose as:
+//   ::: {.pull-quote}
+//   > Is it feasible to skip a source after N rate_limit failures?
+//
+//   [— me, in Claude Code · 2026-05]{.pull-quote-attribution}
+//   :::
+.reveal .pull-quote {
+  border-left: 3px solid $w-blue;
+  padding: 0.25em 0 0.25em 1.5rem;
+  margin: 0.5em 0;
+  max-width: 90%;
+}
+
+.reveal .pull-quote > blockquote,
+.reveal .pull-quote > p:first-of-type {
+  font-family: $font-family-sans-serif;
+  font-style: italic;
+  font-size: 1.2em;
+  line-height: 1.4;
+  color: $w-text;
+  border-left: none;
+  padding: 0;
+  margin: 0;
+}
+
+.reveal .pull-quote .pull-quote-attribution {
+  display: block;
+  margin-top: 0.6em;
+  font-family: $font-family-monospace;
+  font-size: 0.5em;
+  color: $w-muted;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-style: normal;
+}
+
+// .stat-grid — 2 to 4 small metrics laid out horizontally.
+// Use INSTEAD of a table when the numbers are the point and headers are noise.
+// Auto-fits: 2 items = 50/50, 3 = thirds, 4 = quarters.
+// Compose as:
+//   ::: {.stat-grid}
+//   ::: {.stat-cell}
+//   [9×]{.stat-cell-value}
+//   [more lines]{.stat-cell-label}
+//   :::
+//   ::: {.stat-cell}
+//   [5×]{.stat-cell-value}
+//   [more commits]{.stat-cell-label}
+//   :::
+//   :::
+.reveal .stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 2.5rem;
+  margin: 0.75em 0;
+  align-items: start;
+}
+
+.reveal .stat-grid .stat-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  border-top: 1px solid $w-border;
+  padding-top: 0.75em;
+}
+
+.reveal .stat-grid .stat-cell-value {
+  font-family: $font-family-display;
+  font-weight: 400;
+  font-size: 3.2em;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: $w-blue;
+}
+
+.reveal .stat-grid .stat-cell-label {
+  font-family: $font-family-heading;
+  font-size: 0.55em;
+  font-weight: 400;
+  color: $w-muted;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  line-height: 1.3;
+}
+
+// .metric-delta — before → after in one horizontal shape.
+// The after-side value adopts the accent; the eye lands on where the story went.
+// Compose as:
+//   ::: {.metric-delta}
+//   ::: {.metric-delta-before}
+//   [6h]{.metric-delta-value}
+//   [enrichment run]{.metric-delta-label}
+//   :::
+//   ::: {.metric-delta-arrow}
+//   →
+//   :::
+//   ::: {.metric-delta-after}
+//   [5 min]{.metric-delta-value}
+//   [after the circuit breaker]{.metric-delta-label}
+//   :::
+//   :::
+.reveal .metric-delta {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 0.75em 0;
+  max-width: 95%;
+}
+
+.reveal .metric-delta-before,
+.reveal .metric-delta-after {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.reveal .metric-delta-after {
+  align-items: flex-start;
+}
+
+.reveal .metric-delta-value {
+  font-family: $font-family-display;
+  font-weight: 400;
+  font-size: 3.6em;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: $w-white;
+}
+
+.reveal .metric-delta-after .metric-delta-value {
+  color: $w-blue;
+}
+
+.reveal .metric-delta-label {
+  font-family: $font-family-heading;
+  font-size: 0.5em;
+  font-weight: 400;
+  color: $w-muted;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  line-height: 1.3;
+}
+
+.reveal .metric-delta-arrow {
+  font-family: $font-family-monospace;
+  font-size: 2.4em;
+  color: $w-blue;
+  line-height: 1;
+  padding: 0 0.3em;
+}
+
+// .chat-snippet — styled monospace excerpt of a chat/terminal exchange.
+// Use INSTEAD of a screenshot of a conversation whose text won't be legible
+// at projection scale. Each turn is a .chat-turn; role goes in .chat-role.
+// Add .chat-turn-agent to the second party's turn to switch its accent rule.
+// Compose as:
+//   ::: {.chat-snippet}
+//   ::: {.chat-turn}
+//   [me]{.chat-role}
+//
+//   > Is it feasible to skip a source after N rate_limit failures?
+//   :::
+//   ::: {.chat-turn .chat-turn-agent}
+//   [claude]{.chat-role}
+//
+//   Yes — ~20 lines, one function, plus tests. Implementing now.
+//   :::
+//   :::
+.reveal .chat-snippet {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  border: 1px solid $w-border;
+  padding: 1.25em 1.5em;
+  margin: 0.5em 0;
+  background: $w-surface;
+  max-width: 95%;
+  font-size: 0.75em;
+}
+
+.reveal .chat-snippet .chat-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  padding-left: 0.75em;
+  border-left: 2px solid $w-muted;
+}
+
+.reveal .chat-snippet .chat-turn-agent {
+  border-left-color: $w-blue;
+}
+
+.reveal .chat-snippet .chat-role {
+  display: block;
+  font-family: $font-family-monospace;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: 0.75em;
+  color: $w-muted;
+}
+
+.reveal .chat-snippet .chat-turn-agent .chat-role {
+  color: $w-blue;
+}
+
+.reveal .chat-snippet .chat-turn > p,
+.reveal .chat-snippet .chat-turn > blockquote {
+  font-family: $font-family-monospace;
+  font-size: 1em;
+  line-height: 1.45;
+  color: $w-text;
+  margin: 0;
+  padding: 0;
+  border-left: none;
+  font-style: normal;
+}
+
+// .aside-box — the one on-brand replacement for a Quarto callout.
+// Hairline border, mono label, no icon strip, no coloured header bar.
+// Use SPARINGLY — a callout that could be a slide title is a slide title.
+// Compose as:
+//   ::: {.aside-box}
+//   [CAVEAT]{.aside-label}
+//
+//   The 6h → 5min result assumes rate-limit is the dominant failure mode.
+//   :::
+.reveal .aside-box {
+  border: 1px solid $w-border;
+  border-left: 3px solid $w-blue;
+  padding: 1em 1.25em;
+  margin: 0.5em 0;
+  background: transparent;
+  max-width: 90%;
+}
+
+.reveal .aside-box .aside-label {
+  display: block;
+  font-family: $font-family-monospace;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: 0.5em;
+  color: $w-blue;
+  margin-bottom: 0.5em;
+}
+
+.reveal .aside-box p {
+  margin: 0;
+  font-size: 0.85em;
+  line-height: 1.4;
+  color: $w-text;
+}
+
+// .timeline — horizontal event strip. Dots along a hairline, labels above,
+// dates below. Auto-distributes N events. Keep to 3–5 events; more overflows.
+// Add .timeline-event-accent to the pivot event; its dot fills with accent.
+// Compose as:
+//   ::: {.timeline}
+//   ::: {.timeline-event}
+//   [Alpha started]{.timeline-label}
+//   [Feb 2026]{.timeline-date}
+//   :::
+//   ::: {.timeline-event .timeline-event-accent}
+//   [Claude onboarded]{.timeline-label}
+//   [Apr 2026]{.timeline-date}
+//   :::
+//   :::
+.reveal .timeline {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: end;
+  gap: 0;
+  margin: 1em 0;
+  padding-bottom: 2.5em;
+  position: relative;
+  max-width: 95%;
+}
+
+.reveal .timeline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2em;
+  height: 1px;
+  background: $w-border;
+}
+
+.reveal .timeline-event {
+  position: relative;
+  text-align: center;
+  padding-bottom: 1.75em;
+}
+
+.reveal .timeline-event::after {
+  content: "";
+  position: absolute;
+  bottom: -0.35em;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.7em;
+  height: 0.7em;
+  border: 1.5px solid $w-muted;
+  background: $w-bg;
+  border-radius: 0;
+}
+
+.reveal .timeline-event-accent::after {
+  border-color: $w-blue;
+  background: $w-blue;
+}
+
+.reveal .timeline-label {
+  display: block;
+  font-family: $font-family-heading;
+  font-weight: 600;
+  font-size: 0.65em;
+  color: $w-white;
+  line-height: 1.25;
+  margin-bottom: 0.5em;
+}
+
+.reveal .timeline-event-accent .timeline-label {
+  color: $w-blue;
+}
+
+.reveal .timeline-date {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: $font-family-monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.45em;
+  color: $w-muted;
+  white-space: nowrap;
+}
+
+// .contact-row — icon+label chips for the Thank you closer.
+// Separates contact handles from the references list; readable at a glance.
+// Compose as raw HTML (Pandoc accepts <div>/<a>/<svg> inline in Markdown):
+//   <div class="contact-row">
+//     <a href="https://lopes.id" class="contact-link">
+//       <svg class="contact-icon" viewBox="0 0 24 24" ...>...</svg>
+//       <span class="contact-label">lopes.id</span>
+//     </a>
+//     ...
+//   </div>
+.reveal .contact-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  margin: 1em 0 0 0;
+  flex-wrap: wrap;
+  max-width: 95%;
+  // Pushes the row to the bottom of its slide when the section is a flex
+  // column (see `section:has(> .contact-row)` rule below).
+  margin-top: auto;
+}
+
+// Opt any slide containing a .contact-row into flex-column layout so
+// margin-top:auto on the row lands it at the bottom. Scoped via :has() so
+// no other slide layout is affected.
+.reveal .slides > section:has(> .contact-row) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.reveal .contact-row .contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.3em 0.6em;
+  color: $w-text;
+  text-decoration: none;
+  border: 1px solid $w-border;
+  transition: color 120ms, border-color 120ms;
+}
+
+.reveal .contact-row .contact-link:hover {
+  color: $w-blue;
+  border-color: $w-blue;
+  text-decoration: none;
+}
+
+.reveal .contact-row .contact-icon {
+  width: 0.9em;
+  height: 0.9em;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.reveal .contact-row .contact-label {
+  font-family: $font-family-monospace;
+  font-size: 0.5em;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  text-transform: none;
+}
+
+// .section-divider — an arc break in longer decks (duration >= 30).
+// Hides the ## heading; body carries the label.
+// Compose as:
+//   ## Section 2 of 4 {.section-divider .center}
+//
+//   ::: {.section-divider-body}
+//   [02 / 04]{.section-divider-number}
+//
+//   With a Little Help of My (Claude) Friend
+//
+//   [How the workflow changed]{.section-divider-hook}
+//   :::
+.reveal .section-divider {
+  border-top: 1px solid $w-border;
+  border-bottom: 1px solid $w-border;
+  padding: 1em 0;
+}
+
+.reveal .section-divider h2 {
+  display: none;
+}
+
+.reveal .section-divider-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  align-items: flex-start;
+}
+
+.reveal .section-divider-number {
+  font-family: $font-family-monospace;
+  font-size: 0.7em;
+  color: $w-blue;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.reveal .section-divider-hook {
+  font-family: $font-family-monospace;
+  font-size: 0.5em;
+  color: $w-muted;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-top: 0.5em;
 }
