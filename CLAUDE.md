@@ -44,7 +44,7 @@ Required frontmatter fields: `title`, `description`, `image`. Image must be `.we
 - Description: max 160 chars (posts and decks)
 - Deck `tlp:` field required; only `clear`, `white`, `green` accepted (see Deck Publication Policy)
 - Deck `format.revealjs.theme` must reference `vigil-reveal-{light,dark}.scss`
-- Escape-hatch HTML for decks lives at `decks/<slug>/apps/<name>.html` (nowhere else under `decks/`)
+- Escape-hatch HTML for decks lives at `decks/<slug>/assets/<name>.html` (nowhere else under `decks/`)
 - Non-`index.qmd` Markdown inside `decks/<slug>/` must be `_`-prefixed (Quarto's "don't render" convention) — otherwise it leaks to the site
 - Images: pre-commit accepts webp/jpg/png/gif/svg/ico (≤ 300 KB, filename ≤ 70 chars); authoring convention is `.webp` — convert non-webp raster on ingest
 

@@ -18,7 +18,7 @@ Slug is kebab-case, ≤ 50 characters. It's both the directory name and the URL 
 ### 2. Folder + brief
 
 ```bash
-mkdir -p decks/<slug>/apps decks/<slug>/assets
+mkdir -p decks/<slug>/assets
 $EDITOR decks/<slug>/_brief.md
 ```
 
@@ -93,7 +93,7 @@ date: 2026-05-01             # optional
 
 # Only if the deck uses `background-iframe` escape-hatch slides:
 resources:
-  - apps/
+  - assets/
 
 format:
   revealjs:
@@ -160,11 +160,11 @@ Standard Quarto revealjs worth remembering:
 - **Speaker notes** — `::: notes` blocks. Press `S`.
 - **Inline SVG** — `stroke="currentColor"` so it works on both themes. One accent: `#057dbc` light, `#4db8e0` dark.
 - **Mermaid** — ` ```{mermaid} ` blocks render natively; theme sets JetBrains Mono.
-- **Iframe escape-hatch** — `## Title {background-iframe="apps/poll.html"}`. File must live at `decks/<slug>/apps/<name>.html`. Requires `resources: - apps/`.
+- **Iframe escape-hatch** — `## Title {background-iframe="assets/poll.html"}`. File must live at `decks/<slug>/assets/<name>.html`. Requires `resources: - assets/`.
 
 **Don't:**
 
-- No inline `<style>` or `<script>` — use `apps/`.
+- No inline `<style>` or `<script>` — use `assets/*.html`.
 - No top-level `theme:` field.
 - No PDF export path.
 - No `decks/index.qmd`, no navbar entry.
@@ -178,11 +178,11 @@ decks/
   <slug>/
     index.qmd                # deck source — the ONLY thing Quarto renders here
     _brief.md                # talk brief — input for scaffold-deck
-    og-<slug>.webp           # OG card
-    apps/                    # iframe HTML (only if used)
-      poll.html
-    assets/                  # slide images, data files
+    og-<slug>.webp           # OG card (stays at deck root — metadata, not slide content)
+    assets/                  # everything else: slide images, iframe HTML, data files
       hero.webp
+      poll.html              # iframe escape-hatch (if used)
+      metrics.parquet        # {python} cell data (if used)
 ```
 
 Rules the layout enforces:
@@ -199,7 +199,7 @@ Rules the layout enforces:
 - `image:` present, ends `.webp`. Image files ≤ 300 KB, filename ≤ 70 chars.
 - `tlp:` present and one of `clear`/`white`/`green`.
 - `format.revealjs.theme` references `vigil-reveal-{light,dark}.scss`.
-- Any `.html` under `decks/` must live at `decks/<slug>/apps/<name>.html`.
+- Any `.html` under `decks/` must live at `decks/<slug>/assets/<name>.html`.
 - Non-`index.qmd` `.md` inside a deck folder must be `_`-prefixed.
 
 Standalone check: `bash scripts/pre-commit.sh`.
@@ -238,6 +238,6 @@ plt.show()
 
 ## Common pitfalls
 
-- **Forgetting `resources: - apps/`.** Deck renders fine, iframe 404s at runtime — Quarto doesn't scan `background-iframe` paths.
+- **Forgetting `resources: - assets/`.** Deck renders fine, iframe 404s at runtime — Quarto doesn't scan `background-iframe` paths.
 - **Adding a top-level `theme:` field.** Stacks a stray built-in theme on top of vigil. The SCSS path in `format.revealjs.theme` is the only source of truth.
 - **Notes / provenance `.md` next to `index.qmd` without `_` prefix.** Quarto renders it and it leaks to the public site.

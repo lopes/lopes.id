@@ -175,14 +175,14 @@ while IFS= read -r file; do
     fi
   fi
 
-  # ---- Escape-hatch HTML — must live at decks/<slug>/apps/<name>.html ----
+  # ---- Escape-hatch HTML — must live at decks/<slug>/assets/<name>.html ----
   # No arbitrary HTML at deck top level (that's the render's job, not a source file).
   # bash `*` in [[ == ]] matches `/`, so parse path parts explicitly.
   if [[ "$file" == "$DECKS_DIR"/* && "$file" == *.html ]]; then
     rel="${file#"$DECKS_DIR"/}"
     IFS='/' read -ra parts <<< "$rel"
-    if [[ ${#parts[@]} -ne 3 || "${parts[1]}" != "apps" ]]; then
-      echo "ERROR: $file escape-hatch HTML must live at decks/<slug>/apps/<name>.html"
+    if [[ ${#parts[@]} -ne 3 || "${parts[1]}" != "assets" ]]; then
+      echo "ERROR: $file escape-hatch HTML must live at decks/<slug>/assets/<name>.html"
       error=1
     fi
   fi
