@@ -1,6 +1,6 @@
 ---
 title: "Log Health Monitoring"
-date: 2026-07-07
+date: 2026-07-14
 description: "Monitoring log ingestion in SIEM using static and dynamic methods."
 categories: ["engineering", "logging"]
 image: "og-log-health-monitoring.webp"
@@ -26,10 +26,10 @@ You can swap any of these. The logic is what matters.
 
 With this stack, I cover four failure modes that are pertinent to my environment and, I'd argue, to any team running a SIEM:
 
-1. **Full stop:** a log source goes completely silent
-2. **New source:** an unknown log type starts sending data to the SIEM without previous alignment
-3. **Spike:** a source sends significantly more data than expected
-4. **Dip:** a source sends significantly less data than expected, but hasn't stopped entirely
+1. 🔴 **Full stop:** a log source goes completely silent
+2. 🔵 **New source:** an unknown log type starts sending data to the SIEM without previous alignment
+3. ⬆️ **Spike:** a source sends significantly more data than expected
+4. ⬇️ **Dip:** a source sends significantly less data than expected, but hasn't stopped entirely
 
 Full stop and new source are cheap to detect and apply to every source. Spike and dip require statistical modeling and only work on sources with predictable volume, more on that in a moment. The naming mirrors BQML ARIMA+'s own vocabulary (`has_spikes_and_dips`): an anomaly above the confidence band is a spike; below the band, a dip.
 
@@ -37,7 +37,7 @@ One thing to highlight from the start is that log sources don't behave uniformly
 
 That asymmetry shapes the whole design. And it makes log health monitoring an ongoing process, not a one-time deployment. Log sources get added, deprecated, and change behavior over time. The environment is a living organism, so the solution has to account for that, which is why I approached this as a **PDCA loop**: Plan, Do, Check, Act, repeat.
 
-This post follows two PDCA loops. The first is the deployment cycle: assess your environment, build and deploy the stack, then validate it works and make early adjustments. The second is the operational cycle that runs indefinitely once the system is live: daily monitoring and investigation, threshold tuning when alert quality drifts, and a quarterly reassessment that re-profiles the full estate and updates the configuration. The next two sections, Research and Design, cover architectural decisions. The later sections cover these two loops.
+This post follows two PDCA loops. The first is the deployment cycle: assess your environment, build and deploy the stack, then validate it works and make early adjustments. The second is the operational cycle that runs indefinitely once the system is live: daily monitoring and investigation, threshold tuning when alert quality drifts, and a quarterly reassessment that re-profiles the full estate and updates the configuration. The next two sections, [Research](#research) and [Design](#design), cover architectural decisions. The later sections cover these two loops.
 
 ## Research
 
@@ -59,8 +59,8 @@ ARIMA+ (AutoRegressive Integrated Moving Average) is a time series forecasting m
 
 The design splits log sources into two monitoring tracks based on how they behave:
 
-- **ARIMA+:** for sources with steady, forecastable volume. BigQuery ML trains a model on 90 days of hourly data and generates a confidence band. Anything outside the band is a candidate anomaly. Spikes and dips only escalate to a real alert after meeting persistence or magnitude thresholds.
 - **Heartbeat:** for bursty or sparse sources where the ARIMA+ forecast band would be too wide to be meaningful. It leverages a simpler check: if I haven't heard from this source in N hours, alert.
+- **ARIMA+:** for sources with steady, forecastable volume. BigQuery ML trains a model on 90 days of hourly data and generates a confidence band. Anything outside the band is a candidate anomaly. Spikes and dips only escalate to a real alert after meeting persistence or magnitude thresholds.
 
 Which track a source gets depends on two metrics from 90 days of historical data: **coverage** (what percentage of hourly buckets had at least one event) and **CV** (coefficient of variation: standard deviation divided by mean, which measures volume stability). A source with ≥80% coverage and CV ≤1.0 qualifies for ARIMA. Everything else gets heartbeat.
 
@@ -84,8 +84,8 @@ graph TD
         metrics --> sq
         model --> sq
         config --> sq
-        sq -->|SPIKE / DIP| candidates
-        sq -->|FULL_STOP / NEW_SOURCE| anomalies
+        sq -->|SPIKE/DIP| candidates
+        sq -->|FULL_STOP/NEW_SOURCE| anomalies
         candidates --> sq
         sq -->|promote| anomalies
     end
@@ -107,11 +107,11 @@ The pipeline has five moving parts:
 4. A separate monthly job retrains the model.
 5. A weekly job checks the pipeline itself.
 
-The split between candidates and anomalies is intentional and worth understanding. ARIMA findings don't go directly to `anomalies`; they land in `anomaly_candidates` first. The hourly scheduled query then checks those candidates and promotes them to `anomalies` only when they meet a persistence or magnitude bar: at least four detections for the same source in 24 hours, or a deviation above 200%. Below that, they stay silent.
+The split between **candidates** and **anomalies** is intentional and worth understanding. ARIMA findings don't go directly to `anomalies`; they land in `anomaly_candidates` first. The hourly scheduled query then checks those candidates and promotes them to `anomalies` only when they meet a persistence or magnitude bar: at least four detections for the same source in 24 hours, or a deviation above 200%. Below that, they stay silent.
 
-This matters because treating model outputs as alerts directly is one of the most common failure modes in ML-based detection. The model doesn't know what's actionable; it just knows what's statistically unusual. In a dynamic environment, statistically unusual happens constantly: a new service rolls out, a batch job runs on a new schedule, a team starts using a tool more. None of those warrant an alert. The promotion layer is where the signal gets filtered from the noise. Without it, alert fatigue kills the system faster than any configuration problem.
+This matters because treating model outputs as alerts directly is one of the most common failure modes in ML-based detection. The model doesn't know what's actionable; it just knows what's *statistically* unusual. In a dynamic environment, statistically unusual happens constantly: a new service rolls out, a batch job runs on a new schedule, a team starts using a tool more. None of those warrant an alert. The promotion layer is where the signal gets filtered from the noise. Without it, alert fatigue kills the system faster than any configuration problem.
 
-The promotion layer is the architectural centerpiece of the whole pipeline, and it's what makes an imperfect model operationally useful. ARIMA+ has real limitations on this data shape — see [Deployment](#deployment). No amount of hyperparameter tuning will fully fix them, and BQML's auto-selection exposes limited knobs anyway. Rather than chase a perfect model, this design lets ARIMA+ do what it's good at (finding statistical outliers) and hands off to explicit business rules (persistence ≥ 4 in 24h, magnitude ≥ 200%, 12h cooldown) to decide what deserves an alert. It's a modest architectural investment with an outsized payoff: it turns *"the model is imperfect"* from a problem into a design principle.
+The promotion layer is the **architectural centerpiece** of the whole pipeline, and it's what makes an imperfect model operationally useful. ARIMA+ has real limitations on this data shape — see [Deployment](#deployment). No amount of hyperparameter tuning will fully fix them, and BQML's auto-selection exposes limited knobs anyway. Rather than chase a perfect model, this design lets ARIMA+ do what it's good at (finding statistical outliers) and hands off to explicit business rules (persistence ≥ 4 in 24h, magnitude ≥ 200%, 12h cooldown) to decide what deserves an alert. It's a modest architectural investment with an outsized payoff: it turns *"the model is imperfect"* from a problem into a design principle.
 
 There's one more filter before candidates even reach the promotion layer. The SPIKE/DIP detection query drops micro-deviations, which means a breach only counts if it exceeds the breached bound (`upper_bound` for spikes, `lower_bound` for dips) by at least 10 events *or* at least 5% of that bound. Without this, a source doing 10 million events an hour would trigger every time it drifted a few events past expected, statistically anomalous but operationally noise. The 10-events / 5% pair is deliberate: 10 events is small enough that a quiet source still gets scrutinized, and 5% is loose enough that a busy source's rounding wobble doesn't pollute the candidate table.
 
@@ -134,7 +134,7 @@ For heartbeat sources, the silence threshold is set per source from its own hist
 Treat the tiers as direction, not hard rules. It's perfectly fine to set a source to 168h if that's what the data says. The tiers are just a mental model to keep the fleet consistent and avoid ad hoc choices. The only hard limit is 336h: above that, use suppressions for planned downtime or `excluded_log_types` for permanent exclusions.
 
 ::: {.callout-note}
-**Why 336h is the ceiling.** The hourly detection query scans `ingestion_metrics` for the `FULL_STOP` heartbeat check, and to keep that scan cheap it only looks back 14 days (336h). Any source silent beyond that returns `latest_event = NULL` and fires `FULL_STOP` regardless of `max_silence_hours`; the scan window short-circuits the threshold check. Scanning further back is possible but scales cost linearly, and 14 days is the pragmatic tradeoff. Sources that legitimately need >336h tolerance belong in `suppressions` (temporary) or `excluded_log_types` (permanent) instead. Both cost nothing to evaluate.
+The hourly detection query scans `ingestion_metrics` for the `FULL_STOP` heartbeat check, and to keep that scan cheap it only looks back 14 days — 336h. Any source silent beyond that returns `latest_event = NULL` and fires `FULL_STOP` regardless of `max_silence_hours`; the scan window short-circuits the threshold check. Scanning further back is possible but scales cost linearly, and 14 days is the pragmatic tradeoff. Sources that legitimately need >336h tolerance belong in `suppressions` (temporary) or `excluded_log_types` (permanent) instead. Both cost nothing to evaluate.
 :::
 
 With all architectural decisions in mind, it's time to start implementing the log health monitoring.
@@ -501,6 +501,8 @@ JOIN `chronicle-self.log_health.source_config` c
   ON c.source_key = r.source_key
 WHERE c.enabled AND c.detection_method = 'ARIMA';
 ```
+
+The query runs auto-ARIMA independently per `source_key`, meaning each log sourceits own model with no cross-source influence. For each series, BQML searches for the best `(p, d, q)` triplet: `p` is how many past hours the model looks back when predicting the next one (autoregressive order); `d` is how many times the series must be differenced to remove trend and make it stationary; `q` is how many past prediction errors factor into the forecast — moving-average order. With `decompose_time_series=TRUE`, the signal is also split into trend, seasonal, and residual components, each fitted separately. The result is stored as a **BigQuery ML model object** in the same project and dataset namespace as your tables, but addressed with `MODEL` in SQL rather than `TABLE`. Nothing is written to a regular table, thus all the per-source fitted parameters live inside the model artifact.
 
 ::: {.callout-note}
 In my experience, the original `ingestion_metrics` had ~29 GB of data; `ingestion_hourly`, the filtered table used to train ARIMA+, had only 27 MB. The whole training run against this 90-day window took 13 seconds. Super cheap.
@@ -1025,7 +1027,7 @@ What I took from all of this was to shift AI left. Bring it in at the problem-fr
 
 Log monitoring is essential for any SOC. Unfortunately, SIEMs and other related tools don't take it seriously, because they have no embedded mechanisms to monitor it. The proposed solution, although specific to the Google stack, can be adapted to different scenarios.
 
-I've seen many cases where the team has an expensive, magic-quadrant, modern SIEM, but when the time comes to respond to an incident, the required log source has been silent for days. Remember: a SIEM is as good as the logs it ingests. If it ingests no logs, it's useless. Log ingestion monitoring must be taken seriously, or your whole security operation is at risk.
+I've seen cases where the team has an expensive, magic-quadrant, modern SIEM, but when the time comes to respond to an incident, the required log source has been silent for days. A SIEM is as good as the logs it ingests. If it ingests no logs, it's useless. Log ingestion monitoring must be taken seriously, or your whole security operation is at risk.
 
 ## Future Work
 
@@ -1067,6 +1069,8 @@ WHERE c.enabled AND c.detection_method = 'ARIMA';
 ### log-health-detect-hourly
 
 Runs every hour at `:18`. Detects SPIKE/DIP via ARIMA+, FULL_STOP via heartbeat, and NEW_SOURCE via set difference. Promotes persistent or high-magnitude ARIMA+ candidates to alerts.
+
+At runtime, `ML.DETECT_ANOMALIES()` loads the per-`source_key` parameters stored in `arima_ingestion` and runs them forward against the fresh data window. For each `(source_key, hour_bucket)` pair it generates a point forecast and a probability distribution around it, then derives `lower_bound` and `upper_bound` at the requested `anomaly_prob_threshold`. Actual `log_count` outside those bounds returns `is_anomaly = TRUE` with an `anomaly_probability` score. The bands are computed on the fly, so nothing is looked up from a pre-computed table.
 
 ```sql
 -- Step B: SPIKE/DIP detection → anomaly_candidates (raw signal, with severity_pct)
@@ -1261,4 +1265,4 @@ WHERE SAFE_DIVIDE(t.events_7d - p.events_7d, p.events_7d) > 0.20;
 ## References
 
 - [`derive-seeds.py`](https://gist.github.com/lopes/54809c3ac1f0ae007bb4f48cdd217f92)
-- [`log-health.gs`](https://gist.github.com/lopes/374242a4202e40121bd0d80d15dc5dce)
+- [`log-health.gs`](https://gist.github.com/lopes/041a25c7792303eb15ab600251f5c11b)
