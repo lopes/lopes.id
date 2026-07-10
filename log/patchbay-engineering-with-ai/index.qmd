@@ -1,6 +1,6 @@
 ---
-title: "Patchbay: Engineering With an AI Pair"
-date: 2026-07-20
+title: "Patchbay: Engineering with AI"
+date: 2026-07-10
 description: "Building a Spotify MCP server with an AI pair."
 categories: ["engineering"]
 image: "og-patchbay-engineering-with-ai.webp"
@@ -60,16 +60,20 @@ That left one dependency: `mcp`, the thing that defines the project. For a tool 
 
 ## Design
 
-With the approach and constraints fixed, the design fell out quickly. `patchbay` (the name and framing are mine, after the studio panel that consolidates every audio connection so you route signals with short patch cables instead of rewiring behind the rack) is about 300 lines of Python behind two entry points: a one-time browser authorization using Authorization Code + PKCE (no client secret to store; token cached under `~/.config/patchbay/` at `600`), and the MCP server itself, speaking stdio with eight tools: read liked songs, read playlists, read a playlist's tracks, search the catalog, create a playlist, add tracks, remove tracks, and remove liked songs. Scopes limited to library and playlist read/write. Nothing else.
+With the approach and constraints fixed, the design fell out quickly. `patchbay`[^1] is about 300 lines of Python behind two entry points: a one-time browser authorization using Authorization Code + PKCE (no client secret to store; token cached under `~/.config/patchbay/` at `600`), and the MCP server itself, speaking stdio with eight tools: read liked songs, read playlists, read a playlist's tracks, search the catalog, create a playlist, add tracks, remove tracks, and remove liked songs. Scopes limited to library and playlist read/write. Nothing else.
+
+[^1]: The "patchbay" name and framing are mine, after the studio panel that consolidates every audio connection so you route signals with short patch cables instead of rewiring behind the rack.
 
 ```{mermaid}
-graph LR
+graph TD
   Me((Me)) --> LLM[LLM / Claude]
   LLM -->|tool calls| MCP[patchbay MCP server<br/>local, holds my token]
-  MCP -->|Web API over OAuth| API[(Spotify Web API)]
+  MCP -->|Web API over OAuth| API{{Spotify Web API}}
   API --> Acct[(My account:<br/>liked songs + playlists)]
   MCP -->|structured results| LLM
 ```
+
+Under the hood, that's the shape of an MCP server at its most minimal. Two deterministic Python scripts: `patchbay-auth` runs the browser flow and stashes the token; `patchbay` is the stdio server that reads it back and exposes those tools over JSON-RPC. At session start the LLM reads the tool schemas; during the session it decides *when* and *with what arguments* to call each one, and the server executes and returns structured results. Server never reasons. Model never touches Python. Small enough to read on a napkin, and a good first project for feeling out the protocol end-to-end.
 
 ## With a Little Help of AI
 
@@ -79,23 +83,36 @@ I wasn't ready to give up on metadata, though, so I asked the obvious follow-up:
 
 And here's the thing: I didn't need any of it. The model already knows the music. Give it a title, artist, and album, and it'll tell you whether a song belongs in *Roadtrip* or *Coffee* about as well as a friend with good taste. The genre labels I was chasing live in the LLM already, richer and more current than a metadata field Spotify can't be bothered to maintain. patchbay just moves songs; the taste stays in the conversation.
 
+## The First Reorg
+
+The first live session ran about an hour, and confirmed both the workflow and the thesis. What made it work wasn't the tooling — it was the prompt.
+
+I opened the session with the whole context laid out: what I wanted (mood/occasion playlists, no genre or year splits), what wasn't working (bloated playlists, songs never playing), what to preserve (Portuguese naming for BR-flavored variants), and the occasions I regularly listen for. That single message did the heavy lifting. Every downstream decision (the playlist set, the naming convention, the assignment rules) traced back to it. If I'd opened with "reorganize my playlists," I'd have gotten a generic answer and spent the hour negotiating away from it.
+
+The session ran in explicit phases with pauses between them. **Discovery** fanned out one subagent per playlist and one for *Liked Songs*, each returning a compact character sketch: top artists, sample tracks, genre mix, occasion fit. That was the only way the model could reason about ~1,900 unique tracks without blowing out the context window. **Planning** turned the sketches into 22 mood-anchored playlists, each with a one-line charter. I pushed back on a couple, added a *Rain* playlist for the beautiful-melancholy pocket, held the line on strict occasion buckets. **Assignment** cycled through two cleanup passes: the first attempt used a rule engine and dumped 173 low-confidence tracks into `coffee_day` as a fallback bucket; I called it out, and a second pass re-classified each track on individual judgment. **Review**, then **execution**.
+
+Execution turned up a live example of the *February 2026 changes* mentioned earlier. Halfway through, `DELETE /me/tracks` returned a 403 — the endpoint had been consolidated into `DELETE /me/library`. First patch shipped the URIs in a JSON body; Spotify wanted them as a comma-separated query parameter capped at 40. Two commits, tests updated, session resumed. And earlier in the same session we'd already added a `delete_playlist` tool that patchbay had never had — Spotify models playlist deletion as *unfollow your own playlist*, and I'd never wired the endpoint. Ten more lines, committed; tool count from eight to nine.
+
+The result: 22 new playlists live on Spotify, from *Focus* (39 instrumental tracks) to *Nostalgia* (319 MTV-era anthems), 2,737 total assignments across 1,872 unique tracks — average 1.46 playlist tags per track. The twelve old playlists are gone; *Liked Songs* is empty. I'm still spot-checking placements as I listen, and so far so good.
+
+At the end of the session, we lifted the workflow into a `/reorg-playlists` skill, plus a companion `/audit-playlists` for monthly hygiene. Next reorg won't need me to re-explain the phased structure or the "no fallback bucket" rule or the ISRC dedup — the skill carries those forward. That's what "let the machine compress the typing" should actually look like: not a one-off session, but a reusable capability that ships the lessons of the run that made it.
+
 ## Process
 
-Day to day, nothing changed: I still like songs on impulse. The organizing is a separate, deliberate act. Every few weeks I open a session:
+Day to day, nothing changed: I still like songs on impulse. The organizing splits by cadence, and both halves live in skills now.
 
-1. "Read my liked songs and playlists, and propose an occasion mapping (party, roadtrip, focus, coffee, work) before touching anything."
-2. I review the plan, argue with a few calls, and approve.
-3. It creates any missing playlists and patches each song into every occasion it fits. Songs *should* land in more than one; that's the behavior I couldn't be bothered to do by hand.
-4. Only once a song is safely filed does it leave *Liked Songs*.
+Every few weeks I run `/audit-playlists`: it reports playlists bloating past 300 tracks, cross-remaster duplicates (same recording under multiple Spotify IDs), tracks that have leaked into more than three playlists, and any *Liked Songs* accumulation from the last cycle. Findings first, fixes only after I approve each one.
 
-Build and fill first, unlike last, so a bad call never strands a track. The next step, when I get to it, is to freeze the mapping into a skill so the organizing is consistent instead of re-explained each session.
+When the taxonomy itself feels stale (probably rare, once a year at most) `/reorg-playlists` runs the full teardown with the phase structure and the "no fallback bucket" rule baked in. The first one already happened; the next will look the same because the skill carries the lessons forward.
+
+The safety invariant carries across both: build and fill first, unlink last, so a bad call never strands a track.
 
 ## Wrap Up
 
-The honest summary is that the tools changed and the method didn't. The AI did the research I'd have lost an evening to and the implementation I'd have lost a weekend to, and it did both well. But it reached for the popular libraries, not the minimal ones; it didn't care about my supply chain, my threat model, the name, or the framing until I told it to. Every real decision was mine, and so is the accountability. That's the job, and it's still the job.
+The honest summary is that the tools changed and the method didn't. The AI did the research I'd have lost an evening to, and the implementation I'd have lost a weekend to. Both well. But it reached for the popular libraries, not the minimal ones; it didn't care about my supply chain, my threat model, the name, or the framing until I told it to. Every real decision was mine, and so is the accountability. That's the job, and it's still the job.
 
-There's a bigger decision hiding under this whole project, though, and I think it matters more than the project itself: knowing when to keep AI in the loop, and when to keep it out. My default is out. If a problem can be solved with a plain script, I write the script. It costs me more time up front, but once it ships it runs for free: no tokens, no latency, no bill that shows up every time it runs. A solution that calls an AI on every execution is the opposite — faster to build, because you let the model absorb the messy logic instead of coding it, but it charges you on every run, forever. Fixed cost versus recurring cost. In my experience the plain script usually wins.
+There's a bigger decision hiding under this whole project, though, and I think it matters more than the project itself: knowing when to keep AI in the loop, and when to keep it out. My default is out. If a problem can be solved with a plain script, I write the script. It costs me more time up front, but once it ships it runs for free: no tokens, no latency, no bill that shows up every time it runs. A solution that calls an AI on every execution is the opposite: faster to build, because you let the model absorb the messy logic instead of coding it, but it charges you on every run, forever. Fixed cost versus recurring cost. In my experience the plain script usually wins.
 
-Patchbay lands on the recurring-cost side of that line, and I want to be honest about it, because my first instinct was to file it as an exception. It isn't. Yes, I used AI to *build* it, once, and the server itself is deterministic and burns nothing on its own. But the *solution* is useless without an AI driving it: every organizing session spends tokens, and it will for as long as I use it. That's AI in the runtime loop, full stop. I'm fine with it here for two reasons. First, the recurring cost buys something a script genuinely can't — the fuzzy, taste-based call of whether a song belongs in *Focus* or *Coffee*. Second, I kept that cost boxed in: the AI is invoked only for the decision, only when I choose to run it, a handful of times a year, while every mechanical step (auth, reading and writing the library) stays deterministic and free. The discipline was never "avoid recurring cost." It's "put the AI only where the loop actually needs a brain, and keep its footprint as small as the problem allows." (And the plain-script side isn't truly free either — Spotify's API will change and I'll have to touch this again. But "maintain occasionally" and "pay per run" are very different bills.)
+Patchbay lands on the recurring-cost side of that line, and I want to be honest about it, because my first instinct was to file it as an exception. It isn't. Yes, I used AI to *build* it, once, and the server itself is deterministic and burns nothing on its own. But the *solution* is useless without an AI driving it: every organizing session spends tokens, and it will for as long as I use it. That's AI in the runtime loop, full stop. I'm fine with it here for two reasons. First, the recurring cost buys something a script genuinely can't: the fuzzy, taste-based call of whether a song belongs in *Focus* or *Coffee*. Second, I kept that cost boxed in: the AI is invoked only for the decision, only when I choose to run it, a handful of times a year, while every mechanical step (auth, reading and writing the library) stays deterministic and free. The discipline was never "avoid recurring cost." It's "put the AI only where the loop actually needs a brain, and keep its footprint as small as the problem allows." (And the plain-script side isn't truly free either; Spotify's API will change and I'll have to touch this again. But "maintain occasionally" and "pay per run" are very different bills.)
 
 Three sentences, then: define the problem and own the constraints yourself; let the machine compress the research and the typing; and remember that the moment you stop deciding is the moment you've stopped engineering. The code is on GitHub: [github.com/lopes/patchbay](https://github.com/lopes/patchbay), small enough to read in one sitting, which was the entire point.
