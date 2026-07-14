@@ -12,7 +12,7 @@ In this post, I'll share my approach to add the "expiration rows" feature to Dat
 
 ## Data Tables: A More Robust Approach
 
-Data Tables are a more robust approach to listing items in Chronicle but naturally have different means of interaction. **API-wise**, there's a new set of endpoints, all of them in `v1alpha`, that we can leverage to systematically interact with these tables.
+Data Tables are a more robust approach to listing items in Chronicle but naturally have different means of interaction. **API-wise**, there's a new set of endpoints, all of them in `v1alpha`, that we can use to systematically interact with these tables.
 
 Data Tables allow users to manage a list of entities that can be reused across different detection rules and can also be used to **enrich logs**, providing more context about them.
 
@@ -75,7 +75,7 @@ It took me less than five business days to come up with this solution, but it co
 
 ## Bottom Line
 
-Despite the struggle to understand how to use the API, the final solution looks stable and quite usable. Data Tables are indeed a better and more robust approach to implementing lists, and I see why Google is deprecating Reference Lists.
+Despite the struggle to understand how to use the API, the final solution looks stable and quite usable. Data Tables are indeed a better, more capable approach to implementing lists, and I see why Google is deprecating Reference Lists.
 
 The API is very responsive, and the data structures it uses are well-designed and allow for the development of good automations; something essential to keeping lists live, safe, and sanitized, which is vital for any good SIEM. 💡
 

@@ -6,9 +6,9 @@ categories: ["detection", "engineering"]
 image: "og-high-fidelity-nrd-detections.webp"
 ---
 
-As threat actors increasingly cycle through **Newly Registered Domains (NRDs)** for phishing and Command and Control (C2) operations, detecting activity tied to these short-lived domains remains a valuable defensive strategy. **Google SecOps SIEM** (formerly Chronicle) 🛡️ provides a powerful, native capability to leverage WHOIS data and domain reputation signals, allowing us to programmatically determine if a domain is newly created. However, relying on broad, generic rules is a fast track to alert fatigue. We need precision. 🎯
+As threat actors increasingly cycle through **Newly Registered Domains (NRDs)** for phishing and Command and Control (C2) operations, detecting activity tied to these short-lived domains remains a valuable defensive strategy. **Google SecOps SIEM** (formerly Chronicle) 🛡️ has a native capability to use WHOIS data and domain reputation signals, letting us programmatically determine if a domain is newly created. But relying on broad, generic rules is a fast track to alert fatigue. We need precision. 🎯
 
-After diving deep into Google Workspace logs to investigate stronger detection possibilities, I consolidated my thoughts and strategies into this post.
+After digging into Google Workspace logs to look for stronger detection possibilities, I pulled my thoughts and strategies together into this post.
 
 ## The Problem with Broad Strokes
 
@@ -27,7 +27,7 @@ Working with Google Workspace logs opened my mind to a more granular solution. T
 
 This shifts the detection philosophy from simply observing *newness* to observing *suspicious behavior in high-risk contexts*, where *newness* is merely one of several contextual factors. 💡
 
-The next table outlines a few use cases with ideas for implementing scoped detections. These leverage NRD data to add critical context to otherwise standard connections.
+The next table outlines a few use cases with ideas for implementing scoped detections. These use NRD data to add context to otherwise standard connections.
 
 | Use Case | UDM Event Type | Detection Focus & Threshold | Risk Mapping |
 | :--- | :--- | :--- | :--- |
@@ -41,7 +41,7 @@ The next table outlines a few use cases with ideas for implementing scoped detec
 This is not a silver bullet; use these examples as inspiration to create detection rules that fit your organization's specific threat landscape.
 :::
 
-## Leveraging NRD with Google Workspace
+## Using NRD with Google Workspace
 
 As mentioned, I was analyzing Google Workspace events when I realized I could use NRD context to highlight suspicious email transactions. My first approach was to select all messages opened in Workspace, extract the domain from the sender address (excluding trusted domains), and trigger an alert if the domain was less than one week old.
 
@@ -92,9 +92,9 @@ rule workspace_nrd_possible_phishing {
 }
 ```
 
-One concern I had was that "one week" might not cover all scenarios. However, as noted, simply increasing this window globally would lead to an unacceptable volume of alerts in production. A robust solution in these cases is to create a **fork** of the original rule that monitors a specific set of high-value assets.
+One concern I had was that "one week" might not cover all scenarios. But as noted, simply increasing this window globally would lead to an unacceptable volume of alerts in production. A good solution in these cases is to create a **fork** of the original rule that monitors a specific set of high-value assets.
 
-In this instance, I decided to monitor a list of **VIPs**. Since this greatly reduces the user count to only executives or people with elevated privileges, it allows us to safely increase the "newly registered" window to **180 days**. With this adjustment, the rule transforms into a specialized detector for targeted spear-phishing attempts:
+In this case, I decided to monitor a list of **VIPs**. Since this greatly reduces the user count to only executives or people with elevated privileges, we can safely increase the "newly registered" window to **180 days**. With this change, the rule becomes a specialized detector for targeted spear-phishing attempts:
 
 ```c
 rule workspace_nrd_possible_spear_phishing {

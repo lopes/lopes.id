@@ -27,7 +27,7 @@ The core structure of the spreadsheet was maintained, with four tabs:
 1. **Setup:** Where the user sets up basics like wallets, assets, and starting year. This spreadsheet is designed to track assets over a five-year period, see the next note.
 2. **Ledger:** Aggregates transactions like buy, sell, and incomes from assets.
 3. **Allocation:** Used to define the asset allocation strategy in all layers (Wallet, Type, and Assets).
-4. **Summary:** Summarizes data from other tabs, especially from Allocation, showing the user insightful information.
+4. **Summary:** Summarizes data from other tabs, especially from Allocation, showing the user useful information.
 
 ::: {.callout-note}
 As this spreadsheet is limited to tracking assets over five years, the user is invited to use multiple files for tracking assets over larger periods of time. My recommendation is to keep these files in the same folder with the date range in the file name, like `Portfolio Tracker 2019-2023`. When starting a new file, you can drop deprecated assets and summarize transactions to make it even faster. I do this using separate code that summarizes transactions in the Ledger tab, then I copy-and-paste the values into the new sheet. As a reference, I use the date of December 31st of the previous year in the summarized transactions.
@@ -35,7 +35,7 @@ As this spreadsheet is limited to tracking assets over five years, the user is i
 
 ## Allocation
 
-I've shifted the focus from asset taxonomy to asset allocation here, making it more user-friendly and visually guiding the user to define their targets properly, what's more important. The first step is to define the allocation between wallets and how each wallet will be divided between core and satellite. With this setup, all assets must be cataloged with their respective weights.
+I've shifted the focus from asset taxonomy to asset allocation here, making it more user-friendly and visually guiding the user to define their targets properly, which matters more. The first step is to define the allocation between wallets and how each wallet will be divided between core and satellite. With this setup, all assets must be cataloged with their respective weights.
 
 The weights make sense locally (Wallet/Type), considering both the target allocation from the wallet and the type (core-satellite). I chose to use weights here to make it easier for me to define target allocations for assets. With the weights (which may vary between 0 and 20), the spreadsheet will calculate their percentages in the same Wallet/Type and then figure out how it reflects in the previously defined targets.
 

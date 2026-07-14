@@ -6,39 +6,39 @@ categories: ["random"]
 image: "og-migrating-to-quarto.webp"
 ---
 
-[Zola](https://www.getzola.org/) powered this blog from its inception in 2020, and it served me well. However, in late 2025, I discovered an alternative that appeared more compelling: [Quarto](https://quarto.org/). After some research and testing, I decided to migrate from Zola to Quarto, using the slow down before the new year to execute the most significant infrastructure change this site has undergone. In this post, I explain my motivations and detail the overall migration process.
+[Zola](https://www.getzola.org/) powered this blog from the start in 2020, and it served me well. But in late 2025, I found an alternative I liked better: [Quarto](https://quarto.org/). After some research and testing, I decided to migrate from Zola to Quarto, using the slow down before the new year to make the biggest infrastructure change this site has gone through. In this post, I explain my motivations and go through the migration process.
 
 ## Zola: A Fast Static Site Generator
 
-**Zola** is renowned for its speed and ease of deployment. Written in Rust, it is blazing fast—able to build my repository of nearly 80 posts almost instantaneously. After running `zola serve`, a version of my site was immediately available at `localhost:1111` for review. The installation process is equally excellent: as a single ~15 MB binary, it is simply a matter of downloading the file, adding it to the system path, and *voilà*: job done.
+**Zola** is known for its speed and ease of deployment. Written in Rust, it is fast—it builds my repository of nearly 80 posts almost instantly. After running `zola serve`, a version of my site was immediately available at `localhost:1111` for review. Installation is just as simple: as a single ~15 MB binary, it's just a matter of downloading the file, adding it to the system path, and *voilà*: job done.
 
-My journey with Zola is partially documented on this blog. In my [debut post here](/log/zola-static-sites-tutorial/), I shared how to get started with the framework. However, after establishing a working version of the site, I noticed theme options were limited compared to Hugo, one of the most popular static site generators (SSGs). This limitation inspired me to create my own theme, [ZOLA.386](https://github.com/lopes/zola.386), which evoked memories of Saturday afternoons setting up MS-DOS games with my father.
+My journey with Zola is partially documented on this blog. In my [debut post here](/log/zola-static-sites-tutorial/), I shared how to get started with the framework. But after getting a working version of the site up, I noticed theme options were limited compared to Hugo, one of the most popular static site generators (SSGs). That pushed me to create my own theme, [ZOLA.386](https://github.com/lopes/zola.386), which brought back memories of Saturday afternoons setting up MS-DOS games with my father.
 
-As time passed, I desired a darker aesthetic, leading to a transition that culminated in [Kita](https://github.com/st1020/kita). This theme supported the blog for the majority of its life, and I credit the developers for its quality and feature set. With Kita, I realized a long-standing goal: implementing "blog as code," featuring advanced visual elements like diagrams, equations, and callouts defined as text rather than static images.
+As time passed, I wanted a darker aesthetic, which led to a move to [Kita](https://github.com/st1020/kita). This theme supported the blog for most of its life, and I credit the developers for its quality and feature set. With Kita, I hit a long-standing goal: "blog as code," with visual elements like diagrams, equations, and callouts defined as text rather than static images.
 
-Later, Kita introduced support for [Open Graph](https://ogp.me/) images. Coinciding with the rise of AI-generated imagery, I adopted custom images to represent my posts. The response was excellent; several readers praised the blog's style, and some reached out for tips on using Kita. It was a genuine success.
+Later, Kita added support for [Open Graph](https://ogp.me/) images. This coincided with the rise of AI-generated imagery, so I adopted custom images to represent my posts. The response was good; several readers praised the blog's style, and some reached out for tips on using Kita. It was a genuine success.
 
 ## Quarto: Scientific and Technical Publishing
 
 **Quarto** is similar to Zola in that it is a static site generator, but it offers a broader feature set. Built on [Pandoc](https://pandoc.org/), a universal document converter, Quarto is more than just a site builder. As its documentation suggests, Quarto is designed for scientists and engineers to easily create and share technical content.
 
-Crucially, Quarto can leverage [Jupyter](https://jupyter.org/) notebooks to facilitate interactive posts, allowing projects to be published directly from the notebook environment.
+Importantly, Quarto can use [Jupyter](https://jupyter.org/) notebooks to build interactive posts, letting you publish projects directly from the notebook environment.
 
-Quarto utilizes a Markdown dialect that provides robust functionality out of the box, such as footnotes, callouts, [Mermaid](https://mermaid.js.org/) diagrams, and LaTeX snippets. While I previously relied on the Kita theme to implement these features in Zola, Quarto handles them natively. Furthermore, the notation is often simpler and more intuitive.
+Quarto uses a Markdown dialect with a lot of functionality out of the box, such as footnotes, callouts, [Mermaid](https://mermaid.js.org/) diagrams, and LaTeX snippets. While I previously relied on the Kita theme to get these features in Zola, Quarto handles them natively. The notation is often simpler too.
 
-Quarto also provides excellent JavaScript interactivity by default. With a simple setup, I can enable users to search, sort, or filter posts. From an SEO perspective, the generator implements best practices automatically, including Twitter cards and Open Graph metadata.
+Quarto also gives you JavaScript interactivity by default. With a simple setup, I can let users search, sort, or filter posts. On the SEO side, the generator applies best practices automatically, including Twitter cards and Open Graph metadata.
 
-This versatility was the primary driver behind the migration.
+This range of features was the main driver behind the migration.
 
 ## Migration
 
-I used this migration as an opportunity to refine several elements I had built over time, aiming for a more unified vision for the project. This refinement consumed some time[^1], though it was not strictly related to Quarto itself. Once implementation began, I discovered that Quarto can be both incredibly easy and occasionally frustrating. While configuration via `_quarto.yml` is straightforward, the documentation contains gaps that can lead to confusion.
+I used this migration as a chance to refine several things I had built over time, aiming for a more unified vision for the project. That refinement took some time[^1], though it wasn't strictly related to Quarto itself. Once I started, I found that Quarto can be both very easy and occasionally frustrating. Configuration via `_quarto.yml` is straightforward, but the documentation has gaps that can lead to confusion.
 
-I initially selected the [Cosmo](https://bootswatch.com/cosmo/) theme because the preview on Bootswatch offered both light and dark versions, a feature I wanted to retain from Kita. However, I quickly realized that although Quarto implements Bootstrap themes, the integration is not seamless. Standard Bootstrap themes use the HTML `data-bs-theme` property to toggle versions, but Quarto uses a different system that overrides this, effectively forcing the user to define two separate themes.
+I first picked the [Cosmo](https://bootswatch.com/cosmo/) theme because the preview on Bootswatch offered both light and dark versions, a feature I wanted to keep from Kita. But I quickly realized that although Quarto implements Bootstrap themes, the integration isn't smooth. Standard Bootstrap themes use the HTML `data-bs-theme` property to toggle versions, but Quarto uses a different system that overrides this, forcing the user to define two separate themes.
 
-The upside of this hurdle was that it compelled me to conduct deeper research. Eventually, I discovered the [Notes from a Data Witch](https://blog.djnavarro.net/) blog and fell in love with the theme. Fortunately, the author shares the source code on GitHub, allowing me to study and adapt it into my own style: the **Vigil theme**.
+The upside of this hurdle was that it pushed me to dig deeper. I eventually found the [Notes from a Data Witch](https://blog.djnavarro.net/) blog and fell in love with the theme. The author shares the source code on GitHub, which let me study and adapt it into my own style: the **Vigil theme**.
 
-Beyond theming, the bulk of the work involved string substitutions, regex operations, and shell scripts to migrate my post library. I then proceeded with manual adjustments to fine-tune specific posts. The next major step was recreating the Open Graph images to follow best practices; I also decided to switch to the [WebP](https://developers.google.com/speed/webp) format for faster load times.
+Beyond theming, most of the work was string substitutions, regex operations, and shell scripts to migrate my post library. I then made manual adjustments to fine-tune specific posts. The next big step was recreating the Open Graph images to follow best practices; I also decided to switch to the [WebP](https://developers.google.com/speed/webp) format for faster load times.
 
 To wrap everything up, I reconfigured the CI/CD scripts on GitHub to perform automated checks and deployments.
 
@@ -46,14 +46,14 @@ To wrap everything up, I reconfigured the CI/CD scripts on GitHub to perform aut
 
 ## AI Support
 
-Unlike previous migrations, I utilized AI to assist with this process, and I have mixed feelings about the experience. In some areas, it excelled: it was a massive help in customizing the theme, creating the new logo, and generating code snippets. Conversely, it occasionally provided incorrect guidance; for instance, it suggested blurring Open Graph images only to contradict itself later, resulting in wasted time and frustration. It also tended to "hallucinate" Quarto properties that do not exist rather than admitting a lack of knowledge.
+Unlike previous migrations, I used AI to help with this process, and I have mixed feelings about the experience. In some areas it was great: it was a big help in customizing the theme, creating the new logo, and generating code snippets. On the other hand, it sometimes gave me wrong guidance; for instance, it suggested blurring Open Graph images only to contradict itself later, wasting time and causing frustration. It also tended to "hallucinate" Quarto properties that don't exist rather than admitting it didn't know.
 
-Overall, the result was positive, but there is clear room for improvement in current LLM capabilities. Without real-world examples to reference or my own engineering experience to guide the process, I would likely still be struggling to switch the Cosmo theme to its dark version.
+Overall, the result was positive, but there is clear room for improvement in current LLMs. Without real-world examples to reference or my own engineering experience to guide the process, I would probably still be struggling to switch the Cosmo theme to its dark version.
 
 ## Final Thoughts
 
-While I acknowledge Zola's performance and remain grateful for it, I am very satisfied with Quarto thus far. The deployment time is admittedly much longer now, taking over a minute to build the site from scratch. However, since I do not deploy constantly, this is an acceptable trade-off.
+I still appreciate Zola's performance and am grateful for it, but I'm very happy with Quarto so far. The deployment time is admittedly much longer now, taking over a minute to build the site from scratch. But since I don't deploy constantly, that's an acceptable trade-off.
 
-This experience reinforced the value of open-source software, and I have decided to open-source [this blog's repository](https://github.com/lopes/lopes.id) 🔗 so others in the Quarto community can benefit from it. 🤲🏻
+This experience reinforced the value of open-source software, and I decided to open-source [this blog's repository](https://github.com/lopes/lopes.id) 🔗 so others in the Quarto community can benefit from it. 🤲🏻
 
-I look forward to exploring more of Quarto's features and am confident that this site now possesses a strong foundation for the future.
+I look forward to exploring more of Quarto's features, and I'm confident this site now has a strong foundation for the future.

@@ -116,7 +116,7 @@ Each request wrote one JSONL line with the session, source IP, prompt, response,
 }
 ```
 
-Read that line again and notice what's in it. The attacker told me who they were pretending to be, which system they wanted, and the exact story they used to get it. That was the forensic payoff of making the attacker do the work. The log wasn't "someone touched the honeypot." It was a transcript of intent.
+Read that line again and notice what's in it. The attacker told me who they were pretending to be, which system they wanted, and the exact story they used to get it. That was the forensic payoff of making the attacker do the work. The log wasn't "someone touched the honeypot" but a transcript of intent.
 
 ## Having Fun
 
@@ -124,7 +124,7 @@ During testing, I pointed Claude Code at the running honeypot and told it to att
 
 Once Datura was solid, I showed it to colleagues, framed as a discovery rather than a project. I told them the AI team had left a beta assistant running in production, an onboarding portal loaded with credentials to help new people get set up and troubleshoot the environment. Then I used it in front of them. I asked it directly for credentials and it refused, the way a careful tool should. Then I told it I was onboarding onto the team and needed to get my local environment talking to staging, and it walked me right up to a set of credentials to help me along.
 
-They believed it. Some of the sharpest people I work with looked at that and read it as a real, embarrassing production leak. The web interface was convincing, the refusal-then-help arc felt exactly like a slightly-misconfigured internal tool, and the fake answers looked real. That afternoon was the moment the product proved itself. If skilled defenders read it as genuine, an attacker in a hurry certainly would.
+They believed it. Some of the sharpest people I work with looked at that and read it as a real, embarrassing production leak. The web interface was convincing, the refusal-then-help arc felt exactly like a slightly-misconfigured internal tool, and the fake answers looked real. That morning was the moment the product proved itself. If skilled defenders read it as genuine, an attacker in a hurry certainly would.
 
 ## Why I burned It
 
@@ -138,7 +138,7 @@ For my actual use, which is internal detection, I don't need a conversation. I n
 
 Around the same time, Thinkst published their [tripwire post](https://blog.thinkst.com/2026/06/one-for-all-the-models-out-there.html): a lightweight pattern for planting tripwires against model registries and MCP servers. They validated the entire space of AI-flavored deception with a far lighter artifact than the one I'd built. When the people who define this space ship the light version, the heavy version's marginal value gets thin fast.
 
-So I stopped. I dropped Datura and put the effort into [Foxglove](https://github.com/lopes/foxglove) instead, which generates canary documents that do the detection job at a fraction of the footprint. This wasn't a failure. The technology passed every test I set for it. The economics didn't. Those are two different scoreboards, and for an internal detection tool the second one is the one that counts.
+So I stopped. I dropped Datura and put the effort into [Foxglove](https://github.com/lopes/foxglove) instead, which generates honeyfiles that do the detection job at a fraction of the footprint. This wasn't a failure. The technology passed every test I set for it. The economics didn't. Those are two different scoreboards, and for an internal detection tool the second one is the one that counts.
 
 ## Takeaways
 

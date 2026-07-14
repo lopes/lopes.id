@@ -6,17 +6,17 @@ categories: ["detection", "engineering"]
 image: "og-engineering-detection-rules.webp"
 ---
 
-While working in a Threat Detection Engineering (TDE) team, I've observed a common practice: engineers often begin coding new detection rules immediately upon receiving a ticket. The critical documentation—including rule description, context, and taxonomy (often MITRE ATT&CK mapping)—is frequently left to the final step before the rule is pushed to production.
+While working in a Threat Detection Engineering (TDE) team, I've observed a common practice: engineers often begin coding new detection rules immediately upon receiving a ticket. The critical documentation — including rule description, context, and taxonomy (often MITRE ATT&CK mapping) — is frequently left to the final step before the rule is pushed to production.
 
-Is this an optimal approach? I contend it is *not*. Drawing parallels from my software engineering (SWE) classes, I aim to demonstrate how a more structured, engineering-first methodology can lead to the creation of superior and more rapidly deployed detection rules.
+Is this the best approach? I'd argue it is *not*. Drawing on my software engineering (SWE) classes, I want to show how a more structured, engineering-first approach can lead to better and faster-deployed detection rules.
 
 ## Building Software: A Pre-Coding Imperative
 
-In the realm of software engineering, when an engineer receives a request for new software, the initial phase is dedicated to deeply understanding the problem. As highlighted in "Software Engineering, 10th Edition by Ian Sommerville," this involves specifying **requirements** to grasp *what* needs to be built, *why* it's necessary, and *who* will use it.
+In software engineering, when an engineer receives a request for new software, the first phase is dedicated to understanding the problem. As highlighted in "Software Engineering, 10th Edition by Ian Sommerville," this involves specifying **requirements** to grasp *what* needs to be built, *why* it's necessary, and *who* will use it.
 
-Once functional and non-functional requirements are clearly defined, the engineer **assesses** their alignment with the team's overarching scope and strategy. If alignment is confirmed, the process transitions to the **design** phase. Here, architectural patterns, data models, interfaces, and algorithms are conceptualized and meticulously documented, serving as a comprehensive blueprint for subsequent implementation.
+Once functional and non-functional requirements are clearly defined, the engineer **assesses** their alignment with the team's overall scope and strategy. If alignment is confirmed, the process moves to the **design** phase. Here, architectural patterns, data models, interfaces, and algorithms are designed and carefully documented, serving as a blueprint for the implementation that follows.
 
-A crucial aspect of the design phase is leveraging existing solutions. Engineers actively seek out and utilize design patterns, libraries, frameworks, and other pre-existing components. This strategic reuse not only accelerates development but also enhances safety, as these components are typically well-tested and validated, assuming adherence to good software practices.
+A key aspect of the design phase is reusing existing solutions. Engineers actively seek out and use design patterns, libraries, frameworks, and other pre-existing components. This reuse speeds up development and also improves safety, as these components are typically well-tested and validated, assuming adherence to good software practices.
 
 ## Building a Detection Rule: A Methodical Path
 
@@ -25,10 +25,10 @@ Applying this same methodology to the creation of a detection rule, a TDE engine
 ::: {.callout-note}
 In my experience, clients frequently ask the TDE team to create *specific rules*, even outlining multiple rules they deem necessary within a single request. This approach is often suboptimal because existing rules might already cover the requested detection, the request may not align with the team's strategic focus, or the proposed rules might need to be split or consolidated for better efficacy. Consequently, a request for five rules could, for instance, result in seven rules, two rules, or even no new rules at all.
 
-To foster a more effective process, TDE teams should ideally engage with a limited, pre-defined list of **authorized requesting teams**. Furthermore, all such requests should be framed as **use cases**, potentially including rule *suggestions* if the requestor has specific ideas. A use case, in this context, consists of a **problem statement with relevant context**, followed by a description of the **expected detection outcome**.
+To build a more effective process, TDE teams should ideally engage with a limited, pre-defined list of **authorized requesting teams**. Furthermore, all such requests should be framed as **use cases**, potentially including rule *suggestions* if the requestor has specific ideas. A use case, in this context, consists of a **problem statement with relevant context**, followed by a description of the **expected detection outcome**.
 :::
 
-Armed with such a detailed list, it becomes possible to understand whether the proposed use case aligns with the team's strategic objectives and if all essential prerequisites for rule construction are met. A clear misalignment with strategy would warrant dropping the request, while a failure to meet fundamental requirements—like the absence of necessary logs in a SIEM—would necessitate sub-requests, leading to either a delay or abandonment of the rule creation.
+Armed with such a detailed list, it becomes possible to understand whether the proposed use case aligns with the team's strategic objectives and if all essential prerequisites for rule construction are met. A clear misalignment with strategy would warrant dropping the request, while a failure to meet fundamental requirements — like the absence of necessary logs in a SIEM — would require sub-requests, leading to either a delay or abandonment of the rule creation.
 
 ::: {.callout-note}
 Detective controls, the domain where Detection Engineering teams primarily operate, are *complementary* to preventative controls, not a replacement for them. The best strategy invariably combines both prevention and detection. It's also important to understand they are not mutually exclusive; a detective control can often monitor a preventative control to highlight suspicious activity. For example, one could monitor if an EDR is triggering an excessive number of blocks for a given user or device, which could indicate a possible compromise.
@@ -36,17 +36,17 @@ Detective controls, the domain where Detection Engineering teams primarily opera
 The requirement elicitation phase must involve analyzing existing preventative controls for the use case. This ensures new detection rules avoid redundancy and precisely target actual security gaps. Any gap in preventative controls must be highlighted, as they could be *blockers* for creating new rules.
 :::
 
-Assuming development is approved to proceed, the engineer enters the **design phase**. This involves crafting a one-paragraph clear statement for each mapped rule, outlining its purpose and providing comprehensive context. Here, the company's unique operational idiosyncrasies must be considered, and the rule's goals must be explicitly articulated. Finally, with this foundational documentation in hand, the new rule must be appropriately categorized using the MITRE ATT&CK taxonomy, specifying relevant tactics and techniques.
+Assuming development is approved to proceed, the engineer enters the **design phase**. This involves writing a clear one-paragraph statement for each mapped rule, outlining its purpose and providing full context. Here, the company's operational idiosyncrasies must be considered, and the rule's goals must be explicitly stated. Finally, with this foundational documentation in hand, the new rule must be appropriately categorized using the MITRE ATT&CK taxonomy, specifying relevant tactics and techniques.
 
-This foundational documentation serves a vital purpose: it empowers the engineer to efficiently **search public repositories** for existing rules that align with the defined goals. The MITRE ATT&CK taxonomy proves particularly useful here, acting as effective keywords for targeted searches. Even if a rule precisely monitoring the exact TTP within the exact context isn't readily available, similar rules can often be adapted with minimal effort.
+This foundational documentation serves a key purpose: it lets the engineer **search public repositories** for existing rules that align with the defined goals. The MITRE ATT&CK taxonomy is particularly useful here, acting as effective keywords for targeted searches. Even if a rule precisely monitoring the exact TTP within the exact context isn't readily available, similar rules can often be adapted with minimal effort.
 
 ::: {.callout-tip}
 Having the rule context and the related MITRE ATT&CK tactics and techniques makes it trivial to query well-known public resources, such as [MITRE ATT&CK](https://attack.mitre.org/) itself, [Sigma](https://github.com/SigmaHQ/sigma), [Elastic](https://github.com/elastic/detection-rules), and [Splunk](https://research.splunk.com/detections/). Projects like [Rulehound](https://rulehound.com/rules) effectively aggregate many of these, providing invaluable starting points for detection development. 🔍
 :::
 
-A crucial note regarding MITRE ATT&CK mapping is its inherent lack of "how-to" specifics, as procedures are not directly mapped within the matrix. As [Katie Nickels demonstrated](https://www.youtube.com/watch?v=bkfwMADar0M&t=1062s) years ago, an entire universe of context exists beneath each technique. This underscores why comprehensive context must invariably accompany ATT&CK mapping.
+A crucial note regarding MITRE ATT&CK mapping is its inherent lack of "how-to" specifics, as procedures are not directly mapped within the matrix. As [Katie Nickels demonstrated](https://www.youtube.com/watch?v=bkfwMADar0M&t=1062s) years ago, an entire universe of context exists beneath each technique. This is why full context must always accompany ATT&CK mapping.
 
-MITRE ATT&CK continues to evolve, offering detection ideas under each technique, including insights into data sources, data components, and the targets that should be monitored. Alongside publicly available rulesets, this provides an invaluable resource, enabling engineers to develop new rules without starting from scratch or reinventing the wheel.
+MITRE ATT&CK continues to evolve, offering detection ideas under each technique, including data sources, data components, and the targets that should be monitored. Alongside publicly available rulesets, this is a valuable resource, letting engineers develop new rules without starting from scratch or reinventing the wheel.
 
 The diagram below summarizes this process with some abstractions.
 
@@ -72,15 +72,15 @@ flowchart TD
 
 ## Key Advantages of Structured Detection Engineering
 
-One might be tempted to believe that an MVP-like approach—starting immediate log analysis to construct queries—would be faster. While this might suffice for scenarios where the team is highly familiar with the data source and use case, ultimately, the documentation and validation of the new rule will still be necessary. Conversely, leveraging existing, tested rules based on early documentation significantly accelerates the testing phase and instills greater confidence in the outcome.
+One might be tempted to believe that an MVP-like approach—starting immediate log analysis to construct queries—would be faster. While this might work for scenarios where the team is highly familiar with the data source and use case, the documentation and validation of the new rule will still be necessary. Reusing existing, tested rules based on early documentation speeds up the testing phase and instills greater confidence in the outcome.
 
-Through such careful research and reuse in detection engineering, rules are inherently built upon solid references and robust documentation. This strong foundation grants incident response teams a enhanced level of confidence when handling alerts. Furthermore, when implemented consistently, this approach proactively identifies and mitigates false positives, thereby significantly reducing alert fatigue. 😎
+Through this careful research and reuse, rules are built on solid references and good documentation. This foundation gives incident response teams more confidence when handling alerts. And when applied consistently, this approach identifies and mitigates false positives, which reduces alert fatigue. 😎
 
 ## Conclusion
 
-Adopting a structured process that prioritizes engineering requirements, develops comprehensive documentation, and researches existing artifacts (rules and documents) can substantially reduce the time spent on data analysis (logs) and detection validation. The practice of reusing existing rules and leveraging established documentation is a hallmark of senior engineering and a demonstrably smart decision.
+Adopting a structured process that prioritizes engineering requirements, develops full documentation, and researches existing artifacts (rules and documents) can substantially reduce the time spent on data analysis (logs) and detection validation. Reusing existing rules and building on established documentation is a hallmark of senior engineering and a smart decision.
 
-While this approach might initially appear to introduce unnecessary overhead, especially for simpler rules or those with which the team is highly proficient, it's crucial to remember that every rule, before being moved to production, *must* be properly documented and thoroughly tested. Therefore, any time invested in documentation is inherently valuable. While researching artifacts might seem less critical for familiar logs and tools, it can still yield invaluable insights into novel telemetry or alternative monitoring approaches for a given data source. ✌️
+While this approach might initially look like unnecessary overhead, especially for simpler rules or those the team is highly proficient with, remember that every rule, before being moved to production, *must* be properly documented and thoroughly tested. So any time invested in documentation is worth it. And while researching artifacts might seem less critical for familiar logs and tools, it can still surface useful findings about novel telemetry or alternative monitoring approaches for a given data source. ✌️
 
 ## Appendix: Examples
 

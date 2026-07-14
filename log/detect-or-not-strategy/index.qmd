@@ -6,7 +6,7 @@ categories: ["detection", "dfir"]
 image: "og-detect-or-not-strategy.webp"
 ---
 
-As a Detection Engineer, I analyze requests for new detections and decide whether they are worth implementing. While this decision is not always straightforward, I follow a set of guidelines to help determine if a detection is justified. In this post, I aim to shed light on this topic.
+As a Detection Engineer, I analyze requests for new detections and decide whether they are worth implementing. While this decision is not always straightforward, I follow a set of guidelines to help determine if a detection is justified. In this post, I explain how I approach it.
 
 ## What is a Detection?
 
@@ -26,7 +26,7 @@ When implementing new security tools or addressing vulnerabilities, it's common 
 
 For example, consider a tool that monitors systems for configuration drift, like [AWS Config](https://aws.amazon.com/config/). If it generates alerts about an S3 bucket lacking server-side encryption or an unencrypted EBS volume, how should the SOC respond? Often, the SOC ends up acting as a helpdesk, forwarding the alert to the system owner or cloud team. Meanwhile, the SOC could be investigating a ransomware incident or handling a flood of phishing emails. Should the SOC be responsible for these alerts? No 👎.
 
-**There's a timing issue at play.**  SOC alerts are treated as ongoing incidents requiring immediate attention, while vulnerabilities and compliance issues may take longer to address due to the need for updates or bug fixes. It leads to different approaches. Detections are designed to trigger alerts in real-time, while vulnerability management and GRC are more about risk management and compliance over time.
+**There's a timing issue at play.** SOC alerts are treated as ongoing incidents requiring immediate attention, while vulnerabilities and compliance issues may take longer to address due to the need for updates or bug fixes. It leads to different approaches. Detections are designed to trigger alerts in real-time, while vulnerability management and GRC are more about risk management and compliance over time.
 
 ## Decision Framework
 
@@ -45,7 +45,7 @@ Finally, I document my findings and discuss them with the team. Together, we eva
 
 ## Bottom Line
 
-To decide if a detection is worth implementing, it's essential to understand the context and use case. Detections should focus on identifying and responding to malicious activities in real-time—they're not the right solution for vulnerabilities or compliance issues. Other teams may intersect with Detection Engineering in similar ways, even if they weren't mentioned here. Take the time to understand your InfoSec structure and build strong alliances with other teams to seamlessly route requests to the right place 💡.
+To decide if a detection is worth implementing, it's essential to understand the context and use case. Detections should focus on identifying and responding to malicious activities in real-time—they're not the right solution for vulnerabilities or compliance issues. Other teams may intersect with Detection Engineering in similar ways, even if they weren't mentioned here. Take the time to understand your InfoSec structure and build strong alliances with other teams to route requests to the right place smoothly 💡.
 
 As a Detection Engineer, you are responsible for your detection rules. Each new detection and data source consumes resources and can impact SOC performance. Implementing detections outside the SOC's scope risks causing alert fatigue 😫, reducing team efficiency 📉, and misusing resources 💸.
 
