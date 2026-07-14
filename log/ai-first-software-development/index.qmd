@@ -8,13 +8,13 @@ image: "og-ai-first-software-development.webp"
 
 As an Infosec Engineer, my relationship with code has historically been pragmatic. I write code to solve specific security problems, but my tools are typically narrower in scope than the sprawling architectures built by full-time software engineers.
 
-Recently, however, after exploring new paradigms in AI-assisted programming, I decided to test these concepts in the wild. I applied this methodology to build the [Antlion](https://github.com/lopes/antlion) project, and the experience fundamentally shifted my perspective on software development. By integrating [Claude Code](https://claude.com/product/claude-code) and modern AI-assisted workflows, I realized that the way we interact with code has irrevocably changed.
+Recently, however, after exploring new paradigms in AI-assisted programming, I decided to test these concepts in the wild. I applied this methodology to build the [Antlion](https://github.com/lopes/antlion) project, and the experience changed how I think about software development. Working with [Claude Code](https://claude.com/product/claude-code) and modern AI-assisted workflows, I realized the way we interact with code has changed for good.
 
-This post is a deep dive into my personal evolution: from traditional scripting, to awkwardly forcing AI into old habits, to fully embracing the new paradigm of *agentic* development.
+This post traces that shift: from traditional scripting, to awkwardly forcing AI into old habits, to fully adopting *agentic* development.
 
 ## Motivation: The Need for a New Modus Operandi
 
-For a long time, my workflow was functional, albeit traditional. I would write scripts or small programs, test them empirically, document them, and push them to production. But watching the rapid evolution of AI coding tools, I realized that simply bolting a chatbot onto my existing workflow wasn't enough. I needed to rethink my entire process from the ground up to actually leverage these tools as autonomous agents rather than glorified search engines.
+For a long time, my workflow was functional, albeit traditional. I would write scripts or small programs, test them empirically, document them, and push them to production. But watching the rapid evolution of AI coding tools, I realized that simply bolting a chatbot onto my existing workflow wasn't enough. I needed to rethink my entire process from the ground up to actually use these tools as autonomous agents rather than glorified search engines.
 
 ## The Pre-LLM Era: Scripts, Ad-Hoc Fixes, and Stack Overflow
 
@@ -84,7 +84,7 @@ Crucially, I forced the AI to commit the plan and TODO list to documentation *be
 
 ### 4. Test-Driven Development (TDD) in Action
 
-With my coffee in hand, I instructed Claude to initiate Phase 0. What followed was mesmerizing. I watched the AI execute a flawless TDD loop:
+With my coffee in hand, I told Claude to start Phase 0. I watched it run a clean TDD loop:
 
 1. **Write:** It wrote a test in `tests` for the data models (e.g., validating supported file formats).
 2. **Fail (Red):** It executed the test using `uv` (as strictly instructed). The test failed.
@@ -119,7 +119,7 @@ Looking back, my 2025 endeavor was basically my legacy workflow with an AI bot d
 
 1. **Change the process, not just the tool.** You cannot simply bolt AI onto your existing stack. You have to step back, study *agentic* methodologies, and fundamentally restructure how you build software.
 2. **From code to specifications.** Development is now less about writing syntax and more about defining rigid prerequisites and system specifications. However, foundational engineering skills are still what separate production-grade tools from hobbyist scripts. You have to know what to ask for, and you must know how to review the output.
-3. **Unprecedented velocity.** Historically, a project like Antlion would have taken me two to three weeks working 4 hours a day. Using this *agentic* workflow, the project was delivered in about 15 commits, taking less than 6 hours total. The efficiency gains are staggering.
+3. **Much faster.** Historically, a project like Antlion would have taken me two to three weeks working 4 hours a day. With this *agentic* workflow, it was about 15 commits and under 6 hours total.
 4. **Clarity is king.** Defining clear goals and mandating TDD was the ultimate differentiator. Had I blindly accepted the code Claude initially offered without strict constraints, the project would have collapsed into an unmaintainable mess.
 
-I am incredibly excited for what comes next. By taking the time to learn the available tools and paradigms, I stopped fighting the AI and started orchestrating it. Other capabilities, like [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview), are ready to be explored, and I will absolutely be integrating them into my future engineering workflows. 🤖 🚀
+By taking the time to learn the tools and paradigms, I stopped fighting the AI and started orchestrating it. Other capabilities, like [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview), are next on my list. 🤖 🚀

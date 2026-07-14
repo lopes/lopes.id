@@ -25,7 +25,7 @@ Since it's a simple task, I designed a solution to automate it some time ago but
 
 ## The Solution
 
-I designed **a simple database-less** solution, leveraging Chronicle SIEM's ability to allow comments in the lists. The big picture can be found in the next diagram:
+I designed **a simple database-less** solution, using Chronicle SIEM's ability to allow comments in the lists. The big picture can be found in the next diagram:
 
 ```{mermaid}
 sequenceDiagram
@@ -113,7 +113,7 @@ After downloading the key (a JSON file), keep it safe locally until you finish t
 1. Environment: `2nd gen`
 2. Function name: `chronicle-list-cleaner`
 3. Region: `us-central1` (or another of your preference)
-4. Trigger type: `HTTPS` (will setup Cloud Scheduler later but copy the URL now)
+4. Trigger type: `HTTPS` (will set up Cloud Scheduler later but copy the URL now)
 5. Set the runtime environment with the following minimum requirements:
 
 - Memory: `256` MiB

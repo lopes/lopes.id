@@ -6,13 +6,13 @@ categories: ["career", "engineering"]
 image: "og-review-missing-readme.webp"
 ---
 
-Recently, I worked on some projects at my job that made me question my coding abilities. I've enjoyed programming since my college days, but as an Infosec Engineer, I naturally have some gaps when compared to software engineers. While searching for a book to dive deeper into software engineering and catch up on topics like software testing, I came across [The Missing Readme (No Starch Press, 1st edition)](https://amzn.to/3D3IN51) 🔗. Here, I share my impressions.
+Recently, I worked on some projects at my job that made me question my coding abilities. I've enjoyed programming since my college days, but as an Infosec Engineer, I naturally have some gaps when compared to software engineers. While searching for a book to dig deeper into software engineering and catch up on topics like software testing, I came across [The Missing Readme (No Starch Press, 1st edition)](https://amzn.to/3D3IN51) 🔗. Here, I share my impressions.
 
 ## The Book
 
 **The Missing Readme** is aimed at new engineers in the software engineering (SWE) field, but even computer veterans like me can benefit from it. Written by experienced engineers from specialized teams, this book is clearly grounded in real-world scenarios, often referencing past cases to illustrate its lessons.
 
-However, the book goes far beyond technical aspects of SWE. It also serves as an excellent career guide, introducing readers to common practices in dynamic companies, such as performance cycles and Agile development. Keep in mind, though, that this book won't teach you how to use Docker or showcase fancy command-line tricks. Apart from a few code snippets used as examples, the guidance operates at a higher level.
+However, the book goes far beyond technical aspects of SWE. It also serves as an excellent career guide, introducing readers to common practices in dynamic companies, such as performance cycles and Agile development. Keep in mind, though, that this book won't teach you how to use Docker or show fancy command-line tricks. Apart from a few code snippets used as examples, the guidance operates at a higher level.
 
 The authors frequently share personal experiences, which makes the material relatable and helps to demystify the challenges of SWE. It reassures readers that it's okay to have doubts and make mistakes—what matters is learning to fail faster and with minimal impact.
 
@@ -22,7 +22,7 @@ The chapter structure is well thought out. Each chapter begins with a brief over
 
 I previously worked at an [almost] centennial company with a rigid hierarchy and process-heavy workflows rooted in the national landscape. Then, I transitioned to a 9-year-old company with a startup mentality, loose hierarchy, and a global perspective. In this new environment, I was inundated with terms like 1:1s, OKRs, and retrospectives. It took me weeks to adapt, but reading The Missing Readme beforehand would have made that transition much smoother.
 
-As the title suggests, this book fills the gap by explaining the unwritten rules of working in global companies—things that are often assumed to be common knowledge but are rarely taught in college. Through a conversational writing style, the authors address technical concepts, workplace processes, and expected behaviors to help readers navigate corporate life effectively.
+As the title suggests, this book fills the gap by explaining the unwritten rules of working in global companies—things that are often assumed to be common knowledge but are rarely taught in college. Through a conversational writing style, the authors address technical concepts, workplace processes, and expected behaviors to help readers handle corporate life.
 
 You'll learn about best practices for version control, the importance of good documentation, and strategies for writing tests. Beyond the technical, the book also teaches you how to handle on-call duties, conduct meaningful 1:1s with your manager, and seek help from your peers. While the content is aimed at early-career professionals, it's equally valuable for experienced engineers looking to align with modern workplace norms.
 
@@ -32,8 +32,8 @@ I occasionally disagreed with the authors, particularly when they suggested over
 
 ## Bottom Line
 
-This book offers a structured overview of many things I've encountered throughout my career while introducing good practices I plan to adopt, like atomic commits (yes, I used to make massive, unwieldy commits) and better utilizing my preferred code editor. It also reinforced my commitment to note-taking—a habit I've embraced over the past year that has been a game-changer for me. (For the record, I use [Obsidian](https://obsidian.md/). 🙂)
+This book offers a structured overview of many things I've encountered throughout my career while introducing good practices I plan to adopt, like atomic commits (yes, I used to make massive, unwieldy commits) and getting more out of my preferred code editor. It also reinforced my commitment to note-taking—a habit I've embraced over the past year that has made a real difference for me. (For the record, I use [Obsidian](https://obsidian.md/). 🙂)
 
-Overall, this book is a fantastic guide for improving both technical skills and workplace behaviors, helping readers grow more effectively and consistently in their careers. While programmers will gain the most from it, professionals like Infosec Engineers can also benefit, provided they adopt an SRE (Site Reliability Engineering) mindset. *Think of SWE as the creators of software and SRE as the maintainers of the tools that get software into production—handling DevOps and CI/CD.*
+Overall, this book is a fantastic guide for improving both technical skills and workplace behaviors, helping readers grow in their careers. While programmers will gain the most from it, professionals like Infosec Engineers can also benefit, provided they adopt an SRE (Site Reliability Engineering) mindset. *Think of SWE as the creators of software and SRE as the maintainers of the tools that get software into production—handling DevOps and CI/CD.*
 
 I considered sharing specific tips from the book, such as those on logging, testing, and cryptography. However, there are so many great insights that the best thing I can do is recommend the book wholeheartedly. It's a smooth read and not too lengthy, making it both engaging and informative. **The Missing Readme** is a must-read for new engineers and a valuable refresher for seasoned professionals. Definitely worth your time! 🚀✌️

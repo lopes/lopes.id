@@ -38,9 +38,9 @@ Each individual element has a defensible purpose. The problem is aggregate weigh
 
 ## A Lighter Approach
 
-My first attempt at this program was tightly aligned with MITRE Engage, but it ended up hard to establish, explain, and maintain. While trying to make it work, I dove into adjacent literature looking for something more operational. Three sources reshaped my model:
+My first attempt at this program was tightly aligned with MITRE Engage, but it ended up hard to establish, explain, and maintain. While trying to make it work, I dug into adjacent literature looking for something more operational. Three sources reshaped my model:
 
-- [Virtual Honeypots](/log/review-virtual-honeypots/) (Provos & Holz, 2007) provides the underlying typology Engage alludes to but never names — low-interaction vs. high-interaction, detection vs. research, production vs. research honeypots. This is the vocabulary that maps cleanly onto the Detection-team vs. CTI-team split when you have to figure out *who owns what*. It also showcases some clearly well-planned and successful operations without any bureaucratic overhead.
+- [Virtual Honeypots](/log/review-virtual-honeypots/) (Provos & Holz, 2007) provides the underlying typology Engage alludes to but never names — low-interaction vs. high-interaction, detection vs. research, production vs. research honeypots. This is the vocabulary that maps cleanly onto the Detection-team vs. CTI-team split when you have to figure out *who owns what*. It also shows some clearly well-planned and successful operations without any bureaucratic overhead.
 - [Intrusion Detection Honeypots](/log/review-intrusion-detection-honeypots/) (Sanders, 2020) introduces the **See-Think-Do** positioning model, Whaley's goals of hiding and showing traps, and the decoy properties — discoverable, interactive, and monitored. It compresses three of Engage's planning steps (how the adversary reacts, what they perceive, through which channels) into a simple form a detection engineer can fill out in ten minutes per decoy.
 - [Thinkst Canary](https://canary.tools/)'s operational philosophy of "just 2 minutes of setup; nearly 0 false positives, no ongoing overhead" is a commercial validation of minimalism. A platform designed around the *opposite* of Engage's ceremonial weight is what has actually succeeded in the market.
 
@@ -165,7 +165,7 @@ Phase 4 closes the PDCA loop. It operates on two cadences:
 - **Annual Charter review:** are the functions still mapped to the right people, is the metric set still right, has the tooling stack changed, have the program-wide RoE held up, is the program still aligned with the threat model, is it time to consider research honeypots? An out-of-cycle review is also triggered by any material incident involving deception assets, any program-wide stop condition firing, or a substantive change in threat model from CTI.
 
 :::{.callout-warning}
-The overall AE program and its documents, including tickets and asset placements should be restricted. People must have need to know to get access to these documents. If the decoy information leaks, the program will lose effectiveness.
+The overall AE program and its documents, including tickets and asset placements, should be restricted. People must have need to know to get access to these documents. If the decoy information leaks, the program will lose effectiveness.
 :::
 
 **Purple-team validation** is the program's primary scenario-effectiveness check. Every scenario is validated via purple-team traversal before go-live and at least annually thereafter; the results are recorded in the scenario asset register. Additional ad-hoc traversals are triggered when a scenario hasn't fired in a long period and its health can't be confirmed from telemetry alone, when underlying infrastructure changes may have broken alert paths, or when a CTI development warrants confirming a scenario still fires as designed.
@@ -194,7 +194,7 @@ The core idea behind this framework is that an AE program should fit inside Dete
 
 If you're standing one up, start with the Charter, define one scenario, deploy one asset bound to that scenario, and verify the alert path end-to-end with a synthetic trigger. Everything else is iteration. The framework rewards starting small and improving on evidence, exactly what Phase 3 and Phase 4 are designed to support.
 
-Deploying any decoy is just a small part of AE. Before, we need to plan and after we need to properly use the collected data. Focusing solely on the technicalities is wrong and often a misuse of resources. Real engineering goes way beyond that.
+Deploying any decoy is just a small part of AE. Before, we need to plan; after, we need to properly use the collected data. Focusing solely on the technicalities is wrong and often a misuse of resources. Real engineering goes way beyond that.
 
 ## Appendix A: Program Charter Example
 
@@ -228,7 +228,7 @@ The program uses Thinkst Canary as the primary quick-win platform for network ho
 All scenarios inherit these rules; scenario documents may add stricter constraints but cannot relax them.
 
 - *Passivity:* no active action against attacker infrastructure, no hack-back, no phone-home to attacker systems.
-- *No taunting:* any material, like "tryharder" password, that taunts or challenges adversaries are prohibited.
+- *No taunting:* any material, like a "tryharder" password, that taunts or challenges adversaries is prohibited.
 - *Synthetic data only:* decoy content is generated, never sampled from production; no real customer PII in any decoy.
 - *No live production paths:* fake credentials never authenticate to real systems; decoy hostnames never resolve to production infrastructure.
 - *Attribution handling:* attacker artifacts (source addresses, attempted credentials, user agents, payloads, command lines) stored in the SIEM under standard security-logs retention. Credentials matching real internal identities are routed to identity and IR as a separate credential-compromise signal. No paid deanonymization without elevated approval.

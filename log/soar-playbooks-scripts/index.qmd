@@ -80,7 +80,7 @@ All of these converge on the same shape because the alternative (raw data thread
 
 Google and other vendors have packaged what they call "agentic triage": an LLM in the loop, calling enrichment functions, producing a verdict and a confidence score. One step that replaces most of the pipeline above. I've tested it. It works.
 
-The instinct to drop it into the front of the SOC funnel is wrong, and the reason isn't cost; though cost matters too. Three problems, roughly in order of how much they should worry you.
+The instinct to drop it into the front of the SOC funnel is wrong, and the reason isn't cost — though cost matters too. Three problems, roughly in order of how much they should worry you.
 
 1. **The real risks are prompt injection and non-determinism.** Phishing emails are, by construction, untrusted input written by someone trying to deceive the recipient. Feeding that body to an LLM with tool access (mark malicious, escalate, close as benign) is handing the adversary a function-call interface. Mitigations exist (system-prompt hardening, content sanitization, tool-output validation) but none of them are airtight. The second-order problem is that two runs of the same alert can produce different verdicts, which makes audit, regression testing, and analyst trust harder than they need to be.
 2. **Cost scales the wrong way for T1.** Deterministic pipelines have flat per-alert cost: a VT lookup is a VT lookup. LLM pipelines scale with alert volume *and* with prompt size. T1 is exactly where alert volume is highest and per-alert value is lowest. Putting the most expensive component at the widest part of the funnel is a budget killer.

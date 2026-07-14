@@ -6,9 +6,9 @@ categories: ["intel", "detection", "engineering"]
 image: "og-gap-analysis-mitre-navigator.webp"
 ---
 
-**MITRE ATT&CK** is a common reference for classifying detection rules. But mapping rules to ATT&CK techniques only provides real value when we go beyond taxonomy and actually use the data to drive action. **Context is key:** an ATT&CK map without interpretation is just a colored matrix. That's where **automation**, **enrichment**, and tools like **MITRE Navigator** come in. Navigator lets you visualize your ATT&CK coverage, compare multiple rules, and spot detection gaps at a glance.
+**MITRE ATT&CK** is a common reference for classifying detection rules. But mapping rules to ATT&CK techniques only pays off when we go beyond taxonomy and actually use the data to drive action. **Context is key:** an ATT&CK map without interpretation is just a colored matrix. That's where **automation**, **enrichment**, and tools like **MITRE Navigator** come in. Navigator lets you visualize your ATT&CK coverage, compare multiple rules, and spot detection gaps at a glance.
 
-This post breaks down how to programmatically generate Navigator layers, explains their JSON structure, and shows how to combine them for a richer, more actionable gap analysis.
+This post breaks down how to programmatically generate Navigator layers, explains their JSON structure, and shows how to combine them for a richer gap analysis.
 
 ## What is MITRE Navigator?
 
@@ -79,13 +79,13 @@ Consistent root-level settings are key to making your exported layers readable a
 
 ## Technique Configuration (The Heart of the Data)
 
-The `techniques` array is what turns raw data into actionable intelligence. Each object in the array corresponds to a specific detection-to-technique mapping and should include enough context to be useful, like rule name, maturity score, description, a link to the detection-as-code, owner, and test status.
+The `techniques` array is what turns raw data into usable intelligence. Each object in the array corresponds to a specific detection-to-technique mapping and should include enough context to be useful, like rule name, maturity score, description, a link to the detection-as-code, owner, and test status.
 
 If a single detection rule maps to multiple techniques, create a distinct technique object in this array for each one. This pattern keeps traceability clear: from any cell in Navigator, an analyst can click through to the detection’s code, review its maturity, see the owner, and prioritize engineering work accordingly.
 
 ### Key Technique Fields
 
-These fields add context to the matrix, fostering better analysis. It's worth the effort to populate them with rich information.
+These fields add context to the matrix and make the analysis better. It's worth the effort to populate them with detailed information.
 
 - `techniqueID` (string): The ATT&CK ID, e.g., `T1078`.
 - `tactic` (string, optional): The tactic shortname (e.g., `initial-access`) if the detection is tactic-specific.
@@ -178,7 +178,7 @@ This formula is designed to be conservative:
 - It takes the **lowest** defense score (`min(a, b)`), representing your weakest link.
 - It avoids extreme highs and lows, centering most results in the `2-4` "warning" range. This creates a heatmap that flags areas for review without causing undue alarm, signaling *"work to be done"* rather than *"everything is on fire."*
 
-A notable limitation in Navigator is that while scores can be combined, metadata from the source layers (like comments and links) cannot be merged. You must choose one of the base layers to provide the context for the new composite layer.
+One limitation in Navigator is that while scores can be combined, metadata from the source layers (like comments and links) cannot be merged. You must choose one of the base layers to provide the context for the new composite layer.
 
 ## Practical Recommendations
 
@@ -193,6 +193,6 @@ If you have a **good** Detection-as-Code system in place, you're using a YAML-li
 
 ## Conclusion
 
-**MITRE ATT&CK** only becomes truly valuable when it informs decisions. By programmatically generating **MITRE Navigator** layers based on your rules and your adversaries, with enriched, actionable metadata, you can turn a simple taxonomy into a prioritized action plan for your security program.
+**MITRE ATT&CK** only pays off when it informs decisions. By programmatically generating **MITRE Navigator** layers based on your rules and your adversaries, with enriched metadata, you can turn a simple taxonomy into a prioritized action plan for your security program.
 
 Navigator is simple and flexible, but it expects you to provide the context, as with any MITRE ATT&CK-based analysis. That's where automation and thoughtful metadata design make all the difference. 🧭🚀
