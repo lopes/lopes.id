@@ -12,7 +12,7 @@ image: "og-log-health-monitoring.webp"
 
 I can't count the number of times I've heard that log ingestion is a problem. I've felt the pain myself. You buy an expensive SIEM and feed logs in. Eventually you need to investigate something and the logs aren't there, silent for weeks.
 
-Cutting-edge SIEMs have plenty of nice features, but in my experience none of them tackle log ingestion seriously. Some offload it to external tooling or plugins where you build the monitoring logic yourself; others only cover the basic case, like detecting a fully silent source. What almost none do natively is the harder, more useful thing: alert you when a source's volume deviates from its own baseline, before the gap becomes weeks wide.
+Modern SIEMs have plenty of nice features, but in my experience none of them tackle log ingestion seriously. Some offload it to external tooling or plugins where you build the monitoring logic yourself; others only cover the basic case, like detecting a fully silent source. What almost none do natively is the harder, more useful thing: alert you when a source's volume deviates from its own baseline, before the gap becomes weeks wide.
 
 Tired of the pain, I decided to own the problem. This post documents what I built and what I learned building it alongside AI.
 
@@ -37,7 +37,7 @@ With this stack, I cover four failure modes that are pertinent to my environment
 
 Full stop and new source are cheap to detect and apply to every source. Spike and dip require statistical modeling and only work on sources with predictable volume, more on that in a moment. The naming mirrors BQML ARIMA+'s own vocabulary (`has_spikes_and_dips`): an anomaly above the confidence band is a spike; below the band, a dip.
 
-One thing to highlight from the start is that log sources don't behave uniformly. A firewall logs every packet, so it's sending data every minute, 24/7. A honeypot may be silent for weeks and that's completely normal. A cloud audit feed logs bursts of activity around business hours. Treating all of them the same way leads to either constant false positives or blind spots.
+Log sources don't behave uniformly, and that's worth stating up front. A firewall logs every packet, so it's sending data every minute, 24/7. A honeypot may be silent for weeks and that's completely normal. A cloud audit feed logs bursts of activity around business hours. Treating all of them the same way leads to either constant false positives or blind spots.
 
 That asymmetry shapes the whole design. And it makes log health monitoring an ongoing process, not a one-time deployment. Log sources get added, deprecated, and change behavior over time. The environment is a living organism, so the solution has to account for that, which is why I approached this as a **PDCA loop**: Plan, Do, Check, Act, repeat.
 
@@ -53,7 +53,7 @@ I asked for three options: one using Chronicle's native features if any existed,
 
 Once the interview was done, Claude wrote the RFC and I read it top to bottom. By the time I reached the recommendation section, I already had my own preference and it matched Claude's. A nice surprise.
 
-The winning option was to build from scratch on BigQuery. What surprised me most wasn't the match itself, but the recommendation: I didn't know BigQuery had ML models, let alone that they were easy to use. The capability I needed was already sitting in my stack, I just hadn't looked. ARIMA+ for forecasting expected log volume, a heartbeat check for sources that don't fit the model, Apps Script and Slack for notifications. All tools in my current stack, green light to proceed.
+The winning option was to build from scratch on BigQuery. What surprised me most wasn't the match itself, but the recommendation: I didn't know BigQuery had ML models, let alone that they were easy to use. The capability I needed was already sitting in my stack; I just hadn't looked. ARIMA+ for forecasting expected log volume, a heartbeat check for sources that don't fit the model, Apps Script and Slack for notifications. All tools in my current stack, green light to proceed.
 
 :::{.callout-note}
 ARIMA+ (AutoRegressive Integrated Moving Average) is a time series forecasting model. You feed it historical data (in this case, hourly log counts per source) and it learns the normal pattern: how much a source typically sends on a Tuesday at 3 AM, how it behaves on weekends. At detection time, it scores incoming data against that learned baseline and flags anything that falls outside the expected range. Think of it as a statistical anomaly detector that adapts to each source's own rhythm, rather than a fixed threshold someone set manually.
@@ -63,7 +63,7 @@ ARIMA+ (AutoRegressive Integrated Moving Average) is a time series forecasting m
 
 The design splits log sources into two monitoring tracks based on how they behave:
 
-- **Heartbeat:** for bursty or sparse sources where the ARIMA+ forecast band would be too wide to be meaningful. It leverages a simpler check: if I haven't heard from this source in N hours, alert.
+- **Heartbeat:** for bursty or sparse sources where the ARIMA+ forecast band would be too wide to be meaningful. It uses a simpler check: if I haven't heard from this source in N hours, alert.
 - **ARIMA+:** for sources with steady, forecastable volume. BigQuery ML trains a model on 90 days of hourly data and generates a confidence band. Anything outside the band is a candidate anomaly. Spikes and dips only escalate to a real alert after meeting persistence or magnitude thresholds.
 
 Which track a source gets depends on two metrics from 90 days of historical data: **coverage** (what percentage of hourly buckets had at least one event) and **CV** (coefficient of variation: standard deviation divided by mean, which measures volume stability). A source with ≥80% coverage and CV ≤1.0 qualifies for ARIMA. Everything else gets heartbeat.
@@ -192,7 +192,7 @@ FROM prof
 ORDER BY avg_per_hour DESC;
 ```
 
-This query returns one row per log source. The most important columns are `source_key`, `suggested_track` (`ARIMA` or `HEARTBEAT`), and `suggested_threshold`. Save the full result as `estate.csv`, you'll need it in the next step.
+This query returns one row per log source. The most important columns are `source_key`, `suggested_track` (`ARIMA` or `HEARTBEAT`), and `suggested_threshold`. Save the full result as `estate.csv` — you'll need it in the next step.
 
 Next, run the signal profile query below. Where the estate query answered *"does this source qualify for ARIMA?"*, this one answers *"what should ARIMA actually be able to learn from it?"*, vetting whether each source has meaningful daily and weekly patterns before you commit to a track. It's purely informational and doesn't feed `derive-seeds.py`. But it shapes your expectations while reviewing `plan.csv` in the next step and gives you a baseline to cross-check the trained model against.
 
@@ -506,13 +506,13 @@ JOIN `chronicle-self.log_health.source_config` c
 WHERE c.enabled AND c.detection_method = 'ARIMA';
 ```
 
-The query runs auto-ARIMA independently per `source_key`, meaning each log sourceits own model with no cross-source influence. For each series, BQML searches for the best `(p, d, q)` triplet: `p` is how many past hours the model looks back when predicting the next one (autoregressive order); `d` is how many times the series must be differenced to remove trend and make it stationary; `q` is how many past prediction errors factor into the forecast — moving-average order. With `decompose_time_series=TRUE`, the signal is also split into trend, seasonal, and residual components, each fitted separately. The result is stored as a **BigQuery ML model object** in the same project and dataset namespace as your tables, but addressed with `MODEL` in SQL rather than `TABLE`. Nothing is written to a regular table, thus all the per-source fitted parameters live inside the model artifact.
+The query runs auto-ARIMA independently per `source_key`, meaning each log source gets its own model with no cross-source influence. For each series, BQML searches for the best `(p, d, q)` triplet: `p` is how many past hours the model looks back when predicting the next one (autoregressive order); `d` is how many times the series must be differenced to remove trend and make it stationary; `q` is how many past prediction errors factor into the forecast — moving-average order. With `decompose_time_series=TRUE`, the signal is also split into trend, seasonal, and residual components, each fitted separately. The result is stored as a **BigQuery ML model object** in the same project and dataset namespace as your tables, but addressed with `MODEL` in SQL rather than `TABLE`. Nothing is written to a regular table, thus all the per-source fitted parameters live inside the model artifact.
 
 ::: {.callout-note}
 In my experience, the original `ingestion_metrics` had ~29 GB of data; `ingestion_hourly`, the filtered table used to train ARIMA+, had only 27 MB. The whole training run against this 90-day window took 13 seconds. Super cheap.
 :::
 
-It's important to note that **`holiday_region` is intentionally omitted.** ARIMA+'s holiday-effect modeling requires two conditions: the time series must be **daily or weekly** (not hourly), and it must span **more than a year**. This pipeline is hourly, which alone disqualifies it; extending the training window past a year doesn't help either. I tried it, and every source still came back with `has_holiday_effect = FALSE`. BQML silently disables the option at hourly frequency regardless of history length; setting it looks like a knob, but does nothing here. If your setup is on daily or weekly aggregation with >1 year of history, set it to a country code (`'US'`, `'BR'`, ...) or region group (`'NA'`, `'LAC'`, `'EMEA'`, `'JAPAC'`, `'GLOBAL'`).
+**`holiday_region` is intentionally omitted.** ARIMA+'s holiday-effect modeling requires two conditions: the time series must be **daily or weekly** (not hourly), and it must span **more than a year**. This pipeline is hourly, which alone disqualifies it; extending the training window past a year doesn't help either. I tried it, and every source still came back with `has_holiday_effect = FALSE`. BQML silently disables the option at hourly frequency regardless of history length; setting it looks like a knob, but does nothing here. If your setup is on daily or weekly aggregation with >1 year of history, set it to a country code (`'US'`, `'BR'`, ...) or region group (`'NA'`, `'LAC'`, `'EMEA'`, `'JAPAC'`, `'GLOBAL'`).
 
 Once the model is trained, validate what seasonality it actually captured.
 
@@ -657,7 +657,7 @@ flowchart TD
 
 Once deployed, the monitoring runs mostly on autopilot. While the hourly query detects anomalies, the monthly retrain keeps the model current. Two weekly jobs watch the pipeline itself. The only thing you actually do is review and act when something looks wrong.
 
-The query below tracks ARIMA+ alert quality per source over the training window. If a source's `per_day` value comes out above 2, bump its `anomaly_prob_threshold` one step (0.99 → 0.995 → 0.998 → 0.999). The threshold is the minimum probability ARIMA+ needs before flagging a point as anomalous, so each step up raises the confidence bar, meaning fewer alerts fire, but the ones that do are the ones the model has the least doubt about.
+The query below tracks ARIMA+ alert quality per source over the training window. If a source's `per_day` value comes out above 2, bump its `anomaly_prob_threshold` one step (0.99 → 0.995 → 0.998 → 0.999). The threshold is the minimum probability ARIMA+ needs before flagging a point as anomalous. Each step up raises the confidence bar, so fewer alerts fire, but the ones that do are the ones the model has the least doubt about.
 
 If the weekend share `on_weekend / (on_weekend + on_weekday)` exceeds 50%, apply the same bump. Since BQML often misses `WEEKLY` seasonality (see [Deployment](#deployment)), weekend/weekday imbalance is a leading indicator that a source's threshold needs to rise. Compare against the source's `wd_we_ratio` in `signals.csv`: if that ratio was well above 1.0 and weekend alerts dominate here, the model isn't compensating for the pattern the raw data has.
 
@@ -1005,7 +1005,7 @@ Optionally, re-export the current config to a dated filename (`reassess-2026-09-
 
 #### Document Decisions
 
-For any non-obvious decision, write a short note somewhere, like a comment in the SQL or a line in a doc. The CSV diffs in git capture *what* changed; the note captures *why*. A pro-tip: Keep the artifacts in a Git repo, including a logbook for tracking operational tasks. Create a simple template to ensure the data is normalized and all important data is captured.
+For any non-obvious decision, write a short note somewhere, like a comment in the SQL or a line in a doc. The CSV diffs in git capture *what* changed; the note captures *why*. Keep the artifacts in a Git repo, including a logbook for tracking operational tasks, and use a simple template so entries stay consistent.
 
 ## How I Used AI Here
 
