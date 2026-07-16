@@ -140,7 +140,7 @@ wevtutil enum-logs
 The default detections failed for two reasons: (a) simply spawning a process via PowerShell is not inherently malicious and can generate many false positives, and (b) none of the three commands used Base64 encoding. To effectively detect this enumeration, I would monitor commands like `/wevtutil (el|enum-logs)/i` and `/get-eventlog/i`. Additionally, I'd implement a filter to suppress alerts triggered by trusted admins to reduce false positives. A complementary rule could also be created to monitor cleanup commands (such as `wevtutil cl`), which align with [T1070.001](https://attack.mitre.org/techniques/T1070/001/).
 
 ::: {.callout-warning}
-VMs can be **suspended** due to inactivity or by the user. When this happens, the VM's OS loses track of elapsed time, causing the **clock** to go **out of sync** 🕘 even if you have NTP enabled. Have in mind that NTP must be forced to sync if the time difference is too large. ⚠️
+VMs can be **suspended** due to inactivity or by the user. When this happens, the VM's OS loses track of elapsed time, causing the **clock** to go **out of sync** 🕘 even if you have NTP enabled. Keep in mind that NTP must be forced to sync if the time difference is too large. ⚠️
 
 The time discrepancy between client (VMs) and server (SIEM) can prevent rules from triggering or even block log ingestion. As a rule of thumb, always check the VM's clock before starting a new round of tests to ensure logs have accurate timestamps and rules function as expected.
 

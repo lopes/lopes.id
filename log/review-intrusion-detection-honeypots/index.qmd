@@ -35,7 +35,7 @@ The kill-chain framing isn't new, but Sanders states it cleanly: **prevention fi
 
 The honeytoken chapters are what I came for, and they delivered. Sanders shows how to deploy them, how to interpret their signals, and what value they bring. He also makes a point I'd love every SOC engineer to read: if you don't carefully consider *placement* and how alerts will be interpreted by triage and investigation teams, a high-fidelity source can flip into alert fatigue and SOC rage real fast.
 
-To flag one drawback (real nit): the use cases are useful and insightful, but reading them back-to-back gets tiring. I'd have preferred each one split into "the idea" and "the implementation". Let readers skim the idea and dive into the *how* only when they're actually about to build it. Minor complaint, but it would make the book more engaging.
+To flag one drawback (real nit): the use cases are useful and insightful, but reading them back-to-back gets tiring. I'd have preferred each one split into "the idea" and "the implementation". Let readers skim the idea and get into the *how* only when they're actually about to build it. Minor complaint, but it would make the book more engaging.
 
 Overall, it was one of those books I appreciated like wine. I took so many notes that the first part is almost entirely highlighted in yellow. Plenty to put into practice.
 
@@ -47,4 +47,4 @@ Sanders picks up where Provos & Holz left off almost two decades ago and bridges
 
 One caveat worth flagging is that deception tooling ages fast. A lot of open-source honeypot projects from earlier generations are abandoned, half-maintained, or quietly forked. Read Sanders for the *concepts and strategy* and budget time to evaluate whether the specific tools he points to are still alive before you build on them.
 
-Ultimately, Sanders gives you the mindset to turn almost any piece of infrastructure into a tripwire. Kevin McCallister-in-*Home Alone* 😱 energy. Your imagination is the limit. Just remember that keeping track of traps is as important as setting them. The deception program you don't maintain is the one that bites your SOC later. 👊
+Sanders gives you the mindset to turn almost any piece of infrastructure into a tripwire. Kevin McCallister-in-*Home Alone* 😱 energy. Your imagination is the limit. Just remember that keeping track of traps is as important as setting them. The deception program you don't maintain is the one that bites your SOC later. 👊

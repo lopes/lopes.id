@@ -7,21 +7,21 @@ image: "og-threat-detection-dilemma.webp"
 html-math-method: mathjax
 ---
 
-In my role as a CSIRT Engineer, I raised many concerns and critics about low precision analytics. Now, as a member of the Threat Detection team, I am keenly focused on crafting rules that are both useful and precise, aiming to mitigate unnecessary stress in CSIRT caused by alert fatigue. However, the challenge arises when overly precise rules may inadvertently blind us to real malicious activities. This conundrum, which I term the "Threat Detection Fundamental Dilemma," will be the focal point of this post.
+As a CSIRT Engineer, I raised many concerns and criticisms about low-precision analytics. Now, on the Threat Detection team, I focus on writing rules that are both useful and precise, to cut the alert fatigue that stresses CSIRT. But there's a catch: overly precise rules can blind us to real malicious activity. I call this the "Threat Detection Fundamental Dilemma," and it's what this post is about.
 
 ## Reviewing Terminology
 
-Before delving into the dilemma, let's establish a shared understanding of some terminology related to alert investigation. Any alert handled by CSIRT can be classified within a [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix), comprising the following categories:
+Before we get into the dilemma, let's agree on some terminology for alert investigation. Any alert CSIRT handles fits into a [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix), with these categories:
 
 - **True Positive (TP):** An alert raised for a malicious activity, sparking investigation and satisfaction in CSIRT.
 - **True Negative (TN):** No alert raised, indicating a non-malicious event, causing no concern for CSIRT.
 - **False Positive (FP):** An alert raised for a benign activity, leading to frustration and unnecessary stress in CSIRT, potentially contributing to alert fatigue.
 - **False Negative (FN):** No alert raised for malicious activities, a risky scenario as it indicates exploitation without awareness.
 
-The focus here is on TP and FN, which involve relevant events. Keep these in mind as we proceed. Now, armed with this data, we can calculate two crucial metrics: **Precision** and **Recall**.
+The focus here is on TP and FN, which involve relevant events. Keep these in mind. With this data, we can calculate two key metrics: **Precision** and **Recall**.
 
 ::: {.callout-tip}
-Maintaining a high level of confidence in CSIRT analysis is paramount. Thus, the alert rationale should remain as simple as possible. Incident Responders must tag alerts as TP or FP after triage and if additional metrics are desired, subcategories like Malware and Phishing for TP, and Anomaly and Internal Testing for FP can be created. However, simplicity (KISS) is key to success based on my experience.
+Keeping CSIRT's confidence high matters, so the alert rationale should stay as simple as possible. Incident Responders must tag alerts as TP or FP after triage and if additional metrics are desired, subcategories like Malware and Phishing for TP, and Anomaly and Internal Testing for FP can be created. However, simplicity (KISS) is key to success based on my experience.
 :::
 
 ### Precision
@@ -36,17 +36,17 @@ This metric, using data from all raised alerts, aids in identifying analytics th
 
 ### Recall
 
-In contrast to Precision, which considers irrelevant events (FP), Recall encompasses all relevant events (TP and FN). As it accounts for undetected malicious events (FN), it is harder to calculate. This data may be sourced from various channels, such as manual reports, Purple Team exercises, Threat Huntings, etc. Once FN per rule is obtained, Recall can be calculated using this formula:
+In contrast to Precision, which considers irrelevant events (FP), Recall encompasses all relevant events (TP and FN). As it accounts for undetected malicious events (FN), it is harder to calculate. This data can come from several sources: manual reports, Purple Team exercises, threat hunts, etc. Once FN per rule is obtained, Recall can be calculated using this formula:
 
 $$
   Recall = \frac{TP}{TP + FN}
 $$
 
-Analyzing the equation, it is evident that higher Recall is favorable, indicating the successful identification of numerous malicious events. Thus, rules with a high Recall rate are desired as they mean the detection of a greater proportion of relevant events.
+Higher Recall is better: it means we caught more of the malicious events. So rules with a high Recall rate are what we want.
 
 ## Navigating by Metrics
 
-Precision and Recall are complementary, each monitoring a distinct aspect of the scenario. As previously mentioned, Precision gauges the stress induced in operations due to FPs, while Recall evaluates the risk arising from the failure to detect malicious activities. Consider the following image, based on [this amazing example](https://en.wikipedia.org/wiki/File:Precisionrecall.svg) from Wikipedia.
+Precision and Recall are complementary, each monitoring a distinct aspect of the scenario. As previously mentioned, Precision gauges the stress induced in operations due to FPs, while Recall evaluates the risk arising from the failure to detect malicious activities. Consider the following image, based on [this example](https://en.wikipedia.org/wiki/File:Precisionrecall.svg) from Wikipedia.
 
 ![Precision and Recall metrics](chart-precision-recall.webp)
 
@@ -84,7 +84,7 @@ $$
   R = \frac{2}{2 + 4} = 33.33\\%
 $$
 
-Attempting to fine-tune the rule by applying more filters to narrow down results might lead to scenario C (right). While Precision improves slightly (~10%), alert fatigue is alleviated with 86% fewer detections. However, Recall is reduced (already low), increasing the risk of being compromised without detection -—a less stressful yet dangerous scenario. The calculations are as follows:
+Attempting to fine-tune the rule by applying more filters to narrow down results might lead to scenario C (right). While Precision improves slightly (~10%), alert fatigue is alleviated with 86% fewer detections. However, Recall is reduced (already low), increasing the risk of being compromised without detection — a less stressful yet dangerous scenario. The calculations are as follows:
 
 $$
   P = \frac{1}{1 + 6} = 14.28\\%
@@ -97,17 +97,17 @@ $$
 On the Detection side, there are avenues for improvement. The rule's scope can be altered, changing the events found and leading to a more suitable scenario. Alternatively, a complete shift in approach, such as using different log sources or tools, or adopting a different detection method, can be considered. Quick recap, there are various detection methods:
 
 1. **Signature-based analytics:** Rules describing malicious patterns, commonly used in SIEM or IDS. While offering good Precision, defining and describing patterns is challenging, and deviations may compromise effectiveness. Dependency on previous data renders it quickly outdated.
-2. **Allow-list analytics:** Explicitly defining what is allowed and considering everything else as malicious -—the inverse of signature-based. It can introduce friction between security and other teams, reducing productivity, especially in dynamic/innovative environments. Keeping allow-lists up-to-date can be challenging, making them ineffective for large lists, as adversaries may act within the defined standards without deviation.
-3. **Anomaly-based analytics:** Assuming statistically "normal" activity is benign and classifying everything else as malicious. Similar to allow-list analytics, but the definition of "normal" is automatic -—compromised environments during the learning phase can render the algorithm ineffective. Despite its capability to detect unknown attacks, it tends to result in low Precision and Recall rates, especially in dynamic environments with constantly changing baselines.
+2. **Allow-list analytics:** Explicitly defining what is allowed and considering everything else as malicious — the inverse of signature-based. It can introduce friction between security and other teams, reducing productivity, especially in dynamic/innovative environments. Keeping allow-lists up-to-date can be challenging, making them ineffective for large lists, as adversaries may act within the defined standards without deviation.
+3. **Anomaly-based analytics:** Assuming statistically "normal" activity is benign and classifying everything else as malicious. Similar to allow-list analytics, but the definition of "normal" is automatic — compromised environments during the learning phase can render the algorithm ineffective. Despite its capability to detect unknown attacks, it tends to result in low Precision and Recall rates, especially in dynamic environments with constantly changing baselines.
 
 Each approach can be applied to a specific data dimension, as illustrated in the [Pyramid of Pain](https://www.sans.org/tools/the-pyramid-of-pain/) (hash values, IP addresses, domain names, network/host artifacts, tools, and TTPs). If creating effective signature-based analytics proves challenging with network data, switching to anomaly-based analytics within the same dataset or changing the dataset to TTP may be a viable solution.
 
-Note that there is no definitive answer as to whether a specific combination will work. In certain cases, a closed scope may be non-negotiable (demanded by audit, for instance), or after multiple attempts, a satisfactory solution may prove elusive. In such scenarios, finding an acceptable balance between Precision and Recall and implementing compensating controls to address gaps is the best course of action. Voila! This is what I refer to as "The Threat Detection Fundamental Dilemma!"
+Note that there is no definitive answer as to whether a specific combination will work. In certain cases, a closed scope may be non-negotiable (demanded by audit, for instance), or after multiple attempts, a satisfactory solution may prove elusive. In such scenarios, finding an acceptable balance between Precision and Recall and implementing compensating controls to address gaps is the best course of action. Voila! This is what I call "The Threat Detection Fundamental Dilemma!"
 
 ## Key Takeaways
 
-For Threat Detection teams, it is paramount to collect CSIRT analysis for each analytic they're responsible for and calculate Precision and Recall. These metrics aid in prioritizing tasks and identifying low and high-confidence analytics, highlighting strengths and weaknesses.
+For Threat Detection teams, it's essential to collect CSIRT's analysis for each analytic they own and calculate Precision and Recall. These metrics aid in prioritizing tasks and identifying low and high-confidence analytics, highlighting strengths and weaknesses.
 
-As there's no perfect software, there's also no perfect analytic, so striving for 0% FP or 100% Recall is unrealistic. This means that achieving a balance between the two is essential for success -—this encapsulates the Threat Detection Dilemma. Employing compensating controls for rules with low Recall is a valid strategy. Creativity becomes our ally.
+As there's no perfect software, there's also no perfect analytic, so striving for 0% FP or 100% Recall is unrealistic. This means that achieving a balance between the two is essential for success — this is the Threat Detection Dilemma. Employing compensating controls for rules with low Recall is a valid strategy. Creativity becomes our ally.
 
 Several approaches to creating analytics exist, and if one path proves unsuccessful, thinking outside the box and altering it may lead to success. Maintaining the same detection method but changing scopes is a valid consideration, and there are no definitively right or wrong answers. Just remember that after creating an analytic, tracking it throughout its lifecycle against Precision and Recall and periodic updates reflecting changes in the Threat Landscape and our environment are essential.

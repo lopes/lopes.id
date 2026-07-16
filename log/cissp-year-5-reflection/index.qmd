@@ -6,28 +6,28 @@ categories: ["career"]
 image: "og-cissp-year-5-reflection.webp"
 ---
 
-It's been **five cycles** since I first held the Certified Information Systems Security Professional (**CISSP**) credential, earning it back in November 2020. I've previously charted the demanding journey to obtaining the certification itself [here](/log/cissp-certification-journey/) 🔗. This time, however, I want to step back and reflect, not on the grueling process of *getting* the badge, but on the practical impact it has had on the subsequent half-decade of my career. What does it truly mean to be "certified" after five years in the ever-shifting landscape of Information Security? 🤔
+It's been **five cycles** since I first held the Certified Information Systems Security Professional (**CISSP**) credential, earning it back in November 2020. I've previously charted the demanding journey to obtaining the certification itself [here](/log/cissp-certification-journey/) 🔗. This time, however, I want to step back and reflect, not on the grueling process of *getting* the badge, but on the practical impact it has had on the following half-decade of my career. What does it actually mean to be "certified" after five years in Information Security? 🤔
 
 ## Beyond Certifications
 
 For me, any certification or structured learning process only holds true, enduring value if it provides **actionable knowledge**, a framework capable of bridging skill gaps that would otherwise be hard to cover organically.
 
-The CISSP's Common Body of Knowledge (CBK) executes this perfectly. Its eight domains  are meticulously defined, covering nearly the entire spectrum of Information Security. By internalizing this structure, the student is not merely exposed to the diverse aspects of the area but truly understands how these elements **interoperate and relate** to each other, a holistic view that forms a robust professional foundation.
+The CISSP's Common Body of Knowledge (CBK) does this well. Its eight domains are carefully defined, covering nearly the entire spectrum of Information Security. By internalizing this structure, you don't just get exposed to the different areas but understand how these elements **interoperate and relate** to each other — a broad view that forms a solid professional foundation.
 
-This comprehensive knowledge is invaluable because it qualifies the professional to confidently engage with teams of any size and complexity. Furthermore, since the concepts covered demand **understanding** rather than simple recall, the certification provides a solid introductory depth to numerous topics. This allows you to converse with virtually any Infosec professional, moving the dialogue beyond mere basics and into strategic, cross-functional discussions.
+This broad knowledge is valuable because it lets you confidently work with teams of any size and complexity. And since the concepts demand **understanding** rather than simple recall, the certification gives you a solid introductory depth across many topics. That lets you talk to almost any Infosec professional, moving past the basics into strategic, cross-functional discussions.
 
 ## Job Opportunities
 
 It's quite common for professionals to pursue certifications as a path to new job opportunities, and that is a perfectly rational goal. In fact, many job descriptions list the CISSP as a **desirable credential**. Yet, while it is often desired, I rarely recall seeing it explicitly *required*.
 
-In my personal experience, the CISSP was never the determinant factor that secured a position or guaranteed a promotion, and I genuinely don't find fault in that. Ultimately, the certification is just a **professional badge**. What truly drives success, in my estimation, remains **proven accomplishments:**
+In my personal experience, the CISSP was never the deciding factor that secured a position or guaranteed a promotion, and I honestly don't have a problem with that. In the end, the certification is just a **professional badge**. What actually drives success, in my view, is **proven accomplishments:**
 
 - The quantifiable **impact** of your actions
 - The demonstrable **value** you add to the business
 
 ## Keeping the Badge
 
-To maintain the certification, (ISC)² requires two things: payment of the Annual Maintenance Fee (AMF) and the collection of Continuing Professional Education (CPE) credits. Unlike some other certifications, there is no need to repeat the grueling examination. I find this approach highly commendable because, at the end of the day, what truly matters is that the **intellectual fire remains lit**, keeping you up-to-date with new technologies and emergent threat landscapes.
+To maintain the certification, (ISC)² requires two things: payment of the Annual Maintenance Fee (AMF) and the collection of Continuing Professional Education (CPE) credits. Unlike some other certifications, there is no need to repeat the grueling examination. I think this approach is great because, at the end of the day, what matters is keeping the **intellectual fire lit**, staying up-to-date with new technologies and emerging threats.
 
 CPEs are the required evidence of this ongoing professional development. The beauty of this system is its flexibility: we can claim credits for:
 
@@ -35,7 +35,7 @@ CPEs are the required evidence of this ongoing professional development. The bea
 - Formalized training
 - Even relevant **on-the-job experience**, provided the activity maps back to the CBK domains.
 
-This means that simply by actively working and developing within the Infosec area, you are continuously collecting the necessary CPEs, effectively renewing your certificate through the sheer act of being an **engaged professional**.
+This means that simply by working and developing within the Infosec area, you are continuously collecting the necessary CPEs, renewing your certificate just by being an **engaged professional**.
 
 ## Criticism
 
@@ -43,13 +43,13 @@ My only point of criticism is related to the tangible benefits offered to certif
 
 For instance, I struggle to comprehend the rationale behind billing members to attend **virtually** to the very events the organization is hosting. Even if a fee structure is deemed necessary, charging hundreds of dollars for virtual attendance is prohibitive. For professionals like myself located in emerging countries where the US Dollar is not the national currency, this is more than just "not okay"; **it becomes an absolute blocker to participation.**
 
-Regarding alternative benefits, if this annual fee were translated, for example, into complimentary access to a resource library like O’Reilly’s virtual catalog, the value would be undeniable and deeply satisfying. As it stands, I merely pay the fee to guarantee my certification renewal, harboring no expectation of receiving substantial, meaningful benefits from (ISC)², which is, frankly, a pity.
+Regarding alternative benefits, if this annual fee were translated, for example, into complimentary access to a resource library like O’Reilly’s virtual catalog, the value would be obvious. As it stands, I just pay the fee to renew, expecting no real benefits from (ISC)², which is, frankly, a pity.
 
 ## Final Thoughts
 
-I once read that *"T-shaped" engineers work effectively in most areas and are experts in at least one* , and the CISSP is fundamentally designed to help achieve that broad, foundational knowledge. It is a good example of finding the real happiness in the **journey of learning**, not solely in the target of achieving the pass/fail score. The true, lasting value of this certification is inextricably tied to its body of knowledge. Truly mastering it will make you a more **consistent and capable Infosec professional**, empowering you to navigate the different domains fearlessly.
+I once read that *"T-shaped" engineers work effectively in most areas and are experts in at least one*, and the CISSP is designed to help you reach that broad, foundational knowledge. It's a good example of finding real happiness in the **journey of learning**, not just in hitting the pass/fail score. The lasting value of this certification is tied to its body of knowledge. Mastering it will make you a more **consistent and capable Infosec professional**, and let you move across the different domains with confidence.
 
-If this certification included demonstrably better benefits, such as relevant professional subscriptions or the possibility of participating in official events for free or at truly competitive prices, it would enhance the professional obligation it represents. This perceived lack of valuable benefits makes me consistently re-evaluate the decision to renew the certificate.
+If this certification included clearly better benefits, such as relevant professional subscriptions or the chance to join official events for free or at genuinely competitive prices, it would add to the professional obligation it represents. This perceived lack of valuable benefits makes me consistently re-evaluate the decision to renew the certificate.
 
 And yet, here I am, re-certified for the next cycle and with all my CPEs already filled one year in advance.
 

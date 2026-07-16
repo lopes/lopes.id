@@ -14,11 +14,11 @@ Recently, however, after exploring new paradigms in AI-assisted programming, I d
 The Antlion project was renamed to Foxglove to match the poisonous plant theme.
 :::
 
-This post is a deep dive into my personal evolution: from traditional scripting, to awkwardly forcing AI into old habits, to fully embracing the new paradigm of *agentic* development.
+This post traces that shift: from traditional scripting, to awkwardly forcing AI into old habits, to fully adopting *agentic* development.
 
 ## Motivation: The Need for a New Modus Operandi
 
-For a long time, my workflow was functional, albeit traditional. I would write scripts or small programs, test them empirically, document them, and push them to production. But watching the rapid evolution of AI coding tools, I realized that simply bolting a chatbot onto my existing workflow wasn't enough. I needed to rethink my entire process from the ground up to actually leverage these tools as autonomous agents rather than glorified search engines.
+For a long time, my workflow was functional, albeit traditional. I would write scripts or small programs, test them empirically, document them, and push them to production. But watching the rapid evolution of AI coding tools, I realized that simply bolting a chatbot onto my existing workflow wasn't enough. I needed to rethink my entire process from the ground up to actually use these tools as autonomous agents rather than glorified search engines.
 
 ## The Pre-LLM Era: Scripts, Ad-Hoc Fixes, and Stack Overflow
 
@@ -88,7 +88,7 @@ Crucially, I forced the AI to commit the plan and TODO list to documentation *be
 
 ### 4. Test-Driven Development (TDD) in Action
 
-With my coffee in hand, I instructed Claude to initiate Phase 0. What followed was mesmerizing. I watched the AI execute a flawless TDD loop:
+With my coffee in hand, I told Claude to start Phase 0. I watched it run a clean TDD loop:
 
 1. **Write:** It wrote a test in `tests` for the data models (e.g., validating supported file formats).
 2. **Fail (Red):** It executed the test using `uv` (as strictly instructed). The test failed.
@@ -126,4 +126,4 @@ Looking back, my 2025 endeavor was basically my legacy workflow with an AI bot d
 3. **Unprecedented velocity.** Historically, a project like Foxglove would have taken me two to three weeks working 4 hours a day. Using this *agentic* workflow, the project was delivered in about 15 commits, taking less than 6 hours total. The efficiency gains are staggering.
 4. **Clarity is king.** Defining clear goals and mandating TDD was the ultimate differentiator. Had I blindly accepted the code Claude initially offered without strict constraints, the project would have collapsed into an unmaintainable mess.
 
-I am incredibly excited for what comes next. By taking the time to learn the available tools and paradigms, I stopped fighting the AI and started orchestrating it. Other capabilities, like [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview), are ready to be explored, and I will absolutely be integrating them into my future engineering workflows. 🤖 🚀
+By taking the time to learn the tools and paradigms, I stopped fighting the AI and started orchestrating it. Other capabilities, like [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview), are next on my list. 🤖 🚀

@@ -52,14 +52,14 @@ git config --global user.signingkey KEYID
 
 Remove the `--global` flag if you're configuring it **locally**, but be sure to be inside your repository's folder. In any case, ensure the global/local configuration matches the user's email and key ID. This is crucial.
 
-Now, to instruct Git to sign the commits using the `-S` flag along with the `commit` command—for example: `git commit -S -m "signed commit"`. If everything is fine, your commit should be signed, and you can check it with:
+Now, instruct Git to sign the commits using the `-S` flag along with the `commit` command—for example: `git commit -S -m "signed commit"`. If everything is fine, your commit should be signed, and you can check it with:
 
 ```sh
 git log --show-signature
 ```
 
-When you push it to GitHub, it'll check the signed commit data and evaluate if the signing key is trusted. If it is, you'll see a green "verified" tag, but if not, it'll show a yellow "unverified" tag, indicating that despite the signature, the key is not recognized. Note that in the later case, the signature is valid but not trusted.
+When you push it to GitHub, it'll check the signed commit data and evaluate if the signing key is trusted. If it is, you'll see a green "verified" tag, but if not, it'll show a yellow "unverified" tag, indicating that despite the signature, the key is not recognized. Note that in the latter case, the signature is valid but not trusted.
 
 ## Final Words
 
-Signing commits is completely optional for personal projects but may be required for professional purposes. Nonetheless, considering the ease of configuration, the low friction added to the commit procedure, and the level of security and professionalism it adds to your repositories, I think it's a must or at least highly-recommended.
+Signing commits is completely optional for personal projects but may be required for professional purposes. Nonetheless, considering the ease of configuration, the low friction added to the commit procedure, and the level of security and professionalism it adds to your repositories, I think it's a must, or at least highly recommended.

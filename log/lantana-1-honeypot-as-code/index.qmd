@@ -49,7 +49,7 @@ I didn't elaborate on the importance of narrative here because it's out of scope
 
 ## Full Architecture Review
 
-I managed to deliver that MVP right before my vacation and was confident I'd finish the full project within a month. During my time off, I read [Virtual Honeypots](/log/review-virtual-honeypots/) (Provos & Holz, 2007) and it proved to be a game-changer. The book made it clear my architecture needed to be more modular and support both single-node and multi-node deployments, multi-node being essential for high-interaction honeypots, whether for my own use or for anyone else running Lantana.
+I managed to deliver that MVP right before my vacation and was confident I'd finish the full project within a month. During my time off, I read [Virtual Honeypots](/log/review-virtual-honeypots/) (Provos & Holz, 2007) and it changed the direction of the project. The book made it clear my architecture needed to be more modular and support both single-node and multi-node deployments, multi-node being essential for high-interaction honeypots, whether for my own use or for anyone else running Lantana.
 
 I took two steps back and fully reviewed what I had built. It turned out that some parts of the MVP were quick shortcuts that really needed a rework. The revised architecture looked like this:
 
@@ -125,7 +125,7 @@ IPv4 and IPv6 were requirements from the start, but I hadn't anticipated how poo
 
 ## AI's Help
 
-By November 2025, Google, OpenAI and Anthropic shipped significant updates that substantially changed how AI fits into a development workflow. Basically, they improved their architectures to unlock "System 2" thinking, allowing the AI to pause, plan, and execute deep reasoning across complex, multi-hour tasks. This supercharged existing tools like Anthropic's Claude Code, transforming them from helpful terminal assistants into autonomous agents that could navigate massive codebases on their own — read more [here](https://tao-hpu.medium.com/the-november-2025-ai-model-landscape-a-pivotal-week-reshapes-the-industry-23bdb4d20a35). However, I wouldn't experiment with them until late March 2026, after Alpha was done.
+By November 2025, Google, OpenAI and Anthropic shipped significant updates that substantially changed how AI fits into a development workflow. Basically, they improved their architectures to unlock "System 2" thinking, allowing the AI to pause, plan, and execute deep reasoning across complex, multi-hour tasks. This turned existing tools like Anthropic's Claude Code from helpful terminal assistants into autonomous agents that could work through massive codebases on their own — read more [here](https://tao-hpu.medium.com/the-november-2025-ai-model-landscape-a-pivotal-week-reshapes-the-industry-23bdb4d20a35). However, I wouldn't experiment with them until late March 2026, after Alpha was done.
 
 Between December and early March, I used Google Gemini Pro the same way we used to work 84 years ago, in 2025: open a chat, share as much context as you can, and interact with the model. Sometimes I'd open Gemini CLI and try to extract something useful from it, but most of the time it would break things.
 
@@ -133,7 +133,7 @@ I'd create a new thread with proper context on a specific topic (the trade-offs 
 
 Compared to how I work with AI now, in June 2026, my workflow back then feels prehistoric. The models were sloppy, prone to hallucination, and demanded constant supervision. Lacking proper context window control, I constantly battled context saturation; a frustrating loop that frequently ended in pure prompt rage. Still, despite the friction, the AI genuinely helped me reason through critical design decisions. The proof is in the result: the foundation I settled on by early March held up perfectly, fully validated by the smarter models that came later.
 
-After delivering Alpha, I decided to step back from Lantana and spend some time studying the new AI landscape. The buzz was real: something had fundamentally changed. Since my employer was also pushing in this direction, I adopted Claude, and it was the best decision. Claude and this new way of working with AI would help me accelerate Lantana big time.
+After delivering Alpha, I decided to step back from Lantana and spend some time studying the new AI landscape. The buzz was real: something had fundamentally changed. Since my employer was also pushing in this direction, I adopted Claude, and it was the best decision. Claude and this new way of working with AI would speed up Lantana considerably.
 
 ## What Comes Next
 

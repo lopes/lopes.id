@@ -8,13 +8,13 @@ image: "og-review-practical-threat-detection.webp"
 
 One year ago, I transitioned to the Detection Engineering team with an Incident Response background. At that moment, I began researching to learn more about the concepts I would need to tackle the challenges in my new role.
 
-In this sense, [Intelligence-Driven Incident Response (IDIR)](/log/review-intelligence-driven-ir/) (O'Reilly, 1st edition) was an excellent source of information, but I needed something more focused on Threat Detection. I found what I was looking for in the book [Practical Threat Detection Engineering (Packt, 1st Edition)](https://amzn.to/3Zl2P2k) 🔗, and I decided to write a review about it.
+[Intelligence-Driven Incident Response (IDIR)](/log/review-intelligence-driven-ir/) (O'Reilly, 1st edition) was an excellent source of information, but I needed something more focused on Threat Detection. I found what I was looking for in the book [Practical Threat Detection Engineering (Packt, 1st Edition)](https://amzn.to/3Zl2P2k) 🔗, and I decided to write a review about it.
 
 ## Format and Content
 
-This book is organized progressively. The authors start by presenting the concepts and challenges of establishing a Detection Engineering (DE) team. They then introduce concepts like the DE lifecycle, how to prioritize and write rules, how to document and test detections, and how to measure the team's performance. Chapters are divided into comprehensive parts, and at the beginning of each chapter, the authors present the main topics that will be covered, helping the reader understand what's to come.
+This book is organized progressively. The authors start by presenting the concepts and challenges of establishing a Detection Engineering (DE) team. They then introduce concepts like the DE lifecycle, how to prioritize and write rules, how to document and test detections, and how to measure the team's performance. Chapters are divided into clear parts, and at the beginning of each chapter, the authors present the main topics that will be covered, helping the reader understand what's to come.
 
-The authors present the content in a structured way, addressing DE challenges with comprehensive solutions rather than ad-hoc fixes, making the book applicable to larger companies. It is full of good examples and exercises that invite readers to think and reflect as detection engineers. The writing style is very accessible, and even as a non-native English speaker, I could clearly understand the content without needing to look up terms or perform secondary searches.
+The authors present the content in a structured way, addressing DE challenges with complete solutions rather than ad-hoc fixes, which makes the book applicable to larger companies. It is full of good examples and exercises that invite readers to think and reflect as detection engineers. The writing style is very accessible, and even as a non-native English speaker, I could clearly understand the content without needing to look up terms or perform secondary searches.
 
 I found great concept definitions in this book, such as the one for DE:
 
@@ -24,11 +24,11 @@ I found great concept definitions in this book, such as the one for DE:
 
 The book offers excellent examples of creating TTP and behavior-based detections, a goal that is often challenging to find practical materials for. It also updates concepts to align with current industry standards, such as the distinction between Detection and Hunting, Detection-as-Code (DAC), and the role of DE within the Infosec structure. Additionally, it highlights the interconnections between familiar concepts like the MITRE ATT&CK framework, the Unified Kill Chain, and the Pyramid of Pain.
 
-Some concepts, like the DE lifecycle, make this book a valuable resource for detection engineers to consult regularly. The book's content closely relates to the daily job of a detection engineer. Unlike some books that focus solely on open-source tools and resources, this book acknowledges the use of robust closed-source tools commonly used in companies without advertising for any vendor. (They use Elastic for the lab, but they had to choose a tool for that purpose, so it's normal, in my opinion.)
+Some concepts, like the DE lifecycle, make this book a valuable resource for detection engineers to consult regularly. The book's content closely relates to the daily job of a detection engineer. Unlike some books that focus solely on open-source tools and resources, this book acknowledges the use of closed-source tools commonly used in companies without advertising for any vendor. (They use Elastic for the lab, but they had to choose a tool for that purpose, so it's normal, in my opinion.)
 
 ## Impressions
 
-Brilliantly, the authors tie together the various concepts that encompass the area with good, realistic examples. In my experience working as a detection engineer for one year, I saw many examples that are part of my activities, and it was great to have the authors' opinions on how to tackle some problems.
+The authors tie together the various concepts that encompass the area with good, realistic examples. In my experience working as a detection engineer for one year, I saw many examples that are part of my activities, and it was great to have the authors' opinions on how to tackle some problems.
 
 For example, a few months ago, I was trying to find comprehensive categories to fit the different types of detection available. This book presents the best taxonomy for me and explains why (IOC-based, behavior-based, and TTP-based). DAC is another good example, as it's presented with real-life examples that help the reader understand how to implement it and what to expect from it.
 
@@ -40,6 +40,6 @@ To say that the book is not perfect, I found some issues, perhaps due to review 
 
 This book is a must-read for Detection Engineers, especially those starting in this (relatively new) area. I saw the DE lifecycle described here fitting into the F3EAD process proposed in IDIR, with an emphasis on DE, making it a great complement to that.
 
-In summary, I think this book is invaluable for anyone in Infosec, especially those working in Security Operations. Detection engineers, as mentioned, will greatly benefit from it, but incident responders will also learn about the challenges in writing good detections, and cyber intelligence analysts will gain insights on how to approach DE with actionable intelligence. Special kudos to Chapter 7 for having the best explanation and examples on how to write behavior and TTP-based rules.
+I think this book is valuable for anyone in Infosec, especially those working in Security Operations. Detection engineers, as mentioned, will benefit from it, but incident responders will also learn about the challenges in writing good detections, and cyber intelligence analysts will learn how to approach DE with actionable intelligence. Special kudos to Chapter 7 for having the best explanation and examples on how to write behavior and TTP-based rules.
 
 Happy detecting!

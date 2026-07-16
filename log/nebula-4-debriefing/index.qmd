@@ -8,7 +8,7 @@ image: "og-nebula-4-debriefing.webp"
 
 This is the last post of the Nebula series. Previously, I set up the [lab topology](/log/nebula-1-detection-lab/) and installed the VMs, then I installed and configured both [Wazuh](/log/nebula-2-wazuh-detection/) and [Elastic](/log/nebula-3-elastic-detection/) for detecting stuff. Now, I'll share my thoughts on both tools and the lab environment. I'll also add some ideas on how to use and improve the lab.
 
-In this post, I'll start by sharing my impressions of Wazuh and Elastic. Next, I'll share thoughts on the lab environment, how it can be improved, and offer some insights. Let's get started!
+In this post, I'll start by sharing my impressions of Wazuh and Elastic. Next, I'll share thoughts on the lab environment and how it can be improved. Let's get started!
 
 ::: {.callout-note}
 
@@ -19,7 +19,7 @@ In this post, I'll start by sharing my impressions of Wazuh and Elastic. Next, I
 :::
 
 ::: {.callout-warning}
-This post is based on my **limited experience** with Wazuh and Elastic. While I've supplemented it with research, it's not a comprehensive review. If you find any mistakes or have suggestions, please let me know. Ultimately, both are excellent tools, and I highly recommend trying them out.
+This post is based on my **limited experience** with Wazuh and Elastic. While I've supplemented it with research, it's not a comprehensive review. If you find any mistakes or have suggestions, please let me know. Both are good tools, and I recommend trying them out.
 :::
 
 ## Wazuh
@@ -80,7 +80,7 @@ One odd thing I noticed was the size of the agent: while Sysmon and Wazuh agents
 
 Given the pros and cons of each detection tool, I decided to go with Elastic primarily because it's stronger in the detection engineering field, which is the focus of this lab. Nevertheless, I'll keep an eye on Wazuh and hope it improves its rule management and language.
 
-Regarding the lab, I still need to explore some interactions between Kali and the other VMs to see how they behave in terms of telemetry. My plan is to select some use cases and run tests, like [Atomic Red Team](https://atomicredteam.io/), to develop effective detections. Linux monitoring is another area I want to enhance by testing [Auditd](https://github.com/Neo23x0/auditd) and [Sysmon for Linux](https://github.com/Sysinternals/SysmonForLinux). This is important because much is said about Windows monitoring, while Linux is often overlooked, as if it's unhackable. Although both areas are currently in scope, I'll save them for the future.
+Regarding the lab, I still need to explore some interactions between Kali and the other VMs to see how they behave in terms of telemetry. My plan is to select some use cases and run tests, like [Atomic Red Team](https://atomicredteam.io/), to develop effective detections. Linux monitoring is another area I want to improve by testing [Auditd](https://github.com/Neo23x0/auditd) and [Sysmon for Linux](https://github.com/Sysinternals/SysmonForLinux). This is important because much is said about Windows monitoring, while Linux is often overlooked, as if it's unhackable. Although both areas are currently in scope, I'll save them for the future.
 
 So far, I'm really enjoying the flexibility of performing tests and seeing the results in real time with this detection lab. With it, I don't need to ask for permissions or worry about breaking something. Every test is a learning opportunity, and they're easy to execute in this environment.
 

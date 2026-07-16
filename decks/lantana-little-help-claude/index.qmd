@@ -1,0 +1,244 @@
+---
+title: "Lantana: With a Little Help of My (Claude) Friend"
+description: "From beta to v1 in two months, with a little help from Claude"
+image: og-lantana-little-help-claude.webp
+
+tlp: clear
+duration: 15
+event: "Internal AI share-out"
+date: 2026-07-15
+
+format:
+  revealjs:
+    theme: [default, ../../static/styles/vigil-reveal-dark.scss]
+    footer: "TLP:CLEAR"
+    incremental: true
+    code-line-numbers: true
+    slide-number: c/t
+    toc: false
+    controls: true
+    progress: true
+    history: true
+    hash-type: number
+---
+
+## Agenda
+
+<!-- STORYBOARD
+thesis: Learning HOW to work with Claude (not just chatting) turned a year of Lantana work into two months — the workflow shift, not the model, is what changed the math.
+
+arc:
+  hook:     slide 3 — Why Lantana: motivation punch (built a Honeypot-as-Code platform, not another honeypot)
+  setup:    slides 3–4 — why Lantana existed at all, and how AI fit in the pre-modern (2025) way
+  turn:     slide 5 — the numbers: same person, same project, ratios that don't lie
+  evidence: slides 6–7 — the insight (chat exchange) and the result (6h → 5min)
+  land:     slide 8 — four things to try Monday
+
+beats:
+  - slide 2:  Agenda        · orient — 4 sections + Q&A
+  - slide 3:  .big-idea     · setup — "so I built a Honeypot-as-Code platform" (motivation)
+  - slide 4:  .big-idea     · setup — "open a chat. paste context. argue." (pre-modern)
+  - slide 5:  .stat-grid    · turn / wow — 9× / 5× / 3.5× ratios (extract from statistics screenshot)
+  - slide 6:  .chat-snippet · evidence — my prompt + claude's reply (extract from enrichment screenshot)
+  - slide 7:  .metric-delta · evidence / wow — 6h → 5min
+  - slide 8:  grid          · land — four takeaways in a 2×2 box grid
+
+wow_moments:
+  - slide 5: the 9× / 5× / 3.5× ratios landing at once
+  - slide 7: 6h → 5min metric-delta (~99% cut, one insight, ~10 minutes of Claude working)
+  (cap for 15-min talk: ceil(15/10) = 2 — matched exactly)
+
+screenshots_in_brief:
+  - assets/claude-usage-statistics.webp: extract → .stat-grid (9× / 5× / 3.5× ratios). Raw screenshot to ::: notes on slide 5.
+  - assets/claude-enrichment-optimization.webp: extract → .chat-snippet (2 turns: me → claude). Raw screenshot to ::: notes on slide 6.
+  - assets/claude-recovery-from-session.webp: DROPPED. Per brief's own uncertainty ("could belong to takeaway or be entirely dropped"); different project than Lantana, and 15-min budget doesn't accommodate the tangent. The workflow lesson (let Claude commit + phase) folds into slide 8's takeaways.
+
+non_standard: whoami omitted — internal team share-out; audience already knows the speaker. Skill doctrine ships all five fixed frames by default; user removed this one deliberately.
+-->
+
+[TODAY]{.kicker}
+
+1. **Why Lantana** — the honeypot-as-code motivation
+2. **84 years ago, in 2025** — the pre-modern AI workflow
+3. **With Claude** — what actually changed
+4. **Caveats & takeaways** — what to try Monday
+
+## Why Lantana
+
+[MOTIVATION]{.kicker}
+
+::: {.fragment}
+I'd deployed two SIEMs. I wanted to reason about the log pipeline end-to-end — without building fake log sources.
+:::
+
+::: {.fragment}
+::: {.big-idea}
+So I built a Honeypot-as-Code platform.
+:::
+:::
+
+::: {.fragment}
+Cowrie and Dionaea, wrapped in Terraform, Ansible, and systemd. Fewer decoys, stronger narratives, open pipeline.
+:::
+
+::: notes
+The point of the "why": this wasn't a honeypot project pretending to be an AI project. It was a real thing I needed for pipeline work, and AI happened to change how I built it. Lantana doesn't reimplement honeypots — Cowrie (SSH/Telnet) and Dionaea (HTTP, MySQL, SIP…) already exist and are solid. Lantana is the IaC + pipeline that wraps them: Terraform provisions, Ansible configures, Vector streams, Polars processes. T-Pot exists in the same space but locks you to ELK and 20+ decoys with weak narrative — I wanted the opposite. Skip the T-Pot detail unless Q&A asks.
+:::
+
+## 84 years ago, in 2025
+
+[THE PRE-MODERN WAY]{.kicker}
+
+::: {.big-idea}
+Open a chat. Paste context. Argue.
+:::
+
+Google Gemini Pro. Every session a blank slate. Context saturation → prompt rage → new thread → paste context *again*.
+
+::: notes
+December 2025 through March 2026 — Alpha built this way. The design decisions held up under later review by smarter models, so the *thinking* was fine. The *workflow* was prehistoric. Set up the contrast for the numbers slide.
+:::
+
+## The numbers
+
+[BEFORE / AFTER CLAUDE]{.kicker}
+
+::: {.stat-grid}
+::: {.stat-cell}
+[9×]{.stat-cell-value}
+[more lines written]{.stat-cell-label}
+:::
+::: {.stat-cell}
+[5×]{.stat-cell-value}
+[more commits]{.stat-cell-label}
+:::
+::: {.stat-cell}
+[3.5×]{.stat-cell-value}
+[more files touched]{.stat-cell-label}
+:::
+:::
+
+Same project. Same person. Not full-time. 2.5 months before → 2 months after.
+
+::: notes
+Exact figures if pressed: 46 → 234 commits (215 substantive + 19 dependency bumps), 65 → 226 files, +3,180 → +29,204 lines. Claude onboarded 2026-04-26 (commit f6f69f5). Last commit in window: 2026-06-24. Don't read the numbers aloud — let the ratios land. Source screenshot: assets/claude-usage-statistics.webp.
+:::
+
+## The insight
+
+[WHERE I ADDED VALUE]{.kicker}
+
+::: {.chat-snippet}
+::: {.chat-turn}
+[me]{.chat-role}
+
+> Is it feasible and easy to create a check like this: if the last N enrichment tries for that source failed due to rate_limit, skip the rest? It'd save much much time.
+:::
+::: {.chat-turn .chat-turn-agent}
+[claude]{.chat-role}
+
+Feasible and easy — ~20 lines of code in one function, plus tests. Circuit breaker would have bailed in ~70 seconds instead of thrashing rate limits for 30 minutes. Implementing now.
+:::
+:::
+
+::: notes
+This is the archetype of the collaboration for me. I saw the *shape* of the problem — a threat detection engineer notices API rate-limit thrash the way a mechanic hears a bad bearing. Claude implemented a per-provider consecutive-failure counter, faster than I could have looked up the tenacity docs. Screenshot source: assets/claude-enrichment-optimization.webp.
+:::
+
+## 6h → 5min
+
+[THE RESULT]{.kicker}
+
+::: {.metric-delta}
+::: {.metric-delta-before}
+[6h]{.metric-delta-value}
+[enrichment run]{.metric-delta-label}
+:::
+::: {.metric-delta-arrow}
+→
+:::
+::: {.metric-delta-after}
+[5 min]{.metric-delta-value}
+[after the circuit breaker]{.metric-delta-label}
+:::
+:::
+
+One insight from me. Ten minutes of Claude working. ~99% cut.
+
+::: notes
+Alone, neither of us would have done this in an afternoon. Together, ten minutes. That's the frame — not "AI wrote my code" but "AI let me spend my time where it mattered." Land this line: together we're stronger; alone we're both weaker.
+:::
+
+## Caveats & takeaways
+
+[WHAT I LEARNED]{.kicker}
+
+::: {.takeaways}
+::: {.takeaway}
+[Configure the AI]{.takeaway-label}
+
+Keep `CLAUDE.md` lean. Bloat makes agents *worse*.
+:::
+::: {.takeaway}
+[Plan first]{.takeaway-label}
+
+Let Claude interview *you* before it writes code.
+:::
+::: {.takeaway}
+[Manage context]{.takeaway-label}
+
+`/clear` between tasks. Context rot is real.
+:::
+::: {.takeaway}
+[Try again in 3 months]{.takeaway-label}
+
+Models keep improving faster than intuition.
+:::
+:::
+
+::: notes
+Configure — ETH Zurich showed LLM-generated context files made agents worse in 5/8 settings (via Chase H on Pragmatic Engineer). Plan first — Cherny's "make it interview you" pattern; the interview is the plan. Manage context — /clear beats /compact when switching tasks; context rot is a real degradation, not a vibe. Three months — Cherny's rule; try the same idea after a model bump before deciding it doesn't work. If a "let it commit" question comes up: yes, let Claude commit; give it clear phasing and message conventions in your user CLAUDE.md — that's what unlocked the second half of Lantana for me.
+:::
+
+## Thank you
+
+[FIND MORE]{.kicker}
+
+::: {.nonincremental}
+- **Lantana** — [github.com/lopes/lantana](https://github.com/lopes/lantana) · [Lantana 1](/log/lantana-1-honeypot-as-code/) · [Lantana 2](/log/lantana-2-data-pipeline/)
+- **Pragmatic Engineer** — [Cherny · Building Claude Code](https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny) · [Yegge · From IDEs to AI Agents](https://newsletter.pragmaticengineer.com/p/from-ides-to-ai-agents-with-steve)
+- **The 6 Levels of Claude Code** — [Chase-H-AI](https://www.youtube.com/watch?v=TUKYbUIXLOE)
+- **My CLAUDE.md** — [github.com/lopes/dotfiles/.../CLAUDE.md](https://github.com/lopes/dotfiles/blob/master/.config/claude/CLAUDE.md)
+:::
+
+```{=html}
+<div class="contact-row">
+  <a href="https://lopes.id" class="contact-link">
+    <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/>
+    </svg>
+    <span class="contact-label">lopes.id</span>
+  </a>
+  <a href="https://linkedin.com/in/jlopesjr" class="contact-link">
+    <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/>
+    </svg>
+    <span class="contact-label">jlopesjr</span>
+  </a>
+  <a href="https://github.com/lopes" class="contact-link">
+    <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+    </svg>
+    <span class="contact-label">lopes</span>
+  </a>
+</div>
+```
+
+::: notes
+Land the frame one more time: neither Claude nor I would have shipped Lantana v1 in two months alone. The AI didn't replace me — it made me faster where I was slow, and stayed out of the way where I was already fast. Then open the floor.
+:::
+
+## Q&A {.center}
+
+[QUESTIONS]{.kicker}

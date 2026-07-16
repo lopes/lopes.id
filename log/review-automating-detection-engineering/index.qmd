@@ -18,7 +18,7 @@ The book is packed with examples and hands-on labs, all contributing to a broade
 
 Readers can expect insights into automating key aspects of a detection engineer's work and learning how to integrate various tools to achieve this. However, this is not an introductory book. The author assumes prior knowledge of detection engineering, IT infrastructure, and programming.
 
-Although completing the labs isn't mandatory, if you're not accustomed to integrating tools via APIs, I highly recommend following them step by step. Doing so can significantly enhance your skills, make you a better engineer, and allow you to implement these solutions in your own work—ultimately making your life easier and your boss happier. 😎
+Although completing the labs isn't mandatory, if you're not accustomed to integrating tools via APIs, I highly recommend following them step by step. Doing so can improve your skills, make you a better engineer, and let you implement these solutions in your own work — making your life easier and your boss happier. 😎
 
 This book, released in mid-2024, reflects the growing importance of automation in detection engineering. Reading it can help set your work apart.
 
@@ -30,11 +30,11 @@ Don't get me wrong—this is a good book. However, it reads more like a collecti
 
 Dennis Chow's writing style is very direct. He jumps straight into the technical details without offering much in the way of contextualization, such as diagrams or examples that illustrate how different tools and concepts interconnect on a broader level. I also felt that the number of tools covered was excessive, making it difficult to focus on the core concepts. Sometimes, less is more.
 
-Had he spent more time refining the text—adding context, designing diagrams to illustrate the overarching system, and providing more didactic explanations for each lab—it would have elevated this book to an outstanding level.
+Had he spent more time refining the text—adding context, designing diagrams to illustrate the overarching system, and providing more didactic explanations for each lab — it would have made this book outstanding.
 
 Despite its shortcomings, this book is a must-read for detection engineering teams seeking greater maturity and scalability. Security teams don't scale at the same rate as business growth or the expanding attack surface, making automation crucial. This book offers valuable scenarios and insights that can be adapted to your organization.
 
-Personally, I already have a Detection-as-Code implementation at work, and I was looking for ways to improve it—especially in the area of testing rules in a CI/CD pipeline. This book provided me with exactly that. The examples and ideas presented helped me rethink testing strategies, which will undoubtedly enhance our system.
+Personally, I already have a Detection-as-Code implementation at work, and I was looking for ways to improve it—especially in the area of testing rules in a CI/CD pipeline. This book provided me with exactly that. The examples and ideas presented helped me rethink testing strategies, which will improve our system.
 
 Since the book covers a wide range of tools and is relatively new, some bugs in the code are to be expected. However, I feel the book was rushed to publication. That wouldn't be a major issue, but some of the downsides (including a bug in an example from Chapter 2—see below) could have been caught with more time for writing and review.
 

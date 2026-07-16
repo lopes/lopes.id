@@ -62,7 +62,7 @@ These are full-fledged operating systems (bare metal or VMs) waiting to be compr
 
 They yield the richest intelligence available. They're also the most painful to operate: stealthy monitoring without alerting the adversary, strict data control to ensure the host isn't weaponized against third parties, and explicit stop conditions for when to tear the environment down. If you're not ready for that operational burden, don't start here.
 
-The pros and cons of using high-interaction honeypots must be carefully considered in operations. At the end of the day, the intelligence gained from them must be better than what you can achieve via articles, reports, and CTI partners. Otherwise, you'll be raising the risk in vain. Don't let your curiosity and vanity speak louder than common sense. Act with wisdom.
+The pros and cons of using high-interaction honeypots must be carefully considered in operations. The intelligence gained from them must be better than what you can achieve via articles, reports, and CTI partners. Otherwise, you'll be raising the risk in vain. Don't let your curiosity and vanity speak louder than common sense. Act with wisdom.
 
 ##### Low-Interaction Honeypots
 
@@ -84,7 +84,7 @@ The two intents demand different operational mindsets. Production honeypots want
 There are even granular ways of defining honeypots and honeytokens. We can split honeypots into honey systems (decoy is the OS) and honey services (the service is the decoy). For honeytokens, we can use the token type as the category, like honey user, honey credential, honey folder (the token is the abstraction, forming the superclass). But taxonomy is just a human way of organizing stuff. Don't feel limited by it.
 
 :::{.callout-note}
-As discussed in [another post](/log/framework-adversary-engagement/), production and research honeypots have very distinct prerequisites and their data must be handled very differently from each other. Due to its intrinsic nature of being public, teams must carefully consider the use of research honeypots. The information they produce must be a real edge for intelligence creation, otherwise it's safer and smarter to leverage OSINT or partners for that end.
+As discussed in [another post](/log/framework-adversary-engagement/), production and research honeypots have very distinct prerequisites and their data must be handled very differently from each other. Due to its intrinsic nature of being public, teams must carefully consider the use of research honeypots. The information they produce must be a real edge for intelligence creation, otherwise it's safer and smarter to use OSINT or partners for that end.
 :::
 
 #### Type

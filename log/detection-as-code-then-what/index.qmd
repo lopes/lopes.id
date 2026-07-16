@@ -46,7 +46,7 @@ Large-scale teams running complex environments will greatly benefit from DaC, an
 
 ## The Core Use Cases
 
-To get real value from DaC, the team must invest time architecting the rule format—the envelop. This is crucial and non-negotiable. All features will be built on top of it, so any future change can be extremely disruptive. Looking around, you'll find varied structures. That's because each team has its own needs and context. There's no one-size-fits-all. That said, I believe a good rule structure should cover these four blocks:
+To get real value from DaC, the team must invest time architecting the rule format—the envelope. This is critical and non-negotiable. All features will be built on top of it, so any future change can be very disruptive. Looking around, you'll find varied structures. That's because each team has its own needs and context. There's no one-size-fits-all. That said, I believe a good rule structure should cover these four blocks:
 
 1. **Metadata:** Fields like description, author, and categorization—MITRE ATT&CK mappings live here.
 2. **Logic:** The rule logic itself, as expected by the Detection Engine, stored as a text block.
@@ -100,9 +100,9 @@ With this structure in place, several use cases become achievable. Let's walk th
 
 ### Visibility
 
-Managing a detection ruleset requires attention to detail and correlation across many fields. Even though rules are in plaintext, tracking them file by file quickly becomes unmanageable. It's incredibly simple to write a Python script that processes all rules and outputs a CSV with their metadata.
+Managing a detection ruleset requires attention to detail and correlation across many fields. Even though rules are in plaintext, tracking them file by file quickly becomes unmanageable. It's simple to write a Python script that processes all rules and outputs a CSV with their metadata.
 
-CSV can be consumed by almost any tool, including spreadsheets, letting you explore the data freely and easily. Visualizations like this help identify gaps and define next steps.
+CSV can be consumed by almost any tool, including spreadsheets, letting you explore the data freely. Visualizations like this help identify gaps and define next steps.
 
 ::: {.callout-tip}
 Don't limit the export to metadata fields. Enrich it with other useful context. For example, who last committed to that rule and when? This can be pulled from Git and added to the output, significantly improving the result.
@@ -139,7 +139,7 @@ The first line of defense is schema validation. Once your rule structure is defi
 Once basic validation is solid, you can layer on more advanced checks: for instance, validating ATT&CK TTPs against the STIX schema to ensure referenced techniques actually exist.
 
 ::: {.callout-tip}
-Split the validation to the code. Use tools or libraries that allow you to create schema files separated from the source-code. With this approach, it'll be easier for engineers to check constraints and even update them.
+Keep validation separate from the code. Use tools or libraries that let you create schema files kept apart from the source code. This makes it easier for engineers to check constraints and even update them.
 :::
 
 Linters can also be wired into the CI/CD pipeline to enforce formatting standards: no tabs, consistent blank lines between blocks, and so on. The goal is to normalize rules as much as possible to reduce maintenance burden.

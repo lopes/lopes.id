@@ -7,33 +7,33 @@ image: "og-rust-for-security-engineers.webp"
 code-line-numbers: true
 ---
 
-As a security engineer often leveraging Python 🐍 and shell scripts 🐚 for automation, I embarked on a journey to learn [Rust](https://www.rust-lang.org/) 🦀. My primary goal was to delve deeper into the language, moving beyond the prevailing "secure programming language" narrative to truly understand its fundamentals.
+As a security engineer often using Python 🐍 and shell scripts 🐚 for automation, I set out to learn [Rust](https://www.rust-lang.org/) 🦀. My primary goal was to dig into the language, moving beyond the "secure programming language" narrative to understand its fundamentals.
 
-While high-level scripting environments like Python offer a developer-friendly syntax and an abstraction layer that can make complex tasks seem trivial, accelerating development, this very abstraction often disconnects us from the systems level. Furthermore, the notorious "dependency hell" frequently encountered when deploying scripts across diverse systems presents a considerable hurdle for code distribution and production readiness.
+High-level scripting environments like Python offer a developer-friendly syntax and an abstraction layer that can make complex tasks seem trivial, speeding up development, but this same abstraction often disconnects us from the systems level. The "dependency hell" you frequently hit when deploying scripts across different systems is also a real hurdle for code distribution and production readiness.
 
-Years after my university days, I also felt a renewed desire to explore a systems-level language. This pursuit aimed at fostering a more direct interaction with the operating system, gaining a deeper understanding of "under the hood" mechanisms, an invaluable skill for disciplines such as **reverse engineering** and **digital forensics**. My objective was to learn a modern systems-level language prioritizing safe systems programming. This, I hoped, would enhance my capabilities as a code reviewer and elevate my insights on reverse engineering. The inherent memory safety guarantees of such a language are, in my view, a "killer feature" for any security engineer, as they provide a profoundly deeper understanding of the consequences of **memory corruption** vulnerabilities.
+Years after my university days, I also felt a renewed desire to explore a systems-level language. I wanted more direct interaction with the operating system and a better understanding of "under the hood" mechanisms, a useful skill for disciplines such as **reverse engineering** and **digital forensics**. My objective was to learn a modern systems-level language built around safe systems programming. This, I hoped, would make me a better code reviewer and sharpen my grasp of reverse engineering. The memory safety guarantees of such a language are, in my view, a "killer feature" for any security engineer, since they give you a much deeper understanding of the consequences of **memory corruption** vulnerabilities.
 
-To kickstart this learning, I read [The Rust Programming Language](https://doc.rust-lang.org/book/) book 📕 cover to cover and worked through various exercises, primarily from [Rustlings](https://rustlings.rust-lang.org/)—more on this later. As of this writing, I've concluded my initial research phase and am actively engaged in a personal project, which I consider my ultimate test of Rust proficiency 🚧.
+To get started, I read [The Rust Programming Language](https://doc.rust-lang.org/book/) book 📕 cover to cover and worked through several exercises, mostly from [Rustlings](https://rustlings.rust-lang.org/)—more on this later. As of this writing, I've finished my initial research phase and am working on a personal project, which I consider my real test of Rust proficiency 🚧.
 
-In this post, I aim to share my impressions of Rust from a security engineer's perspective, offering insights for fellow professionals considering a similar learning trajectory.
+In this post, I want to share my impressions of Rust from a security engineer's perspective, for fellow professionals considering a similar path.
 
 ::: {.callout-note}
 As previously mentioned, I'm not a full-time programmer. My programming efforts are primarily geared towards aiding my core security tasks, meaning I don't code extensively on a daily basis. Consequently, I am by no means a Rust expert, and it's entirely possible my perspectives on some of the points discussed here may evolve with further experience.
 
-This post will introduce various concepts and features without delving into exhaustive detail; doing so would necessitate writing an entire book. For deeper understanding, most terms presented here will include references to trusted sources 📚 at the end.
+This post will introduce several concepts and features without going into exhaustive detail; doing so would take an entire book. For deeper understanding, most terms here include references to trusted sources 📚 at the end.
 :::
 
 ## Core Concepts and Security
 
-Before diving deep into Rust, I revisited foundational operating systems concepts, particularly focusing on **memory management**. When a program executes, the operating system loads it into memory, assigning virtual addresses that are subsequently mapped to physical addresses. Each process operates within its own virtual address space, believing it has exclusive access to memory. The OS enforces this isolation, preventing processes from interfering with each other's memory. Within a process's memory space, key sections for programmers are the **stack** and the **heap**.
+Before getting into Rust, I revisited foundational operating systems concepts, particularly **memory management**. When a program executes, the operating system loads it into memory, assigning virtual addresses that are subsequently mapped to physical addresses. Each process operates within its own virtual address space, believing it has exclusive access to memory. The OS enforces this isolation, preventing processes from interfering with each other's memory. Within a process's memory space, key sections for programmers are the **stack** and the **heap**.
 
 The **stack** provides fast access memory due to its predictable structure, but it requires that the size of stored values be known at compile time. In contrast, the **heap** allows for dynamic memory allocation during runtime and supports flexible data structures, though with generally slower access. Many common security vulnerabilities 🐛, such as **buffer overflows**, **memory leaks**, **dangling pointers**, and **double frees**, arise from improper management of heap memory, especially in languages without built-in memory safety. While some issues like buffer overflows can affect both stack and heap, problems like double frees and leaks are specific to heap-allocated data.
 
-To proactively address these challenges, Rust's creators introduced the concept of **ownership** 🏠, arguably one of Rust's most significant contributions to security. Ownership establishes a rigorous set of guardrails and rules that programmers must adhere to. These rules effectively serve as a masterclass in proper memory management, designed to prevent corruptions. Indeed, the process of learning Rust often feels akin to gaining X-ray vision into the intricacies of **memory management**.
+To address these challenges, Rust's creators introduced the concept of **ownership** 🏠, arguably one of Rust's most significant contributions to security. Ownership sets a strict set of guardrails and rules that programmers must follow. These rules work as a masterclass in proper memory management, designed to prevent corruptions. Learning Rust often feels like gaining X-ray vision into the details of **memory management**.
 
 Rust's ownership model is built on key concepts like **borrowing**, **references**, and **lifetimes**, each enabling safe and efficient memory use. **Borrowing** lets code access data without taking ownership. **References** are pointer-like structures that follow borrowing rules to ensure safety. **Lifetimes** track how long references are valid, preventing dangling pointers at compile time.
 
-Building upon this, a programmer must possess a clear understanding of where data resides in memory, a skill invaluable for reverse engineering and exploit development, as this directly dictates how the data can be utilized. For instance, scalar types (like integers, floats, and booleans) are typically stored on the **stack** because their sizes are known at compile time. They implement the `Copy` trait, allowing them to be used more freely without explicit ownership transfers. Conversely, compound types (like `String`, `Vec`, and `Box`) manage data on the heap. While the `String`, `Vec`, or `Box` *itself* (which contains pointers/lengths/capacities) might reside on the stack, the actual data they manage is allocated on the **heap**. These types generally do not implement `Copy` and are subject to Rust's strict borrowing rules, necessitating careful adherence to prevent issues.
+A programmer must also have a clear understanding of where data resides in memory, a skill that's useful for reverse engineering and exploit development, since this directly dictates how the data can be used. For instance, scalar types (like integers, floats, and booleans) are typically stored on the **stack** because their sizes are known at compile time. They implement the `Copy` trait, allowing them to be used more freely without explicit ownership transfers. Conversely, compound types (like `String`, `Vec`, and `Box`) manage data on the heap. While the `String`, `Vec`, or `Box` *itself* (which contains pointers/lengths/capacities) might reside on the stack, the actual data they manage is allocated on the **heap**. These types generally do not implement `Copy` and are subject to Rust's strict borrowing rules, necessitating careful adherence to prevent issues.
 
 ::: {.callout-note}
 Although sharing some **simple** examples here, better and more comprehensive ones can be found at [Rust by Example](https://doc.rust-lang.org/rust-by-example/).
@@ -61,7 +61,7 @@ This clarity regarding data storage locations enables a programmer to examine an
 
 Rust is a strongly typed language, and it rigorously enforces these types throughout the codebase. While this contributes significantly to code predictability, it can sometimes be a source of initial confusion for newcomers, especially when navigating generics and error handling mechanisms; topics we'll explore further.
 
-For performance-conscious engineers, it's vital to recognize that Rust incorporates high-level language features such as **generics**, **iterators**, and **traits**. Crucially, these abstractions compile down to highly efficient assembly code, introducing virtually no runtime overhead, a concept known as **zero-cost abstractions**. This design also makes Rust exceptionally amenable to functional programming paradigms, which is a significant advantage in my opinion. The following snippet of code shows some of these features in action.
+For performance-conscious engineers, it's worth knowing that Rust includes high-level language features such as **generics**, **iterators**, and **traits**. These abstractions compile down to efficient assembly code with virtually no runtime overhead, a concept known as **zero-cost abstractions**. This design also makes Rust a good fit for functional programming, which I see as a real advantage. The following snippet of code shows some of these features in action.
 
 ```rust
 // An enum to define the possible types of log events.
@@ -101,9 +101,9 @@ impl LogEntry<String> {
 }
 ```
 
-Rust also enforces immutability by default for variables. This means that to alter a variable's value after its initial assignment, it must be explicitly marked with the `mut` keyword. This design choice dramatically enhances code explicitness and predictability.
+Rust also enforces immutability by default for variables. To change a variable's value after its initial assignment, you must explicitly mark it with the `mut` keyword. This makes code more explicit and predictable.
 
-Rust famously avoids "Null" values, a design decision aimed at preventing the "[billion-dollar mistake](https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare/)" often associated with null pointers. To gracefully handle the absence of a value, the `Option<T>` enum type was introduced, offering a remarkably clean and type-safe solution.
+Rust famously avoids "Null" values, a design decision aimed at preventing the "[billion-dollar mistake](https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare/)" often associated with null pointers. To handle the absence of a value, the `Option<T>` enum type was introduced, offering a clean and type-safe solution.
 
 The next snippet of code shows how immutability and `Option<T>` work in practice.
 
@@ -135,7 +135,7 @@ match vulnerability_found {
 
 ## Ergonomics
 
-Functions in Rust implicitly return the final expression in their body, eliminating the need for an explicit `return` keyword in many cases. This design choice contributes to cleaner and more concise code.
+Functions in Rust implicitly return the final expression in their body, so an explicit `return` keyword isn't needed in many cases. This makes for cleaner, more concise code.
 
 The concept of shadowing allows us to re-declare a variable with the same name within the same scope, effectively "shadowing" the previous one. This can often simplify code by avoiding the need for distinct names like `spaces_str` and `spaces_num`, allowing us to reuse a simpler name such as `spaces` when its type or value changes.
 
@@ -180,7 +180,7 @@ let log_slice: &str = &log_message;
 
 **Generics** offer an excellent mechanism for providing dynamic type functionality, promoting code reuse and type safety. However, as we'll discuss further in the "Challenges" section, their over-extensive use can quickly lead to code that is difficult to comprehend.
 
-Control flow constructs like `match` expressions and `if let` statements significantly streamline the implementation of multiple conditional cases. When utilized effectively, particularly with pattern matching, they contribute to highly elegant and readable code. The next example shows these contructs in practice.
+Control flow constructs like `match` expressions and `if let` statements significantly streamline the implementation of multiple conditional cases. When utilized effectively, particularly with pattern matching, they contribute to elegant and readable code. The next example shows these constructs in practice.
 
 ```rust
 // An enum to represent security events.
@@ -212,23 +212,23 @@ When applied judiciously and limited to appropriate scenarios, declarative progr
 
 A significant advantage of modern programming languages lies in their accompanying tooling ecosystem. While Python boasts tools like [pip](https://pypi.org/project/pip/) and [uv](https://github.com/astral-sh/uv)—the latter written in Rust—, Rust provides [Cargo](https://doc.rust-lang.org/cargo/), which truly acts as the "swiss army knife" for any Rust developer.
 
-Cargo is an all-encompassing tool capable of compiling Rust code, initializing new projects following best practices, managing third-party modules (known as "crates" within the Rust community), executing tests, generating documentation, and performing static analysis with [Clippy](https://github.com/rust-lang/rust-clippy). This integrated toolchain is a profound time-saver, eliminating the need to wrestle with complex Makefiles or craft shell scripts for building and testing your codebase.
+Cargo can compile Rust code, initialize new projects following best practices, manage third-party modules (known as "crates" within the Rust community), run tests, generate documentation, and perform static analysis with [Clippy](https://github.com/rust-lang/rust-clippy). This integrated toolchain saves a lot of time, sparing you from wrestling with complex Makefiles or writing shell scripts to build and test your codebase.
 
-Furthermore, [crates.io](https://crates.io/) serves as an exceptional central repository for Rust crates. Beyond aggregation, it provides vital metrics such as usage statistics, dependency graphs, comprehensive documentation, and developer information. From a security perspective, this transparency is critical; relying on obscure or nascent crates without proper due diligence can significantly increase a project's exposure to [supply chain attacks](https://www.fortinet.com/blog/threat-research/supply-chain-attack-via-new-malicious-python-packages) 🧨.
+[crates.io](https://crates.io/) is the central repository for Rust crates. Beyond aggregation, it provides useful metrics such as usage statistics, dependency graphs, documentation, and developer information. From a security perspective, this transparency is critical; relying on obscure or new crates without proper due diligence can increase a project's exposure to [supply chain attacks](https://www.fortinet.com/blog/threat-research/supply-chain-attack-via-new-malicious-python-packages) 🧨.
 
-An interesting aspect of Cargo's build process is its "lazy" compilation for development. Given that compile times are a frequent [point of discussion](https://nnethercote.github.io/perf-book/compile-times.html) within the Rust community, developers commonly use `cargo build` or `cargo run` for faster compilation of non-optimized binaries during iterative development. Only when preparing for a release do they execute `cargo build —release` to enable full optimizations. These optimized versions are significantly smaller: in my own experience, an unoptimized build yielded a 24 MB binary, while the release version was 7 MB, a size I still found somewhat substantial for the code I've written 🤷.
+An interesting aspect of Cargo's build process is its "lazy" compilation for development. Given that compile times are a frequent [point of discussion](https://nnethercote.github.io/perf-book/compile-times.html) within the Rust community, developers commonly use `cargo build` or `cargo run` for faster compilation of non-optimized binaries during iterative development. Only when preparing for a release do they run `cargo build --release` to enable full optimizations. These optimized versions are much smaller: in my own experience, an unoptimized build produced a 24 MB binary, while the release version was 7 MB, a size I still found somewhat large for the code I'd written 🤷.
 
-The paramount advantage here is that once the binary is generated, unlike interpreted languages, users simply need to execute it on a supported architecture/OS, and it just works. The notorious "it works on my machine" syndrome becomes a relic of the past—remember my Python background. This results in a robust, self-contained executable, making it an invaluable asset for scenarios like incident response.
+The main advantage here is that once the binary is generated, unlike interpreted languages, users just run it on a supported architecture/OS, and it works. The "it works on my machine" syndrome becomes a thing of the past—remember my Python background. You get a self-contained executable, which is a real asset for scenarios like incident response.
 
-In a similar vein, numerous community crates significantly extend Rust's functionalities, enhancing the overall programming experience by reducing boilerplate and improving code ergonomics. From my perspective, [thiserror](https://crates.io/crates/thiserror), [clap](https://crates.io/crates/clap), [rand](https://crates.io/crates/rand), and [tokio](https://crates.io/crates/tokio) are stellar examples, though many other excellent crates undoubtedly exist.
+Many community crates extend Rust's functionality, improving the programming experience by reducing boilerplate and improving code ergonomics. In my view, [thiserror](https://crates.io/crates/thiserror), [clap](https://crates.io/crates/clap), [rand](https://crates.io/crates/rand), and [tokio](https://crates.io/crates/tokio) are great examples, though there are many other excellent crates.
 
-The established conventions for structuring crates, whether for binaries or libraries, are remarkably well-defined and contribute to project maintainability as well. For example, the standard use of `src/main.rs` for binaries and `src/lib.rs` for libraries ensures consistency across projects, making it easier for developers to navigate unfamiliar codebases.
+The conventions for structuring crates, whether for binaries or libraries, are well-defined and help with project maintainability too. For example, the standard use of `src/main.rs` for binaries and `src/lib.rs` for libraries ensures consistency across projects, making it easier for developers to navigate unfamiliar codebases.
 
 ## Errors and Tests
 
-Rust embraces a robust error handling philosophy by implementing the `Result<T, E>` enum type, designed to explicitly convey success or failure rather than relying on exceptions. This pattern, especially when combined with the ergonomic `?` operator, significantly streamlines error propagation and handling.
+Rust takes a solid approach to error handling with the `Result<T, E>` enum type, designed to explicitly convey success or failure rather than relying on exceptions. This pattern, especially combined with the ergonomic `?` operator, simplifies error propagation and handling.
 
-Utility functions such as `.expect()`, `.unwrap()`, `.map_err()`, and `.ok_or()` prove exceptionally useful for managing and transforming Result types. The next code listing shows these functions in action.
+Utility functions such as `.expect()`, `.unwrap()`, `.map_err()`, and `.ok_or()` are very useful for managing and transforming Result types. The next code listing shows these functions in action.
 
 ```rust
 use std::fs::File;
@@ -263,7 +263,7 @@ fn load_critical_config() -> String {
 }
 ```
 
-Rust's clear distinction between recoverable `Errors` and unrecoverable `Panics` simplifies decision-making in error scenarios. Moreover, the fact that both mechanisms gracefully clean up the stack before exiting contributes to safer and more robust code, preventing potential resource leaks or undefined behavior. The following snippet of code shows examples of both types of failures.
+Rust's clear distinction between recoverable `Errors` and unrecoverable `Panics` simplifies decision-making in error scenarios. On top of that, both mechanisms clean up the stack before exiting, which makes for safer code and prevents resource leaks or undefined behavior. The following snippet of code shows examples of both types of failures.
 
 ```rust
 use std::fs::File;
@@ -291,9 +291,9 @@ fn get_critical_secret() -> String {
 }
 ```
 
-The primary challenge with Rust's error handling, particularly in complex applications, stems from its strong typing. Propagating errors upstream often necessitates explicit type conversions, which can be verbose in standard Rust. However, crates like [thiserror](https://crates.io/crates/thiserror) elegantly mitigate this by providing derive macros for custom error types and automatic `From` trait implementations. This often leads to Rust projects featuring a dedicated error module to define a consistent error hierarchy—usually `error.rs`—, streamlining error handling across the application. While Rust inherently provides backtraces on panics, structuring your error types carefully allows for richer and more context-aware error reporting even for recoverable errors.
+The primary challenge with Rust's error handling, particularly in complex applications, stems from its strong typing. Propagating errors upstream often necessitates explicit type conversions, which can be verbose in standard Rust. However, crates like [thiserror](https://crates.io/crates/thiserror) mitigate this by providing derive macros for custom error types and automatic `From` trait implementations. This often leads to Rust projects with a dedicated error module to define a consistent error hierarchy—usually `error.rs`—simplifying error handling across the application. While Rust inherently provides backtraces on panics, structuring your error types carefully allows for richer and more context-aware error reporting even for recoverable errors.
 
-Rust offers a remarkably graceful approach to testing. I particularly appreciate the intuitive structure for defining tests and the built-in assertions like `assert!`, `assert_eq!`, `assert_ne!`, and `#[should_panic]`. The ability to collocate unit tests within the same file as the routines they're validating, encapsulated in `mod tests` blocks, is an excellent design choice, as seen in the next example.
+Rust offers a clean approach to testing. I particularly like the intuitive structure for defining tests and the built-in assertions like `assert!`, `assert_eq!`, `assert_ne!`, and `#[should_panic]`. The ability to collocate unit tests within the same file as the routines they're validating, encapsulated in `mod tests` blocks, is an excellent design choice, as seen in the next example.
 
 ```rust
 // The function to be tested.
@@ -322,9 +322,9 @@ mod tests {
 
 ## Challenges
 
-Naturally, this unparalleled level of safety and fine-grained control comes with certain trade-offs. The very features that imbue Rust with immense power can, at times, also present challenges; a true "double-edged blade" phenomenon.
+Naturally, this level of safety and fine-grained control comes with trade-offs. The same features that give Rust its power can also present challenges; a real "double-edged blade".
 
-Mastering Rust's borrowing rules presents a steep learning curve, though a solid understanding of memory management principles significantly eases this process. This inherent "burden" is, in essence, the price of crafting truly secure code. While the ownership concept is undeniably powerful, it introduces numerous restrictions that necessitate various handling strategies. This has led to the development of different smart pointer types, such as `Box<T>`, `Rc<T>`, and `RefCell<T>`, each designed to address specific scenarios like heap allocation and shared ownership. While indispensable, these smart pointers can initially appear complex and counter-intuitive to newcomers. Some examples in the next listing.
+Mastering Rust's borrowing rules is a steep learning curve, though a solid understanding of memory management principles eases it a lot. This "burden" is, in essence, the price of writing secure code. While the ownership concept is undeniably powerful, it introduces numerous restrictions that necessitate various handling strategies. This has led to the development of different smart pointer types, such as `Box<T>`, `Rc<T>`, and `RefCell<T>`, each designed to address specific scenarios like heap allocation and shared ownership. While indispensable, these smart pointers can initially appear complex and counter-intuitive to newcomers. Some examples in the next listing.
 
 ```rust
 // A basic struct that represents a finding from a security scanner.
@@ -399,12 +399,12 @@ trait SecurityCheck {
     fn check(&self) -> bool;
 }
 
-// —- Simple, readable generic code —-
+// -- Simple, readable generic code --
 fn run_simple_check<T: SecurityCheck + Debug>(item: &T) {
     println!("Running simple check on: {:?}", item);
 }
 
-// —- Overly complex, hard-to-read generic code —-
+// -- Overly complex, hard-to-read generic code --
 // The multiple clauses, including the `for` clause, add significant
 // boilerplate and cognitive load, making the code's purpose difficult
 // to parse at a glance.
@@ -431,24 +431,24 @@ Navigating complex dependency graphs can be challenging in any language, and Rus
 
 ## The Rust Programming Language Book
 
-[The Rust Programming Language](https://doc.rust-lang.org/book/) book 📕 (TRPL) is an outstanding resource and a truly helpful initiative 🎖️. My only critique is its perceived lack of meaningful exercises and a tendency to sometimes feel like a comprehensive feature showcase rather than a deep dive into specific concepts. Perhaps a two-volume approach could address this. Nonetheless, it remains an undeniable fount of knowledge for aspiring Rustaceans. While [Rustlings](https://rustlings.rust-lang.org/) offers a decent interactive learning experience, in my opinion, it doesn't quite fill the gap for the kind of in-depth exercises 🏋️ and illustrative examples found in texts like [Java: How to Program](https://deitel.com/java-how-to-program-11-e-early-objects-version/) by Deitel.
+[The Rust Programming Language](https://doc.rust-lang.org/book/) book 📕 (TRPL) is an outstanding resource and a genuinely helpful initiative 🎖️. My only critique is its lack of meaningful exercises and a tendency to sometimes feel like a feature tour rather than a close look at specific concepts. Perhaps a two-volume approach could address this. Even so, it remains a solid source of knowledge for aspiring Rustaceans. While [Rustlings](https://rustlings.rust-lang.org/) offers a decent interactive learning experience, in my opinion, it doesn't quite fill the gap for the kind of in-depth exercises 🏋️ and illustrative examples found in texts like [Java: How to Program](https://deitel.com/java-how-to-program-11-e-early-objects-version/) by Deitel.
 
 ## Why Security Engineers Should Care About Rust
 
-For security engineers, Rust offers a unique blend of performance, control, and inherent safety features that are incredibly valuable:
+For security engineers, Rust offers a rare blend of performance, control, and built-in safety features:
 
 - **Memory safety by design:** Rust's ownership system, borrowing, and lifetimes eliminate entire classes of memory safety bugs in safe code at compile time. This proactive approach significantly reduces the attack surface of applications. That's why *I view Rust as fundamentally safe, not just incrementally safer than C or C++*: its safety model is enforced by the compiler, not bolted on through runtime checks or external tools. Understanding these mechanisms provides a deeper appreciation for memory corruption vulnerabilities, aiding in both defensive coding and offensive research.
-- **Systems-level control:** Rust provides low-level control over hardware and memory without sacrificing safety, making it ideal for writing secure, high-performance tools often needed in information security. This includes custom network protocols, embedded systems security, or even kernel modules where precise control is paramount.
-- **Robust and self-contained binaries:** Rust, through its tooling and build system, makes it straightforward to produce statically linked, self-contained binaries. This greatly simplifies deployment, particularly in constrained environments like air-gapped networks or incident response kits, where managing external dependencies is impractical. While not unique to Rust—languages like Go and C can also produce such binaries—Rust's tooling lowers the friction and integrates this approach seamlessly into modern workflows. These executables are less prone to "it works on my machine" issues and tend to offer greater reliability.
-- **Performance for security tools:** Many security operations, such as log analysis, cryptanalysis, or high-volume network traffic processing, demand high performance. Rust's zero-cost abstractions mean you get C/C++-level performance without the traditional security pitfalls, enabling faster and more efficient security tooling.
+- **Systems-level control:** Rust provides low-level control over hardware and memory without sacrificing safety, making it a good fit for writing secure, high-performance tools often needed in information security. This includes custom network protocols, embedded systems security, or even kernel modules where precise control is critical.
+- **Self-contained binaries:** Through its tooling and build system, Rust makes it straightforward to produce statically linked, self-contained binaries. This simplifies deployment, particularly in constrained environments like air-gapped networks or incident response kits, where managing external dependencies is impractical. While not unique to Rust—languages like Go and C can also produce such binaries—Rust's tooling lowers the friction and fits this approach smoothly into modern workflows. These executables are less prone to "it works on my machine" issues and tend to be more reliable.
+- **Performance for security tools:** Many security operations, such as log analysis, cryptanalysis, or high-volume network traffic processing, demand high performance. Rust's zero-cost abstractions mean you get C/C++-level performance without the traditional security pitfalls, enabling faster security tooling.
 - **Vulnerability research and reverse engineering:** Learning Rust deepens one's understanding of how programs interact with the operating system and manage memory. This knowledge is directly transferable to reverse engineering efforts, helping analysts better understand exploit primitives and analyze compiled binaries for vulnerabilities.
 - **Secure ecosystem:** [crates.io](https://crates.io/) with its transparency features (dependencies, downloads) allows security teams to make more informed decisions when integrating third-party components, mitigating supply chain risks.
 
-Rust empowers security engineers to build more resilient tools and applications while simultaneously enhancing their theoretical and practical understanding of low-level security concepts.
+Rust lets security engineers build more resilient tools and applications while deepening their theoretical and practical understanding of low-level security concepts.
 
 ## Final Thoughts
 
-Overall, [Rust](https://www.rust-lang.org/) 🦀 is a remarkably well-designed programming language. Its learning curve is, without a doubt, steep ⛰️. While not perfect, I firmly believe that among modern systems-level programming languages, Rust stands out as the premier choice, even with promising alternatives like [Zig](https://ziglang.org/), which **currently** possesses a less mature ecosystem. Security engineers can significantly benefit from internalizing Rust's core concepts, leveraging them to sharpen their expertise in application security, vulnerability research, and the nuanced world of memory corruption bugs. I intend to continue exploring and utilizing Rust in the coming months, confident in its utility for my professional development. 👊
+Overall, [Rust](https://www.rust-lang.org/) 🦀 is a very well-designed programming language. Its learning curve is, without a doubt, steep ⛰️. While not perfect, I firmly believe that among modern systems-level programming languages, Rust is the best choice, even with promising alternatives like [Zig](https://ziglang.org/), which **currently** has a less mature ecosystem. Security engineers can benefit a lot from internalizing Rust's core concepts and using them to sharpen their expertise in application security, vulnerability research, and the tricky world of memory corruption bugs. I intend to keep exploring and using Rust in the coming months, confident it's useful for my professional development. 👊
 
 ## References
 

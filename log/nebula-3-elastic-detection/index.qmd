@@ -30,7 +30,7 @@ I used version 8.14.3 because, in more recent versions (8.15.*), Kibana doesn't 
 2. Deploy a transient container to generate the certificates.
 3. Deploy the Elasticsearch and Kibana containers.
 4. Prepare Kibana for the Fleet server.
-5. Deploy the Fleet server—aka., an Elastic Agent managing other agents.
+5. Deploy the Fleet server—aka an Elastic Agent managing other agents.
 
 I created two Docker Compose files, one to deploy Elasticsearch and the other for Kibana. The code is in the appendix, and in the next lines, I'll explain how to use them:
 
@@ -172,7 +172,7 @@ I'll drop some references if you want to learn more about Elastic, and I myself 
 - [Install Elasticsearch with Docker](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html)
 - [Getting started with the Elastic Stack and Docker Compose: Part 1](https://www.elastic.co/blog/getting-started-with-the-elastic-stack-and-docker-compose)
 - [Getting started with the Elastic Stack and Docker Compose: Part 2](https://www.elastic.co/blog/getting-started-with-the-elastic-stack-and-docker-compose-part-2)
-- [Practical Threat Detectino Engineering](/log/review-practical-threat-detection/)
+- [Practical Threat Detection Engineering](/log/review-practical-threat-detection/)
 
 ## Appendix: Docker Compose Files
 
