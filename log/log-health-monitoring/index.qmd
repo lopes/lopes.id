@@ -1,10 +1,14 @@
 ---
 title: "Log Health Monitoring"
-date: 2026-07-14
+date: 2026-07-16
 description: "Monitoring log ingestion in SIEM using static and dynamic methods."
 categories: ["engineering", "logging"]
 image: "og-log-health-monitoring.webp"
 ---
+
+:::{.callout-tip}
+**tl;dr:** SIEMs rarely monitor their own log ingestion beyond "source went fully silent." I built a pipeline on Chronicle, BigQuery, BigQuery ML (ARIMA+), Apps Script, and Slack that also catches spikes, dips, and new unaligned sources, using per-source volume baselines instead of fixed thresholds. The design, deployment steps, and ongoing tuning playbook are all below.
+:::
 
 I can't count the number of times I've heard that log ingestion is a problem. I've felt the pain myself. You buy an expensive SIEM and feed logs in. Eventually you need to investigate something and the logs aren't there, silent for weeks.
 
