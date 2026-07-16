@@ -124,7 +124,7 @@ At this point I could see the data pipeline working for the first time, and I mu
 }
 ```
 
-Vector picks up the raw log, adds pipeline metadata (dataset, operation, source_type, server), and runs an offline MaxMind GeoLite2 lookup at wire speed — no external API call, no latency. The geo struct is the only enrichment at this stage, as seen in the next listing, which is how a log lands on Bronze layer.
+Vector picks up the raw log, adds pipeline metadata (`dataset`, `operation`, `source_type`, `server`), and runs an offline MaxMind GeoLite2 lookup at wire speed — no external API call, no latency. The geo struct is the only enrichment at this stage, as seen in the next listing, which is how a log lands on Bronze layer.
 
 ```json
 {

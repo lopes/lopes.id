@@ -6,11 +6,11 @@ toc: false
 repo-actions: false
 ---
 
-## 👋 Hi, I'm Joe Lopes
+## Hi, I'm Joe Lopes
 
 I'm a **Lead Information Security Engineer** working on **threat detection, SIEM, and adversary engagement**: building the systems that turn raw events into decisions, and the deception infrastructure that catches what conventional detection misses.
 
-This site, **lopes.log**, is where I write about that work. Detection-as-code, deception engineering, log-pipeline economics, and the occasional reflection on the craft of running a SOC at scale. Long-form, written slowly, and published with intent. **No ads** ⛔. All opinions are my own. 🫡
+This site, **lopes.log**, is where I write about that work. Detection-as-code, deception engineering, log-pipeline economics, and the occasional reflection on the craft of running a SOC at scale. Long-form, written slowly, and published with intent. **No ads**. All opinions are my own.
 
 ::: {.callout-note}
 I'm Brazilian (Portuguese is my native language) and my given name is **José** (pronounced *djo-zeh*).
@@ -20,7 +20,7 @@ Since José maps naturally to **Joseph**, I go by **Joe** — simpler, clearer, 
 
 ![Joe Lopes](/static/images/photo-portrait-joe-lopes.webp "Joe Lopes in the field")
 
-## 🔧 What I work on
+## What I work on
 
 A few threads run through most of what I write and build:
 
@@ -32,9 +32,9 @@ A few threads run through most of what I write and build:
 - **AI-native security practice** — using LLMs in detection and security engineering without losing the rigor. See [AI-First Software Development](/log/ai-first-software-development/).
 - **Rust for security tooling** — including [Cordyceps](https://github.com/lopes/cordyceps), a Rust ransomware proof-of-concept built to study the language and the threat.
 
-## 🗣️ Talks
+## Talks
 
-- **Migrating to Google SecOps: A Tactical Playbook** (2026) — Google HQ, São Paulo `pt_BR` (private)
+- **[Chronicles of a Google SecOps Migration](https://usergroups.security.googlecloudcommunity.com/events/details/google-cloud-security-sao-paulo-user-group-presents-sao-paulo-user-group-google-cloud-security-community-april-2026/)** (2026) — Google HQ, São Paulo `pt_BR` (private)
 - **[Visibilidade de Rede](https://drive.google.com/file/d/1uSHQhehbeVP7ee8z2jSl479f08NL7jBA/view?usp=drive_link)** (2021) — Mind The Sec, remote `pt_BR`
 - **[Práticas de NOC/SOC](https://drive.google.com/file/d/1tiuNM6K4HJ30icB9OtjQB79fE5F9W1qB/view?usp=drive_link)** (2019) — Itaipu, Paraná `pt_BR`
 - **[Método para Uso do SIEM como Ferramenta de Inteligência e Automação](https://drive.google.com/file/d/1DBnrpqmzFqbnrTgSPOu6FUg0ADCYIZBx/view?usp=drive_link)** (2019) — CERT.br, São Paulo `pt_BR`
@@ -42,16 +42,16 @@ A few threads run through most of what I write and build:
 - **[Blockchains: Muito Além do Bitcoin](https://drive.google.com/file/d/1KhE5Zktoz5dSdpKQxkzNJdv_0icShc_d/view?usp=drive_link)** (2017) — Cemig, Belo Horizonte `pt_BR`
 - **[Estruturação de um CSIRT no Contexto de Smart Grid](https://drive.google.com/file/d/13Sfpsy2EhfUg4ku_iqCvl0RBgNrTwVZB/view?usp=drive_link)** (2014) — CERT.br, São Paulo `pt_BR`
 
-## 🔗 Elsewhere
+## Elsewhere
 
 - **GitHub** — [/lopes](https://github.com/lopes)
 - **LinkedIn** — [/jlopesjr](https://www.linkedin.com/in/jlopesjr)
 - **RSS** — [/index.xml](/index.xml)
 
-## 🦫 Vigil
+## Vigil
 
 ![Vigil](/static/images/graphic-logo-vigil.png "Vigil, the engineer")
 
-**Vigil** is the beaver of *lopes.log*. Not cute, not angry, not heroic — focused, neutral, intelligent. Vigil works the way I try to: quietly, observing flows, reading structures, building meaning from fragments.
+**Vigil** 🦫 is the beaver of *lopes.log*. Not cute, not angry, not heroic — focused, neutral, intelligent. Vigil works the way I try to: quietly, observing flows, reading structures, building meaning from fragments.
 
-> *At lopes.log, I work with Vigil. Where others see logs, we see stories.*
+*Where others see logs, we see stories.*
