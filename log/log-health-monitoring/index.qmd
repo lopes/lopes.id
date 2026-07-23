@@ -138,7 +138,7 @@ For heartbeat sources, the silence threshold is set per source from its own hist
 Treat the tiers as direction, not hard rules. It's perfectly fine to set a source to 168h if that's what the data says. The tiers are just a mental model to keep the fleet consistent and avoid ad hoc choices. The only hard limit is 336h: above that, use suppressions for planned downtime or `excluded_log_types` for permanent exclusions.
 
 ::: {.callout-note}
-The hourly detection query scans `ingestion_metrics` for the `FULL_STOP` heartbeat check, and to keep that scan cheap it only looks back 14 days — 336h. Any source silent beyond that returns `latest_event = NULL` and fires `FULL_STOP` regardless of `max_silence_hours`; the scan window short-circuits the threshold check. Scanning further back is possible but scales cost linearly, and 14 days is the pragmatic tradeoff. Sources that legitimately need >336h tolerance belong in `suppressions` (temporary) or `excluded_log_types` (permanent) instead. Both cost nothing to evaluate.
+The hourly detection query scans `ingestion_metrics` for the `FULL_STOP` heartbeat check, and to keep that scan cheap it only looks back 14 days — 336h. Any source silent beyond that returns `latest_event = NULL` and fires `FULL_STOP` regardless of `max_silence_hours`; the scan window short-circuits the threshold check. When that happens the alert reports the silence as a floor — `≥336h` — rather than a precise figure, since the exact duration is unknowable inside the window (stamping a hardcoded sentinel instead would just fabricate a number). Scanning further back is possible but scales cost linearly, and 14 days is the pragmatic tradeoff. Sources that legitimately need >336h tolerance belong in `suppressions` (temporary) or `excluded_log_types` (permanent) instead. Both cost nothing to evaluate.
 :::
 
 With all architectural decisions in mind, it's time to start implementing the log health monitoring.
@@ -439,7 +439,8 @@ CREATE OR REPLACE TABLE `chronicle-self.log_health.anomalies` (
   anomaly_probability FLOAT64,
   sent_to_slack BOOL DEFAULT FALSE,
   -- Unit-aware actual/expected/delta. SPIKE/DIP: log_count vs. bound, value_unit='evt'.
-  -- FULL_STOP: hours_silent vs. max_silence_hours, value_unit='h'.
+  -- FULL_STOP: hours_silent vs. max_silence_hours, value_unit='h' (or 'h+' when the
+  --   feed has aged out of the 336h lookback, so the value is a floor: >= the window).
   -- NEW_SOURCE: NULL (no baseline).
   actual_value FLOAT64,
   expected_value FLOAT64,
@@ -1122,31 +1123,44 @@ WHERE a.is_anomaly
 
 -- Step C: FULL_STOP heartbeat (all enabled sources, both cohorts)
 -- event_count > 0 excludes Chronicle's phantom rows (configured but not ingesting).
+-- When a feed ages out of the 336h lookback, latest_event is NULL and its exact
+-- silence is unknowable, so actual/delta are reported as a floor (>= the window)
+-- and value_unit is stamped 'h+' — never a fabricated sentinel. The 336 literal
+-- MUST match latest_per_source's INTERVAL 336 HOUR below.
 INSERT INTO `chronicle-self.log_health.anomalies`
-  (detected_at, source_key, anomaly_type, hour_bucket)
+  (detected_at, source_key, anomaly_type, hour_bucket,
+   actual_value, expected_value, delta_value, severity_pct, value_unit)
 WITH latest_per_source AS (
   SELECT log_type AS source_key, MAX(start_time) AS latest_event
   FROM `chronicle-google.datalake.ingestion_metrics`
   WHERE start_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 336 HOUR)
     AND event_count > 0
   GROUP BY log_type
+),
+candidates AS (
+  SELECT c.source_key, c.max_silence_hours, l.latest_event,
+         TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), l.latest_event, HOUR) AS hours_silent
+  FROM `chronicle-self.log_health.source_config` c
+  LEFT JOIN latest_per_source l ON l.source_key = c.source_key
+  WHERE c.enabled
 )
-SELECT CURRENT_TIMESTAMP(), c.source_key, 'FULL_STOP', l.latest_event
-FROM `chronicle-self.log_health.source_config` c
-LEFT JOIN latest_per_source l ON l.source_key = c.source_key
-WHERE c.enabled
-  AND (
-    l.latest_event IS NULL
-    OR l.latest_event < TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL c.max_silence_hours HOUR)
-  )
+SELECT CURRENT_TIMESTAMP(), source_key, 'FULL_STOP', latest_event,
+       CAST(COALESCE(hours_silent, 336) AS FLOAT64)                     AS actual_value,
+       CAST(max_silence_hours AS FLOAT64)                               AS expected_value,
+       CAST(COALESCE(hours_silent, 336) - max_silence_hours AS FLOAT64) AS delta_value,
+       ROUND(SAFE_DIVIDE(COALESCE(hours_silent, 336) - max_silence_hours,
+                         max_silence_hours) * 100, 1)                   AS severity_pct,
+       IF(hours_silent IS NULL, 'h+', 'h')                             AS value_unit
+FROM candidates
+WHERE (latest_event IS NULL OR hours_silent > max_silence_hours)
   AND NOT EXISTS (
     SELECT 1 FROM `chronicle-self.log_health.suppressions` s
-    WHERE s.source_key = c.source_key
+    WHERE s.source_key = candidates.source_key
       AND (s.until IS NULL OR s.until > CURRENT_TIMESTAMP())
   )
   AND NOT EXISTS (
     SELECT 1 FROM `chronicle-self.log_health.anomalies` x
-    WHERE x.source_key = c.source_key
+    WHERE x.source_key = candidates.source_key
       AND x.anomaly_type = 'FULL_STOP'
       AND x.detected_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 6 HOUR)
   );
