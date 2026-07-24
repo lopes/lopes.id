@@ -422,7 +422,7 @@ Wow! So much done in nearly two months! Full pipeline development, last features
 
 - [Lantana 1: Honeypot as code](/log/lantana-1-honeypot-as-code/)
 - Lantana 2: The Data Pipeline
-- Lantana 3: TBW
+- [Lantana 3: Output and Lessons](/log/lantana-3-lessons-and-output/)
 
 ## Appendix
 
