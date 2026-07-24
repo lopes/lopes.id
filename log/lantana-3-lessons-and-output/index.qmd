@@ -1,0 +1,99 @@
+---
+title: "Lantana 3: Output and Lessons"
+date: 2026-07-24
+description: "What a Honeypot-as-Code platform actually produces — and the engineering and AI lessons from building it."
+categories: ["engineering", "detection", "deception"]
+image: "og-lantana-3-lessons-and-output.webp"
+---
+
+In the [first post](/log/lantana-1-honeypot-as-code/) I explained why I built Lantana and how the foundation came together. In the [second](/log/lantana-2-data-pipeline/), I told how the data pipeline was written and how v1 went live. This is the season finale. Instead of walking forward through the build again, I want to turn around and look at the platform from the other end: what does running Lantana actually produce? And, after two posts of engineering, what did I take away from it?
+
+A reminder on framing, because it shapes everything below: Lantana was an **engineering project first, a deception project second**. I wanted to reason about a log pipeline end-to-end without building fake log sources. Honeypots were the elegant way to get real, messy, adversarial data for free. So this post reads the outputs like an engineer reading a system, and the numbers like a data scientist reading a dataset — cautiously.
+
+## The numbers so far
+
+Lantana has been running on a single VPS (4 vCPU, 8 GB RAM, 75 GB NVMe, low single-digit USD/month) since the release candidate went live. The figures below cover roughly six weeks, from June 11th to July 23rd, 2026 — early signal, not a longitudinal study. A proper field-data analysis is a separate post; I don't want to overclaim from six weeks.
+
+| Metric | Six-week total |
+| --- | --- |
+| Events processed | **15,921,578** |
+| Unique attacker IPs | **56,058** |
+| Distinct countries | **181** |
+| Authentication attempts | 1,398,792 |
+| Commands captured | 173,640 |
+| Suricata findings | 56,460 |
+| File downloads captured | 11,888 |
+| nftables (network-layer) events | 14,280,798 |
+| Sessions | 396,805 |
+
+On an average day the pipeline handled about **379,000 events from ~5,200 unique IPs**, peaking at **936,894 events** on the busiest day. The vast majority — 14.3M of the 15.9M — are network-layer events from nftables, the honeywall logging every packet it drops. That imbalance is the point: the firewall and Suricata see everything that touches the host, not just what reaches an application. Honeypots alone would have shown me a fraction of this.
+
+Two honest caveats. First, "authentication successes" (47,124) is not 47,124 breaches — Cowrie *accepts* logins by design so it can observe what the attacker does next. Second, the enrichment is thin: with ~5,200 unique IPs a day and free-tier API quotas measured in hundreds to low thousands, most IPs never get fully enriched. That ceiling was already visible in [post 2](/log/lantana-2-data-pipeline/); at this volume it's structural, not a bug.
+
+## What it produces
+
+### The daily brief
+
+The output I actually use every day is the least glamorous: a Discord message at 06:00 UTC. It carries a severity-colored embed (green/yellow/red, driven by pipeline health, not attacker volume) and attaches the full Markdown brief as a file. It's deliberately a *reading document*, not an IOC dump — top credentials, geography, notable findings, the day's risk leaders. I can skim it on my phone without an SSH tunnel. The heavier inventory lives in the dashboard.
+
+### The dashboard
+
+The Streamlit dashboard is the operator view — seven tabs, each answering one question: an **Overview**, a **Geography** map colored by risk, **IP Reputation**, a **Progression** funnel, Suricata **Findings**, **Credentials**, and a **STIX Export** page. I won't paste screenshots here — they're in the [repository](https://github.com/lopes/lantana) — but a couple of the views produced findings worth discussing.
+
+### The Gold layer and the risk score
+
+Everything above reads from the Gold layer: one row per attacker IP per day, with a single composite `risk_score` (0–100) blending external reputation with observed behavior. The score was my idea; Claude implemented it. Seeing it come alive — a table sorted riskiest-first, the same IPs plotted on the world map and shaded by risk — was the moment the whole pipeline stopped being plumbing and started being *intelligence*. Small thing. Felt great.
+
+### STIX for sharing
+
+Finally, the platform exports STIX 2.1 bundles for MISP or OpenCTI: indicators above a risk threshold, campaign clusters, TLP markings. Over the six weeks that's **16,134 IPs** scoring ≥ 40 and **1,038** scoring ≥ 70 — a shareable, ranked feed. What makes sharing safe is the redaction guarantee: the honeypot's own WAN address never leaves the Silver layer, so two operators can trade bundles without leaking each other's infrastructure.
+
+## Reading the results without fooling myself
+
+Here's where I have to be careful, because the interesting-looking findings are also the easiest to misread.
+
+The credential data is a good example. My top usernames and passwords were `admin/admin`, `support/support`, `ubuntu/ubuntu`, `root/123456` — and, more eye-catching, `345gs5662d34` and the crypto-flavored `solana`, `sol`, `solv`, `validator`. It's tempting to tell a story here: *my fintech persona attracted crypto-hunting bots!* That story would be wrong, and worth explaining why.
+
+`345gs5662d34` (and its sibling `3245gs5662d34`) are not clever — they're hardcoded default credentials baked into device firmware (a Polycom IP phone and IP cameras, respectively). Mirai-derived botnets spray them across the entire internet, and together they account for something like [30% of global SSH brute-force attempts](https://blog.sofiane.cc/ssh_honeypot). The `solana`/`sol` family is a real, [documented campaign hunting Solana validator nodes](https://arman-bd.hashnode.dev/i-left-port-22-open-on-the-internet-for-54-days-here-s-who-showed-up) — but it also sprays indiscriminately.
+
+My own data settles it. Of the 98 IPs that tried a Solana-family username, **94 (96%) also tried `root`, `admin`, or `ubuntu`** — and across those same IPs, `root` (65,268 attempts) outnumbered `solana` (16,564) by roughly four to one. These aren't actors drawn by my story; they're blind sprayers whose wordlist happens to include crypto usernames. (A fun sign of the times: `claude` now shows up as a sprayed username too — the wordlists are already adapting to AI-dev boxes.)
+
+So the honest finding is more sober than the flattering one: **at this exposure, a low-interaction honeypot sees overwhelmingly indiscriminate, automated traffic.** My credential distribution matches published global baselines almost exactly. The behavioral funnel says the same thing — of 56,058 unique IPs, **93.8% never progressed past scanning**, and only **3.3% ran a command**. The median time from first contact to first command was effectively zero: pure automation, no human at the keyboard.
+
+That is not a disappointment; it's a measurement. The narrative's payoff was never going to show up in *who knocks* at the network edge — it shows up in *interaction depth* once someone is inside, which is a high-interaction, longer-engagement question that six weeks of low-interaction data simply can't answer. Knowing the difference is the whole job. And there is one concrete result: across the entire window I captured only **82 distinct file hashes** despite ~12,000 download events — the same handful of payloads, over and over. That's a real, small, shareable artifact set, and it's honest about its size.
+
+## Deployment shapes
+
+If you want to run this yourself, the shape scales with your ambition. The personal case is what I run: one Ansible inventory, one VPS, single-digit dollars a month, everything on one host with a dummy interface segregating the zones. Clone the inventory, set your narrative, deploy. The other shape is a multi-node sensor fleet — the honeywall as a bastion, sensors and collector on separate hosts — which is where high-interaction honeypots and horizontal scale would live. I designed for it; I haven't needed it. The platform is public and built to be forked, so either path is open.
+
+## Engineering lessons
+
+The biggest surprise wasn't the pipeline — it was **systemd with Podman Quadlets**. Coming from the Docker world, I expected "install a runtime, manage containers with its CLI." Instead, rootless Podman plus systemd let me describe containers as plain unit files and have the *operating system itself* manage them — same tooling as every other service, same `systemctl` and `journalctl`, same restart semantics. The container layer and the host stopped feeling like two systems glued together and started feeling like one. For a security-sensitive project, running honeypots daemonless and rootless, orchestrated by the init system I already trust, was the cleanest fit I could have asked for.
+
+The rest of the modern-Linux stack earned its place quietly: **nftables** replacing iptables (one coherent ruleset, dual-stack by default), **iproute2** for the interface work, and **journalctl** as the single place to ask "what just happened?" None of it was exotic. That's the lesson — Linux rewards sticking to the grain. Every time I reached for the standard tool instead of a clever workaround, the result was more stable and easier to reason about. Deviations become technical debt with interest.
+
+## Working with AI, honestly
+
+I've said in the previous posts how much Claude sped this up — roughly 23,000 lines of code and config, a year of solo evenings compressed into a couple of months. The archetype of that collaboration was the enrichment circuit breaker: I noticed the *shape* of the problem (the pipeline was thrashing against exhausted rate limits), Claude implemented the fix in minutes, and a six-hour run dropped to under five. My insight, its execution. Neither of us gets there alone that fast.
+
+But I want to close the series on a more careful note than pure enthusiasm.
+
+What made this work sustainable wasn't the speed — it was the discipline underneath it. I went YOLO on *letting Claude drive*, but I was strict about two things: the code was written test-first, and the documentation stayed current. `CLAUDE.md`, the READMEs, the runbooks — all kept in sync with the code. That's not bureaucracy; it's what lets me onboard a different model tomorrow, or debug the thing myself at 2 a.m. when there's no model at all. The clearest example: when Claude finished the pipeline it was *sure* it worked. I wasn't. So I had it write throwaway scripts to pull real logs off the running server and reprocess them locally — a dry run. That caught bugs that would each have cost hours on the deploy-wait-test loop against the VPS. Not trusting "it works" saved days.
+
+Could I operate and debug Lantana without Claude? Yes — but it would be a slow, boring slog: recall the right command, read the flags, interpret the output, pipe it through a filter, loop until I find the root cause, then decide on a fix. What Claude does in five minutes would take me a morning, and in spare time, a morning becomes a week.
+
+That dependency is exactly what I want to flag. We're in an AI bubble, and today's tokens are subsidized by companies and investors. Data-center capacity and memory are already scarce. What happens to my workflow when the price reflects the cost, or when the service is simply down? I'm not predicting collapse — we adapt, we always do. But building solutions that *depend on AI to run* — tools made with AI that also need AI in the loop to operate — is a quiet long-term hazard. The vendors say to use it everywhere, the same way SIEM vendors say to ingest every log. My defense is boring and deliberate: document everything the AI produces, and make sure I understand at least the shape of what it just did. The work has to be able to outlive the tool.
+
+## Closing the loop
+
+Three posts: [the foundations](/log/lantana-1-honeypot-as-code/), [the pipeline](/log/lantana-2-data-pipeline/), and now what it produces. Lantana is live, stable, and — pleasingly — a little boring to operate, which is the highest compliment I can pay a system.
+
+There's more I want to do, and it's engineering-first, as always: close the limitations I've already documented in the project (self-built honeypot images, to stop depending on rolling upstream tags), put some machine learning to work on the Gold layer, and stand the whole thing up on GCP to learn the cloud stack the way I used this to learn modern Linux. The deception will follow the engineering, same as it did here.
+
+If any of this is useful to you — as a pipeline, a honeypot, or just a worked example of building a real system with an AI companion — [the code is on GitHub](https://github.com/lopes/lantana). Fork it, break it, tell me what you find. This whole thing came together with a little help from my friend; I'd like to think it can help yours too.
+
+## Lantana Series
+
+- [Lantana 1: Honeypot as Code](/log/lantana-1-honeypot-as-code/)
+- [Lantana 2: The Data Pipeline](/log/lantana-2-data-pipeline/)
+- Lantana 3: Output and Lessons
