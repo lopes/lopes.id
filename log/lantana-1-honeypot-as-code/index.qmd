@@ -145,4 +145,4 @@ In the next part, I'll pick up in April, when I returned to Lantana with Claude 
 
 - Lantana 1: Honeypot as code
 - [Lantana 2: The Data Pipeline](/log/lantana-2-data-pipeline/)
-- Lantana 3: TBW
+- [Lantana 3: Output and Lessons](/log/lantana-3-lessons-and-output/)
