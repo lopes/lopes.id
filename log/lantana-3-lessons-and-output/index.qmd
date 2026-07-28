@@ -2,7 +2,7 @@
 title: "Lantana 3: Output and Lessons"
 date: 2026-07-31
 description: "The engineering and AI lessons from building Lantana."
-categories: ["engineering", "detection", "deception"]
+categories: ["engineering", "deception"]
 image: "og-lantana-3-lessons-and-output.webp"
 ---
 
@@ -12,23 +12,23 @@ A reminder on framing, because it shapes everything below: Lantana was an **engi
 
 ## The Numbers
 
-Lantana has been running on a single VPS (4 vCPU, 8 GB RAM, 75 GB NVMe, low single-digit USD/month) since the release candidate went live. The figures below cover roughly six weeks, from June 11th to July 23rd, 2026.
+Lantana has been running on a single VPS (4 vCPU, 8 GB RAM, 75 GB NVMe, low single-digit USD/month) since the release candidate went live. The figures below cover roughly six and a half weeks, from June 11th to July 27th, 2026.
 
-| Metric | Six-week total |
+| Metric | Period total |
 | --- | --- |
-| Events processed | **15,921,578** |
-| Unique attacker IPs | **56,058** |
-| Distinct countries | **181** |
-| Authentication attempts | 1,398,792 |
-| Commands captured | 173,640 |
-| Suricata findings | 56,460 |
-| File downloads captured | 11,888 |
-| nftables (network-layer) events | 14,280,798 |
-| Sessions | 396,805 |
+| Events processed | **17,347,764** |
+| Unique attacker IPs | **60,115** |
+| Distinct countries | **180** |
+| Authentication attempts | 1,490,404 |
+| Commands captured | 186,912 |
+| Suricata findings | 62,124 |
+| File downloads captured | 12,700 |
+| Network-layer events | 15,595,624 |
+| Sessions | 433,927 |
 
-On an average day the pipeline handled about **379,000 events from ~5,200 unique IPs**, peaking at **936,894 events** on the busiest day. The vast majority (14.3M of the 15.9M) are network-layer events from nftables, the honeywall logging every packet it drops. That imbalance is the point: the firewall and Suricata see everything that touches the host, not just what reaches an application. Honeypots alone would have shown me a fraction of this but it was precisely the telemetry I wanted. This additional data help adds context to honeypot data, allowing me to create that progression funnel seen on dashboards.
+On an average day the pipeline handled about **377,000 events from ~5,300 unique IPs**, peaking at **936,894 events** on June 13th. The vast majority — 15.6M of the 17.3M — are network-layer events (the OCSF network-activity class), and they come from three sources, not one: Suricata flow records (7.0M), honeypot connection logs from Cowrie and Dionaea (6.3M), and the honeywall's nftables drop log (2.3M, every packet the firewall refuses). That imbalance is the point: the firewall and Suricata see everything that touches the host, not just what reaches an application. Honeypots alone would have shown me a fraction of this, but it was precisely the telemetry I wanted — the context that lets me build the progression funnel on the dashboards.
 
-That said, it's important to highlight that "authentication successes" (47,124) is not 47,124 breaches — Cowrie *accepts* logins by design so it can observe what the attacker does next. Also, the enrichment is thin: with ~5,200 unique IPs a day and free-tier API quotas measured in hundreds to low thousands, most IPs never get fully enriched. That ceiling was already visible in [post 2](/log/lantana-2-data-pipeline/); at this volume it's structural, not a bug.
+One caveat, though: "authentication successes" (48,360) is not 48,360 breaches — Cowrie *accepts* logins by design so it can observe what the attacker does next. Also, the enrichment is thin: with ~5,300 unique IPs a day and free-tier API quotas measured in hundreds to low thousands, most IPs never get fully enriched. That ceiling was already visible in [post 2](/log/lantana-2-data-pipeline/); at this volume it's structural, not a bug.
 
 ## Outputs
 
@@ -46,7 +46,7 @@ Everything above reads from the Gold layer: one row per attacker IP per day, wit
 
 ### STIX
 
-Finally, the platform exports STIX 2.1 bundles for MISP or OpenCTI: indicators above a risk threshold, campaign clusters, TLP markings. Over the six weeks that's **16,134 IPs** scoring ≥ 40 and **1,038** scoring ≥ 70 — a shareable, ranked feed. What makes sharing safe is the redaction guarantee: the honeypot's own WAN address never leaves the Silver layer, so two operators can trade bundles without leaking each other's infrastructure.
+Finally, the platform exports STIX 2.1 bundles for MISP or OpenCTI: indicators above a risk threshold, campaign clusters, TLP markings. Over the window that's **17,167 IPs** scoring ≥ 40 and **1,137** scoring ≥ 70 — a shareable, ranked feed. What makes sharing safe is the redaction guarantee: the honeypot's own WAN address never leaves the Silver layer, so two operators can trade bundles without leaking each other's infrastructure.
 
 ## Data Analysis
 
@@ -56,11 +56,11 @@ The credential data is a good example. My top usernames and passwords were `admi
 
 `345gs5662d34` (and its sibling `3245gs5662d34`) are hardcoded default credentials baked into device firmware — a Polycom IP phone and IP cameras, respectively. Mirai-derived botnets spray them across the entire internet, and together they account for something like [30% of global SSH brute-force attempts](https://blog.sofiane.cc/ssh_honeypot). The `solana`/`sol` family is a real, [documented campaign hunting Solana validator nodes](https://arman-bd.hashnode.dev/i-left-port-22-open-on-the-internet-for-54-days-here-s-who-showed-up) — but it also sprays indiscriminately.
 
-My own data settles it. Of the 98 IPs that tried a Solana-family username, **94 (96%) also tried `root`, `admin`, or `ubuntu`** — and across those same IPs, `root` (65,268 attempts) outnumbered `solana` (16,564) by roughly four to one. These aren't actors drawn by my story; they're blind sprayers whose wordlist happens to include crypto usernames. A fun sign of the times: `claude` now shows up as a sprayed username too — the wordlists are already adapting to AI-dev boxes.
+My own data settles it. Of the 107 IPs that tried a Solana-family username, **103 (96%) also tried `root`, `admin`, or `ubuntu`** — and across those same IPs, `root` (72,140 attempts) outnumbered `solana` (18,012) by roughly four to one. These aren't actors drawn by my story; they're blind sprayers whose wordlist happens to include crypto usernames. A fun sign of the times: `claude` now shows up as a sprayed username too — the wordlists are already adapting to AI-dev boxes.
 
-So the honest finding is more sober than the flattering one: **at this exposure, a low-interaction honeypot sees overwhelmingly indiscriminate, automated traffic.** My credential distribution matches published global baselines almost exactly. The behavioral funnel says the same thing — of 56,058 unique IPs, **93.8% never progressed past scanning**, and only **3.3% ran a command**. The median time from first contact to first command was effectively zero: pure automation, no human at the keyboard.
+So the honest finding is more sober than the flattering one: **at this exposure, a low-interaction honeypot sees overwhelmingly indiscriminate, automated traffic.** My credential distribution matches published global baselines almost exactly. The behavioral funnel says the same thing — of 60,115 unique IPs, **93.9% never progressed past scanning**, and only **3.3% ran a command**. The median time from first contact to first command was effectively zero: pure automation, no human at the keyboard.
 
-The narrative's payoff was never going to show up in *who knocks* at the network edge — it shows up in *interaction depth* once someone is inside, which is a high-interaction, longer-engagement question that six weeks of low-interaction data simply can't answer. Knowing the difference is the whole job. And there is one concrete result: across the entire window I captured only **82 distinct file hashes** despite ~12,000 download events — the same handful of payloads, over and over. That's a real, small, shareable artifact set, and it's honest about its size.
+The narrative's payoff was never going to show up in *who knocks* at the network edge — it shows up in *interaction depth* once someone is inside, which is a high-interaction, longer-engagement question that six weeks of low-interaction data simply can't answer. Knowing the difference is the whole job. And there is one concrete result: across the entire window I captured only **90 distinct file hashes** despite ~12,700 download events — the same handful of payloads, over and over. That's a real, small, shareable artifact set, and it's honest about its size.
 
 ## Deployment Shapes
 
@@ -72,7 +72,20 @@ The biggest surprise wasn't the pipeline — it was **systemd with Podman Quadle
 
 The rest of the modern-Linux stack earned its place quietly: **nftables** replacing iptables (one coherent ruleset, dual-stack by default), **iproute2** for the interface work, and **journalctl** as the single place to ask "what just happened?" None of it was exotic. That's the lesson — Linux rewards sticking to the grain. Every time I reached for the standard tool instead of a clever workaround, the result was more stable and easier to reason about. Deviations become technical debt with interest.
 
-> SHOULD ADD A WORD ON THE DATA PIPELINE LEARNINGS HERE: MEDALLION, STREAMING, ENRICHMENT...
+Claude implemented the data pipeline with the Vector configuration files and Python code, stealing my opportunity to learn tools like Polars and Streamlit — the downside of vibe coding. Still, I learned the pipeline anyway. The [Medallion architecture](https://learn.microsoft.com/en-us/azure/databricks/lakehouse/medallion) was my choice and (with Gemini's help) I laid out the datalake myself, Hive-partitioned so a date range is just a directory glob:
+
+```text
+datalake/
+├── bronze/dataset=<source>/date=YYYY-MM-DD/server=<host>/events.json     # raw, as-ingested
+├── silver/dataset=<source>/date=YYYY-MM-DD/server=<host>/events.parquet  # normalized to OCSF
+└── gold/<aggregation>/date=YYYY-MM-DD/summary.parquet                    # per-day rollups
+```
+
+The sources are `cowrie`, `dionaea`, `nftables`, and `suricata`; the gold aggregations are `daily_summary`, `ip_reputation`, `behavioral_progression`, `campaign_clusters`, `geographic_summary`, and `detection_findings`. It's based on best practices and scalable, something to take with me.
+
+Vector was another of my choices. It handles basic event enrichment (IP geolocation) and a faster move from raw log to the bronze layer, which turns out to be a security feature too: the honeypot logs are written by the same user that owns the honeypots, so if a honeypot is ever owned, the attacker could delete all the logs. Moving those logs to bronze creates files under new ownership, the collector user.
+
+Although the data processing code was written by Claude, I had to work on its validation, especially the enrichment part. Some of it came out of that work, like the short-circuit for the rate-limit errors and the idea for the custom, unified risk score. That last one turned out to be the most useful: it became the foundation for several dashboards and a clean way to define IOCs from the collected data.
 
 ## Working with AI
 
@@ -92,7 +105,7 @@ Three posts: [the foundations](/log/lantana-1-honeypot-as-code/), [the pipeline]
 
 There's more I want to do, and it's engineering-first, as always: close the limitations I've already documented in the project (self-built honeypot images, to stop depending on rolling upstream tags), put some machine learning to work on the Gold layer, and stand the whole thing up on GCP to learn the cloud stack the way I used this to learn modern Linux. The deception will follow the engineering, same as it did here.
 
-If any of this is useful to you (as a pipeline, a honeypot, or just a worked example of building a real system with an AI companion) [the code is on GitHub](https://github.com/lopes/lantana). Fork it, break it, tell me what you find. This whole thing came together with a little help from my friend; I'd like to think it can help yours too.
+Although the goal was a data pipeline at first, Lantana turned out to be a nice tool for intel teams: just define an operation, get the right approvals, tailor the honeypots, and deploy — see [Adversary Engagement 101](/log/adversary-engagement-101/). If any of this is useful to you (as a pipeline, a honeypot, or just a worked example of building a real system with an AI companion), [the code is on GitHub](https://github.com/lopes/lantana). Fork it, break it, tell me what you find. This whole thing came together with a little help from my friend Claude; I'd like to think it can help you too.
 
 ## Lantana Series
 
