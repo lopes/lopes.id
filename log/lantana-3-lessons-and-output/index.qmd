@@ -1,6 +1,6 @@
 ---
 title: "Lantana 3: Output and Lessons"
-date: 2026-07-31
+date: 2026-07-29
 description: "The engineering and AI lessons from building Lantana."
 categories: ["engineering", "deception"]
 image: "og-lantana-3-lessons-and-output.webp"
