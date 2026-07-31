@@ -1,0 +1,49 @@
+---
+title: "Review: Practical AI Security"
+date: 2026-07-31
+description: "A hands-on guide to securing modern AI systems."
+categories: ["engineering"]
+image: "og-review-practical-ai-security.webp"
+---
+
+I'm a security practitioner who got pulled into the AI world along with the rest of humankind, thanks to the progress and disruption of Generative AI — GenAI. [I've been playing with it](https://github.com/lopes/hakspek) since the (Chat)GPT hype in 2023. But it was only recently, in March 2026, that I took a moment to learn better ways to work with these novel technologies, like agents. A few months later, by early July, I got curious about how to protect LLMs at company scale, using gateways and firewalls.
+
+Through this whole exploratory period, I leaned on YouTube videos, blog posts, and vendor documentation (from Anthropic and others) to learn. I was skeptical about picking up a book here (and I tried to find one), because the field moves so fast that by the time one ships with the rigor you'd expect, it's already half-deprecated. Still, when I came across this newly released title, [Practical AI Security](https://nostarch.com/practical-ai-security) (Farlow, 2026), and looked at its table of contents, I decided to give it a shot. I was hopeful it would help me close some personal gaps and point me in the right direction on the questions I'd been carrying.
+
+As a security practitioner, I don't want to become an AI or Machine Learning expert. I just want to understand how it works, the risks that come with it, the known security issues (real and theoretical, from academia), and the techniques to prevent them.
+
+## The Book
+
+**Practical AI Security** is written by Harriet Farlow, an Australian AI security researcher with a PhD in adversarial machine learning. It starts beautifully, walking through the history of AI and its basic concepts, starting with the 1956 Dartmouth conference and the **perceptron** of the late 1950s. Farlow shows real command of the field in the first part of the book, the opening three chapters. She takes the reader by the hand and backs everything with code you can run yourself through the 30-plus notebooks [on GitHub](https://github.com/harriethacks/aisecurityhandbook).
+
+Once the foundations are set, she links what you've just learned to security, from both the defensive and offensive sides, with the offensive side explored more deeply. She leans on well-known frameworks to do it: [MITRE ATLAS](https://atlas.mitre.org/), [OWASP LLM](https://owasp.org/www-project-top-10-for-large-language-model-applications/), and the [Cloud Security Alliance's MAESTRO](https://labs.cloudsecurityalliance.org/maestro/) for multi-agent systems. One of the best sections in the book is a threat-modeling masterclass. You start with a clear end-to-end diagram of the system, then walk each data flow with those references in mind to surface the weaknesses.
+
+Two ideas stuck with me and are worth stealing even if you never read the book. First, a simple taxonomy for AI attacks: every one of them tries to *disrupt* (make the model fail), *deceive* (make it see something that isn't there), or *disclose* (leak training data or parameters). Second, the ML lifecycle as an attack surface. Data, training, inference, monitoring: each stage hands an adversary a different opportunity. She even shows some clever examples of adding noise to images so AI models read them as something completely different.
+
+In the three final chapters, she goes beyond security into AI safety and its implications for our society: AI replacing the human workforce, the environmental cost of the data centers behind this expansion, governance, and alignment. It's all philosophical, but more than welcome.
+
+## Impressions
+
+I really liked the first part of this book. The language is accessible and easy to follow, she takes the time to contextualize subjects when she introduces them, and the "Resources" list at the end of each chapter is spot on, with a lot of great sources that genuinely extend the read. She also teaches from real incidents, which is where the book shines: the Cylance malware-detector bypass, the ID.me facial-recognition fraud, the AI cameras that missed poachers and cost four rhinos their lives. Learning from real cases beats abstract theory every time.
+
+At that point it was clear to me this was a book written for security people who want to learn about AI. Exactly my case. But then the security chapters arrived, and it started reading like a book for AI practitioners who want to learn about security. And that's not me being confused: the publisher says as much. The book targets "a security practitioner learning to operate in AI environments, or an ML engineer who needs to understand what adversaries actually do." So it's aimed at both by design. My problem is that this dual mandate is exactly what keeps the security half shallow. To keep the ML crowd on board, she re-explains things like what a SOC is or how to read a log line, and there's no room left to go deep for the security crowd.
+
+My bigger complaint is about who the book pictures as its reader. For almost the entire book, the security concerns are about teams that build and train their own models, like data quality, poisoning, moving models to production safely, and protecting the training pipeline. That's real and important. But if you outsource the model (you just call GPT or Claude), your concerns live somewhere else: in the architecture around the model. And that's the part I came for and mostly didn't get.
+
+The wrapper around that outsourced model is what I wanted. How do you wire a chatbot to an LLM safely? What does defense in depth look like there? How do you log, prevent, and detect malicious input and output? How do you protect a RAG store from poisoned data, or put an LLM gateway or firewall in front of the whole thing? How does an LLM firewall even work? None of that really gets covered.
+
+The same goes for using AI to *do* security, which was admittedly my own misreading of the book's scope, but still. Chapter 7, "Attacking and Defending with AI," was the biggest letdown. The SOC section was shallow enough that, as someone who works in a SOC, I got almost nothing from it. For instance, at some point she shows a few atomic log lines, then a single enriched incident, and essentially says "AI correlated it." How? And better: we have tools like Vector capable of merging log lines. You don't need AI for that.
+
+The interesting conversation right now in blue teams is the agentic SOC (agentic triage, agentic detection, agentic response) and how to leverage AI to mitigate risks faster. Running an agent on every single alert is expensive, so you start with deterministic triage and put the agent later in the pipeline. That trade-off is the meat, and it's missing. Same on offense: a red teamer or a threat actor can chain an agent that triggers nmap or nuclei, reads the output, decides the next tool, and repeats — because that's most of what offensive work actually is. The book gestures at AI-assisted attacks but never builds that picture.
+
+Chapter 6, "Red Teaming AI," is useful for teams with low red-teaming maturity, though a lot of it will feel obvious to anyone who's done it. It also switches, without warning, from the in-house models the book had trained you to think about to red teaming OpenAI's GPT-4. To be fair, there's a good reason: the tooling she uses (PyRIT) and the whole point of jailbreak and prompt-injection demos need a capable, hosted model — you can't meaningfully jailbreak the toy models you built from scratch in chapter 2. So it's a defensible choice. My complaint is that she never says so. One bridging sentence would have spared the reader the whiplash of talking about bananas and suddenly being handed a pineapple.
+
+I'll add one thing she doesn't, mostly because the field moves so fast: sandboxing agents. Enclosing an agent so it can only touch the files and resources you explicitly allow (think containers, or projects like [ai-jail](https://github.com/akitaonrails/ai-jail)) is becoming a real control, and its absence here is more evidence of how quickly this space moves than a knock on the author.
+
+## Final Thoughts
+
+The first three chapters of this book are great, and the philosophy in the last three adds substance. What I missed was practical, security-focused depth in the middle. I came wanting to learn how AI models work, how to protect them, and how to use them for better security. The book delivered on how they work, the security-tooling angle was my own misread, but protecting them, the part I wanted most, was the gap.
+
+So my recommendation depends on your reality. If you work at a company with teams building and training their own models, read it. You'll get common ground with those teams and a solid map for extending your security into their world. If you just consume AI services from the big players and your real problem is securing the architecture around them, temper your expectations — though part one and the safety chapters still pay for the ticket.
+
+I'm a bit disappointed, but I liked the read. Farlow clearly knows this field, and she's a generous teacher. I just wish she'd picked one reader and gone all the way for them.
