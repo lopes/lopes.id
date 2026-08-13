@@ -42,6 +42,10 @@ A few threads run through most of what I write and build:
 - **[Blockchains: Muito Além do Bitcoin](https://drive.google.com/file/d/1KhE5Zktoz5dSdpKQxkzNJdv_0icShc_d/view?usp=drive_link)** (2017) — Cemig, Belo Horizonte `pt_BR`
 - **[Estruturação de um CSIRT no Contexto de Smart Grid](https://drive.google.com/file/d/13Sfpsy2EhfUg4ku_iqCvl0RBgNrTwVZB/view?usp=drive_link)** (2014) — CERT.br, São Paulo `pt_BR`
 
+## Analytics
+
+I use [Umami](https://umami.is) to see which posts people actually read. No cookies, no cross-site tracking, no personal data, nothing sold or shared. Just page counts and referrers, so I know what's worth writing more of.
+
 ## Elsewhere
 
 - **GitHub** — [/lopes](https://github.com/lopes)
