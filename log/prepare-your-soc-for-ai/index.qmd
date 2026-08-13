@@ -1,0 +1,235 @@
+---
+title: "Prepare Your SOC for AI"
+date: 2026-08-13
+description: "The readiness work that makes AI pay off in a SOC."
+categories: ["detection", "engineering"]
+image: "og-prepare-your-soc-for-ai.webp"
+---
+
+The most interesting discussions I've followed this year were about bringing AI into security operations. Contrary to what some think, adding AI to a flawed pipeline doesn't make it better. It's just the same broken process, executed more quickly and at higher cost. And unlike a slow analyst, a fast agent is very good at producing confident, well-formatted output about alerts that should never have existed.
+
+Then I stumbled upon [a post by Anton Chuvakin](https://medium.com/anton-on-security/stop-building-a-2003-soc-with-ai-triage-must-die-part-2-9843edbe2b32) on AI triage and something clicked. He gives a 10,000-foot view of where SOCs are heading: triage only exists because humans don't scale, so agents let the pipeline collapse from Detect > Triage > Investigate into Detect > Investigate. I think the direction is right, and I've been thinking about what it takes to get there. What follows is my own 7,000-foot version: what I'd fix first, and how. One step back to go five forward.
+
+## AI SOC
+
+It's worth pinning the term down first, because almost every definition of "AI SOC" I found was written by somebody selling part of one, and each definition happens to describe that vendor's product surface exactly.
+
+The common denominator is autonomous agents working across **detection, triage, investigation, and response**, rather than a human driving every step. Around those four sit the supporting functions where AI also helps: threat intel and hunting, documentation, reporting and metrics. These are common SOC work, but not what anyone means when they say AI SOC.
+
+**Detection** is where AI drafts and tunes rules, and it's the most underused of the four. The industry has concentrated its efforts on **triage and investigation** instead. **Response** is the risky one, and [Filip Stojkovski's diagnosis](https://www.cybersec-automation.com/p/ai-soc-shift-left-and-shift-right) explains why better than I can: the blockers there aren't AI-shaped at all, but missing APIs on the tools that matter, containment steps that live only in someone's head, risk aversion, and change management.
+
+The secondary capabilities matter too, and AI fits them well: creating and updating documents, analyzing metrics, processing events to form hypotheses for hunts, and generating and processing CTI reports.
+
+Other examples exist, but in my opinion these are the ones that define an AI SOC today. This post sticks to the three that matter most right now — detection, triage, and investigation — plus the unglamorous work that has to land before any of it pays.
+
+## What the Agent Inherits
+
+Five layers sit upstream of any agent you deploy: the data it reads, the environment that generates the alerts, the rules that fire them, the playbooks that get there first, and the runbooks it's expected to follow.
+
+### The Inputs
+
+An investigation agent doesn't have privileged access to the truth. It reads what your pipeline hands it. Its ceiling is set by the quality of those inputs, all of which are *your* outputs.
+
+So when a team asks "is our SOC AI-ready?", the honest translation is: *are the things we produce good enough for something else to reason over?* Concretely, ask whether you can answer yes to these, today, without manual work:
+
+- Alerts are normalized to a consistent schema before anything reasons over them.
+- Close-codes are consistent enough to compute precision per detection rule.
+- Asset criticality is available at alert time, so the pipeline can tell a domain controller from a laptop.
+- Identity context is available: role, department, manager, privilege level.
+- Prior cases involving the same entity are retrievable cheaply.
+- The runbook for rule `DET-0142` is retrievable by that ID, not by searching a wiki.
+
+Every "no" on that list is a gap the agent will fill with guesses. That is what these systems do when starved of context. You will have bought a very expensive machine for generating confident nonsense about alerts you should have deleted.
+
+### The Environment
+
+Chuvakin has a separate piece, [an actual study of alert fatigue](https://medium.com/anton-on-security/antons-alert-fatigue-the-study-0ac0e6f5621c), that makes a point worth stealing: alert fatigue isn't one problem. It's at least four, and they need different fixes.
+
+1. **False positives.** The rule is wrong. Fix the rule.
+2. **Benign alerts.** The rule is correct and the activity is real, but nobody would ever act on it.
+3. **Hard-to-triage alerts.** Legitimate signal, insufficient context to decide.
+4. **Raw volume.** Too many alerts for the people you have.
+
+Only the third is really an AI problem. The first is detection engineering, the fourth is capacity planning. The second is the one nobody wants to talk about, because the fix isn't in the SOC at all. My team used to call these *anomalies*; Stojkovski has a better name for them, the **benign true positive**: the rule worked, the activity is real, and the answer still isn't a detection change.
+
+Take a concrete example I see constantly: a rule fires on root login to an AWS account. The rule is *correct*, since root logins should be rare and always reviewed. The alert is not a false positive. But it fires every week because somebody on the platform team keeps using root for a task that has a perfectly good IAM path.
+
+You can throw it at an analyst, which is what most teams do. You can throw it at an agent, which is the 2026 version of the same mistake. Or you can implement break-glass with just-in-time access, so root-without-an-approved-request becomes structurally impossible and the alert goes back to being what it was supposed to be: rare and always real.
+
+Only the third option reduces the number of alerts in the world. The other two just make the alert cheaper to dismiss, which quietly converts a forcing function into background noise.
+
+#### Distributed Triage
+
+When an anomaly fires on a specific person's action, the person best placed to say "yes, that was me, and here's why" is not a T1 analyst three timezones away. It's the actor's peers or their manager — we can't trust the actor directly for this one. So the playbook asks them, with a short deadline. No answer inside the window, or a "no", and the alert continues down the pipeline as it would have.
+
+This distributes triage to where the context actually lives. It also has three failure modes that will eat you if you don't design for them.
+
+1. **Out of band applies to the actor, not the reviewer.** Reaching the peer or manager over normal corporate channels is fine, since they aren't the identity under suspicion. The out-of-band requirement lands one step further in, when *they* check with the actor. If the account is compromised, the attacker may hold the mailbox and the chat client. Say this in the message the playbook sends, because nobody does it by default: call them, walk over, use a number you already had.
+2. **Approval is nearly free, so people approve.** This is MFA fatigue wearing a different hat. Saying "yes, that was fine" costs two seconds and no social friction; saying "no" costs a conversation with someone on your team. This rate must be audited periodically to spot and fix drift.
+3. **Therefore attestation is evidence, not a verdict.** A human "yes" should lower priority and enrich the case. It should only *close* the alert when it's corroborated by an independent artifact the human doesn't control: a change ticket in the right window, a JIT grant, a PAM session recording, a deployment record. Human says yes and there's a matching ticket, close it. Human says yes and there's nothing, that's a policy violation with a friendly explanation attached, which is exactly the case you want a human to look at.
+
+::: {.callout-tip}
+The metric that keeps this honest is **attestation volume per month, trending down**. Every one of these loops is a piece of unfinished environment work. If the number is flat after two quarters, your triage layer has become a permanent excuse not to fix the process. That's the same failure as the SOC that's been "temporarily" suppressing a noisy rule since 2021.
+:::
+
+### The Detections
+
+Ask a team for the precision of a given detection rule (the ratio of true to false positives over the last quarter) and watch what happens. Usually the data exists in principle: cases have close-codes. But the close-codes are a free-text field, or a dropdown with eleven options where four mean the same thing, or an analyst convention that changed when the team lead changed.
+
+So the first project is the least glamorous one available: **a standardized disposition taxonomy, enforced at close time.** A small, closed set of outcomes. Mandatory. Validated by the platform, not by a wiki page asking people to be careful. It is boring, it is political, and every metric in the rest of this post is downstream of it.
+
+Once you have it, per-rule precision becomes a real number with an owner. Rules below a threshold get fixed or retired on a schedule. Add one more disposition while you're at it, because it's the cheapest diagnostic in the SOC: **"should have been handled by a lower layer."** It costs an analyst one click, and it tells you which rules and which playbook gaps are burning human attention. Nobody can report that number if you don't give them a way to say it.
+
+This is the loop that drains the queue, and it works without any AI at all. That's a good sign, because [it's the same argument I was making in 2024](/log/secops-beyond-tuning/) and the tooling has changed a lot more than the fundamentals have.
+
+It's also the loop nobody closes. Stojkovski puts it well: the industry piles AI onto investigation because that's the easiest part, and then fails to feed what it learns back into detections and logging. Every verdict your agent produces is a signal about the rule that fired, and if that signal doesn't reach the person who owns the rule, you're paying for investigation forever instead of paying once for a fix.
+
+And this is the place to point AI first, which almost nobody does. ⭐ Your SIEM already holds the inputs a model needs to be useful here: the log source inventory, the parsers, the rule corpus with its firing history and dispositions, and whatever intel is wired in. That's enough context for real work. Which rules stopped firing, or never fired at all. Which thresholds the last quarter's dispositions argue for. Where the corpus maps against ATT&CK and where it doesn't. What a candidate rule for an uncovered technique would look like *using log sources you actually have*, which is the part public rule repositories can never tell you. Point AI at the preparation work before you point it at the queue.
+
+### The Playbooks
+
+I already wrote [a post](/log/soar-playbooks-scripts/) on why AI belongs downstream of cheap **deterministic** work, so I won't repeat it. The short version: enrichment has flat per-alert cost, the entity model does the fan-out for free, and putting your most expensive component at the widest part of the funnel is a budget decision disguised as an architecture decision.
+
+What I want to add are the two things I got wrong the first time I sketched this pipeline.
+
+#### No Auto-Close for False Positives
+
+My first version had the deterministic layer "closing obvious false positives." That's a trap, and it's worth naming precisely because it sounds so reasonable.
+
+If a playbook can reliably prove an alert is a false positive, then the *detection rule* is wrong and you've just built a second, unaudited detection layer to compensate for the first, with none of the rigor, version control, or review the first one gets. Six months later you have a hundred-odd SOAR conditions nobody can explain, encoding tuning decisions nobody wrote down.
+
+So if the logic is expressible in the detection, **express it there**. Suppression, exclusions, thresholds. That's the rule's job, it's versioned, and it's reviewable. Auto-close at the SOAR layer only for what **cannot be known at detection time**. Asset ownership, change-ticket correlation, identity and role context, JIT grants: things that need a lookup against a system the detection engine can't reach mid-evaluation.
+
+And give every auto-close rule an owner and an expiry date. That's how you avoid the hundred-odd conditions: without the owner nobody can tell you why one exists, and without the expiry they pile up forever.
+
+#### Work at the Alert Level
+
+Alerts get grouped into cases. That grouping is itself a detection artifact: over-group and you merge a real intrusion into a noisy case, which then gets resolved as a batch and disappears. So:
+
+1. **Auto-close decisions are made per alert, not per case.** A playbook evaluates each alert on its own merits and closes only that alert.
+2. **A case closes when all of its alerts are closed *and* a case-level check finds no cross-alert pattern.** Five individually-benign alerts on the same host inside an hour form a pattern that no alert-level evaluation can see. That check is cheap and it's the only thing standing between you and the failure above.
+
+### The Runbooks
+
+If an agent is going to follow your incident response procedure, the runbook has to be retrievable and unambiguous. That pushes toward markdown in Git and away from wiki pages.
+
+Markdown in Git is diffable, reviewable, testable in CI, and linkable. A runbook at a stable path keyed to rule `DET-0142` means the agent loads one file instead of searching a corpus and hoping. Change history tells you who edited the containment step and why. And a pull request is better evidence of review than a wiki page nobody can prove was read, including for compliance, where signed commits and approvals usually land better with auditors than a "last edited" timestamp.
+
+Write with both humans and models in mind, which does not mean two versions. Explicit preconditions, unambiguous steps, defined terms, no assumed context: that's what a model needs, and it's what a new hire needs at 3am on their first on-call. Nobody maintains two document sets. You'll maintain one and let the other rot, and you won't get to choose which.
+
+### The Big Picture
+
+Those layers compose into one flow, shown in the next diagram. It's worth holding as a mental model, because the ordering *is* the argument: every gate is cheaper than the one after it, and each one only ever closes a single alert.
+
+Enrichment runs first and decides nothing; it just makes everything downstream possible. The deterministic gate closes what a lookup can settle on its own. Distributed triage handles the benign true positives, where the rule was right and the only open question is whether a human meant to do it: it asks the actor's peers or manager to confirm out of band, and the alert closes only if they attest *and* an independent artifact backs them up. Anything not attested carries on, whether that's a "no", a silent deadline, or an alert this gate never applied to. Everything still standing reaches the model. Case closure comes last, once no alert is left open and no cross-alert pattern remains.
+
+```{mermaid}
+flowchart TD
+    A[Alert] --> B[Enrich]
+    B --> C{Deterministic<br/>close?}
+    C -- No --> D{Distributed<br/>triage}
+    D -- Not attested --> E[AI investigation]
+    C -- Yes --> X[Close alert]
+    D -- Attested --> X
+    E -- Benign --> X
+    E -- Malicious --> F[Incident]
+    E -- Unknown --> G[Human analyst]
+    X --> H{Case empty,<br/>no cross-alert<br/>pattern?}
+    H -- Yes --> I((Close case))
+    H -- Pattern found --> G
+```
+
+Note that the model sits after everything cheap has already run, reasoning over an alert that arrives pre-enriched, with the low-value work already gone. That placement is what makes the economics work, and it's also where the model's real advantage (synthesis and judgment) is the thing being used. Everything from here on is about what happens once it's in the loop.
+
+## What Will Bite You
+
+Those five are the things you fix. These three are the things you watch, because each one fails quietly, and none of them show up on a dashboard unless you build the dashboard first.
+
+### Own Your Depth Policy
+
+This is the part of Chuvakin's argument I keep coming back to, and the reason I don't think triage disappears so much as it changes phase. Deep investigation costs money, so somebody, somewhere, is deciding how deep the machine goes on any given alert. That decision *is* triage. It hasn't been eliminated; it's been relocated from an analyst's queue into a configuration file, where it is typically owned by nobody, documented nowhere, and tuned by whoever last complained about the bill.
+
+I'd rather have that decision explicit. Which detection rules get deep investigation, which get shallow, which get none. Who owns that mapping. What happens to it when the budget tightens, because "we degrade gracefully" usually means "we silently under-investigate a category of alerts and find out in the post-mortem."
+
+Treat depth policy as a security-sensitive artifact: versioned, reviewed, with a changelog. It's a detection decision and should be instrumented. Cost per investigation tells you what you spent; **the share of alerts investigated deep, shallow, and not at all** tells you what you skipped, and it's the only view that makes systematic under-investigation visible.
+
+::: {.callout-note}
+A word on cost, since it's the objection I hear first. I enabled Google SecOps' alert triage agent across our playbooks and let it run for about a month. Consumption came in well above what we'd projected, and it pushed us to move the agent later in the pipeline.
+
+Two caveats, because this anecdote gets misused. First, SecOps meters agentic features in **Security Tokens**, a billing unit on a commit-and-overage model, not raw LLM tokens, so don't do arithmetic across the two. Second, and more importantly: the lesson was about **placement**, not about AI being expensive. We had put the most expensive component at the widest part of the funnel, ahead of enrichment, on alerts that a condition would have resolved for free. That's an architecture error, and it would have been an architecture error at a tenth the price.
+:::
+
+### Failsafe the Model
+
+There are two failure modes neglected in almost every conversation I've followed. The first is **availability**. Provider outages happen, rate limits happen, a model version gets deprecated on a schedule that isn't yours. If the agent is the only thing between an alert and a decision, its bad day is your bad day.
+
+The answer is a degradation path where each tier hands off on a timer. The primary model gets a fixed window to return a verdict. Breach it and the alert moves to a local model you control, which is slower and less capable but always there. Breach that too and a human picks it up. The thresholds are the design. Without them, "we degrade gracefully" means alerts silently piling up behind a provider that stopped answering. The next diagram presents this idea.
+
+```{mermaid}
+flowchart LR
+    A[Primary model] --> B[timeout breach]
+    B --> C[local failsafe model]
+    C --> D[failsafe breach]
+    D --> E[human analyst]
+```
+
+Each tier gets an SLO and a measured failure rate: percentage of alerts falling through from primary, from failsafe, to humans. Those three numbers tell you whether your capacity planning is fiction. Without them you'll discover your fallback path is unstaffed at the worst possible moment.
+
+The second failure mode is **willingness**. This one is less obvious and, in my view, more interesting. Commercial model providers apply safety guardrails that cannot distinguish an incident responder from an attacker, because at the level of the content they're inspecting, there is no difference. Exploit code is exploit code.
+
+HuggingFace [documented](https://huggingface.co/blog/security-incident-july-2026) exactly this during their July 2026 incident: their forensic work required submitting live attack commands and C2 artifacts to commercial APIs, and the calls were blocked. They resolved it by running an open-weight model on their own infrastructure, which also kept the artifacts inside their perimeter.
+
+Have the model reason over normalized telemetry and structured findings, **not raw attacker payloads**. Hashes, sandbox verdicts, behavioral summaries, defanged indicators, parsed process trees. The raw artifact stays in the tool layer where it belongs. This is cheaper, faster, and produces better analysis anyway, because a process tree is a better input for reasoning than a base64 blob.
+
+For the residual cases, like deep forensics on live malicious artifacts, **have a capable open-weight model** deployed on infrastructure you control, before you need it. You want a model running in your perimeter, on your artifacts, with no third party in the loop. Written into requirements that way, it's a normal infrastructure decision rather than an argument about content policy. And it's the same box as the failsafe above: one piece of infrastructure, both failure modes covered.
+
+### Audit Before You Trust
+
+If you deploy an agent that closes alerts and you have no mechanism for finding out when it's wrong, you have automated *closing* rather than triage: a different and much worse product.
+
+The problem is that humans reviewing plausible machine output approve it. This is well-documented automation bias, not a discipline problem. Reviewers converge on rubber-stamping because the output *looks* right and disagreeing costs effort. Four mechanisms, in the order I'd build them:
+
+1. **Blind review first.** As Chuvakin proposes: the reviewer sees the alert and its evidence, forms a verdict, *then* sees what the agent concluded. Reviewing after seeing the answer isn't reviewing.
+2. **Stratified sampling, not random.** Oversample low-confidence verdicts, unusual patterns, and anything touching high-value assets. Random sampling spends your review budget on the easy majority.
+3. **A weekly adjudication forum.** When human and agent disagree, send it to a scheduled forum: T2/T3 plus the engineer who owns the rule. Half an hour a week.
+4. **Canaries, last and carefully.** A canary with no backing telemetry in the SIEM is burned the moment an analyst pivots on it, which makes the measurement worthless. Real ones need replayed historical incidents with rewritten identifiers, or purple-team activity.
+
+Track the disagreements as verdict reversal rate, split by direction. How often review overturns the agent toward escalation, and how often away from it, are two different findings with two different fixes. Averaging them into one number hides both.
+
+Every adjudicated disagreement is a case with a human-verified verdict attached. Accumulate a few hundred of those and you have a regression suite. Then every prompt edit, every playbook change, every model version bump gets replayed against it *before* it reaches production, and "we upgraded the model" becomes a testable claim instead of a leap of faith. Almost nobody builds this, and everybody needs it — model versions change under you whether or not you're ready.
+
+::: {.callout-tip}
+A cheap experiment nobody seems to run: take one alert, send it through the agent twenty times, and count how often you get the same verdict. Whatever number comes back is the ceiling on how much determinism your process is allowed to assume. Better to learn it in a test than in an incident review.
+:::
+
+## Where to Start
+
+That's a lot of work, and just adjusting the basics (close-codes, playbooks, runbooks, no AI yet) is laborious. I'd say it's a year of work. But adding AI only after the foundational work is done isn't the right call, in my opinion.
+
+Instead, deploy the agent first, but as a *measurement instrument* rather than a decision-maker. Run it in shadow mode over a sample of alerts: it investigates, it produces verdicts, and nobody acts on any of them. What that buys you, all of it otherwise expensive:
+
+- **Per-rule precision baselines**, from the agent's verdicts rather than from your inconsistent close-codes, which also shows you how inconsistent those close-codes are.
+- **A prioritized tuning backlog**, ranked by which rules generate the most low-value investigation.
+- **A real cost-per-investigation number** for your alert mix.
+- **An observed hallucination rate**, from analysts spot-checking output that isn't in anyone's critical path.
+- **Your first gold set entries**, from the disagreements.
+
+With this strategy, you'll be parallelizing work by fixing your foundations while evaluating the model. The hidden advantage is that the model feeds the foundational work: its verdicts become the tuning backlog you were going to have to build by hand anyway.
+
+## Closing Thoughts
+
+The direction Chuvakin points at is right, and agentic investigation of every alert is where this ends up. But the model is just another component of this complex SOC machine, and most of what makes it work sits elsewhere: consistent close-codes, asset context, auto-close rules with owners and expiry dates, distributed triage, rules and runbooks in Git, a review process that isn't rubber-stamping. None of it needs an agent to justify it.
+
+That's the argument for taking the step back. Fix the environment and you get fewer alerts, fix the detections and you get better ones, standardize dispositions and you can finally measure your own team. Every one of those pays for itself before the agent is switched on, and then the agent lands on a pipeline that can carry it. You don't need a budget cycle or a vendor to start on Monday. ✌️
+
+## References
+
+- [Stop Building a 2003 SOC with AI (Part 2)](https://medium.com/anton-on-security/stop-building-a-2003-soc-with-ai-triage-must-die-part-2-9843edbe2b32), Anton Chuvakin. The post this one complements. Read it for the destination; the depth-gating section is where he flags the problem I spend most of my time on here.
+- [Stop Building a 2003 SOC with AI (Part 1)](https://medium.com/anton-on-security/stop-building-a-2003-soc-with-ai-a-modern-people-process-framework-part-1-7220513c9de1), Anton Chuvakin. Sets up the series. The SOAR analogy is a fair warning about what piecemeal AI adoption looks like ten years later.
+- [Anton's Alert Fatigue: The Study](https://medium.com/anton-on-security/antons-alert-fatigue-the-study-0ac0e6f5621c), Anton Chuvakin. Source of the four-causes breakdown, plus a sobering list of interventions that have already failed on their own: aggregation, filtering, risk scoring, and SOAR playbooks in isolation.
+- [AI SOC: Shift Left and Shift Right](https://www.cybersec-automation.com/p/ai-soc-shift-left-and-shift-right), Filip Stojkovski. Maps AI onto the whole IR cycle instead of just investigation. Read it for the benign-true-positive distinction, the argument that the feedback loop back to detection engineering is the piece nobody builds, and an honest list of why SOAR failed at the response end.
+- [Security Incident, July 2026](https://huggingface.co/blog/security-incident-july-2026), HuggingFace. The clearest public account I know of guardrail lockout during live incident response, and their move to a self-hosted open-weight model to work around it. Note the symmetry: the intrusion itself was run by an agent framework.
+- [Triage alerts with the Triage Agent](https://cloud.google.com/chronicle/docs/secops/triage-investigation-agent), Google. Worth reading closely on what the agent emits: findings and a summarized explanation, not just a verdict. If you're only seeing a verdict, check how you wired it.
+- [Google SecOps Security Tokens pricing and billing](https://cloud.google.com/chronicle/docs/agentic-soc/security-tokens), Google. The metering model for agentic features, and confirmation that it isn't the same unit as model tokens.
+- [SOAR Playbooks Aren't Scripts](/log/soar-playbooks-scripts/). The predecessor to this post: why the deterministic layer should be a pipeline over entities, and why the model belongs downstream of it.
+- [Improving SecOps Beyond Tuning Analytics](/log/secops-beyond-tuning/). The pre-AI version of the same argument about context and automation. Little of it has aged.
