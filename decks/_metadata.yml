@@ -4,6 +4,9 @@ citation: false   # decks are not academic artifacts
 
 format:
   revealjs:
+    # Decks render as revealjs, not html, so they don't inherit the analytics
+    # snippet from _quarto.yml's format.html block. Wire it in explicitly.
+    include-in-header: ../_analytics.html
     # Override Quarto's default reveal.js title slide so the sub-line reads
     # from `description:` (single source, also feeds the OG card) instead of
     # a separate `subtitle:` field. See _partials/title-slide.html.
