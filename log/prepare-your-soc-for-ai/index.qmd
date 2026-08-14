@@ -36,8 +36,10 @@ So when a team asks "is our SOC AI-ready?", the honest translation is: *are the 
 - Close-codes are consistent enough to compute precision per detection rule.
 - Asset criticality is available at alert time, so the pipeline can tell a domain controller from a laptop.
 - Identity context is available: role, department, manager, privilege level.
-- Prior cases involving the same entity are retrievable cheaply.
+- Prior cases involving the same entity are retrievable cheaply, and were handled well enough to be worth learning from.
 - The runbook for rule `DET-0142` is retrievable by that ID, not by searching a wiki.
+
+Don't read that as a baseline. It's a target, and a demanding one: I've never seen a team answer yes to all six. Asset criticality at alert time is the hardest, since it usually means a CMDB that is accurate on the day you query it, and I have never seen one stay accurate for long. Retrieval is the other trap: if prior cases were handled badly, cheap retrieval just hands the agent confident precedent for a bad decision, which is worse than no precedent at all.
 
 Every "no" on that list is a gap the agent will fill with guesses. That is what these systems do when starved of context. You will have bought a very expensive machine for generating confident nonsense about alerts you should have deleted.
 
