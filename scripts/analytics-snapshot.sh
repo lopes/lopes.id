@@ -88,21 +88,41 @@ gql() {
   fi
 }
 
-# Records the plan's real retention limits, so results are read against actual
-# constraints rather than assumed ones.
-Q_SETTINGS='query($zone:String!){viewer{zones(filter:{zoneTag:$zone}){settings{
-  maxDuration maxNumberOfFields maxPageSize notOlderThan}}}}'
+# Free-plan constraints discovered by probing this zone, worth stating because
+# they shape every query below:
+#   - httpRequestsAdaptiveGroups accepts a time range of at most 1 day.
+#   - clientAsn, clientASNDescription, botScore, ja4 and jsDetectionPassed are
+#     not accessible; ASN-based analysis needs a paid plan. Classification here
+#     therefore relies on verifiedBotCategory + userAgent + clientCountryName.
 
-# The rule-defining query: which networks generate the requests. Web Analytics
-# reports country and user agent but never ASN, and a WAF rule wants the ASN.
-Q_ASN='query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){
-  httpRequestsAdaptiveGroups(limit:100,filter:{datetime_geq:$since,datetime_leq:$until},
-    orderBy:[count_DESC]){count dimensions{clientAsn clientCountryName}}}}}'
+# Who is verified as a declared crawler and who is not. The single most useful
+# cut: it separates AI/search crawlers that announce themselves from traffic
+# that does not.
+Q_BOTCAT='query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){
+  httpRequestsAdaptiveGroups(limit:25,filter:{datetime_geq:$since,datetime_leq:$until},
+    orderBy:[count_DESC]){count dimensions{verifiedBotCategory}}}}}'
 
-# What is being hammered, and with which user agent.
+# Which agents, and from where — the substitute for ASN on this plan.
+Q_AGENT='query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){
+  httpRequestsAdaptiveGroups(limit:40,filter:{datetime_geq:$since,datetime_leq:$until},
+    orderBy:[count_DESC]){count dimensions{userAgent}}}}}'
+
+Q_COUNTRY='query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){
+  httpRequestsAdaptiveGroups(limit:30,filter:{datetime_geq:$since,datetime_leq:$until},
+    orderBy:[count_DESC]){count dimensions{clientCountryName}}}}}'
+
+# What is being hammered.
 Q_PATH='query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){
-  httpRequestsAdaptiveGroups(limit:100,filter:{datetime_geq:$since,datetime_leq:$until},
-    orderBy:[count_DESC]){count dimensions{clientRequestPath userAgent}}}}}'
+  httpRequestsAdaptiveGroups(limit:40,filter:{datetime_geq:$since,datetime_leq:$until},
+    orderBy:[count_DESC]){count dimensions{clientRequestPath}}}}}'
+
+# Who is reaching the analytics beacon specifically. This is the traffic that
+# consumes an analytics quota, and it is a different population from the bulk
+# zone traffic — most scrapers never execute the JS that fires it.
+Q_BEACON='query($zone:String!,$since:Time!,$until:Time!){viewer{zones(filter:{zoneTag:$zone}){
+  httpRequestsAdaptiveGroups(limit:30,filter:{datetime_geq:$since,datetime_leq:$until,
+    clientRequestPath:"/cdn-cgi/rum"},orderBy:[count_DESC]){
+    count dimensions{clientCountryName userAgent}}}}}'
 
 # Daily totals — the before/after headline number.
 Q_DAILY='query($zone:String!,$since:String!,$until:String!){viewer{zones(filter:{zoneTag:$zone}){
@@ -115,18 +135,30 @@ Q_RUM='query($acct:String!,$tag:String!,$since:Time!,$until:Time!){viewer{accoun
   rumPageloadEventsAdaptiveGroups(limit:100,filter:{siteTag:$tag,datetime_geq:$since,datetime_leq:$until},
     orderBy:[count_DESC]){count dimensions{countryName userAgentBrowser}}}}}'
 
-VARS=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$SINCE" --arg u "$UNTIL" \
+# Adaptive queries are capped at 1 day by the plan, so they always describe the
+# most recent 24h regardless of --days. Only daily_totals spans the full window.
+if date -v-1d >/dev/null 2>&1; then
+  ADAPTIVE_SINCE=$(date -u -v-1d +%Y-%m-%dT%H:%M:%SZ)
+else
+  ADAPTIVE_SINCE=$(date -u -d '1 day ago' +%Y-%m-%dT%H:%M:%SZ)
+fi
+
+VARS=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "$ADAPTIVE_SINCE" --arg u "$UNTIL" \
   '{zone:$z,since:$s,until:$u}')
 VARS_DAILY=$(jq -nc --arg z "$CF_ZONE_ID" --arg s "${SINCE%%T*}" --arg u "${UNTIL%%T*}" \
   '{zone:$z,since:$s,until:$u}')
 
-echo "snapshot '${LABEL}': ${SINCE} .. ${UNTIL} (${DAYS}d)" >&2
+echo "snapshot '${LABEL}'" >&2
+echo "  daily totals : ${SINCE} .. ${UNTIL} (${DAYS}d)" >&2
+echo "  breakdowns   : ${ADAPTIVE_SINCE} .. ${UNTIL} (1d — plan limit)" >&2
 
 {
-  gql settings         "$Q_SETTINGS" "$(jq -nc --arg z "$CF_ZONE_ID" '{zone:$z}')"
-  gql requests_by_asn  "$Q_ASN"      "$VARS"
-  gql requests_by_path "$Q_PATH"     "$VARS"
-  gql daily_totals     "$Q_DAILY"    "$VARS_DAILY"
+  gql daily_totals        "$Q_DAILY"    "$VARS_DAILY"
+  gql by_verified_bot     "$Q_BOTCAT"   "$VARS"
+  gql by_user_agent       "$Q_AGENT"    "$VARS"
+  gql by_country          "$Q_COUNTRY"  "$VARS"
+  gql by_path             "$Q_PATH"     "$VARS"
+  gql beacon_requests     "$Q_BEACON"   "$VARS"
   if [[ -n "${CF_SITE_TAG:-}" ]]; then
     gql rum_pageloads "$Q_RUM" "$(jq -nc --arg a "$CF_ACCOUNT_ID" --arg t "$CF_SITE_TAG" \
       --arg s "$SINCE" --arg u "$UNTIL" '{acct:$a,tag:$t,since:$s,until:$u}')"
@@ -139,19 +171,30 @@ echo "snapshot '${LABEL}': ${SINCE} .. ${UNTIL} (${DAYS}d)" >&2
 echo "wrote ${OUT}" >&2
 echo >&2
 
-# Top ASNs, printed for eyeballing — this is what the WAF rule gets built from.
-# An empty result is reported explicitly: silence here would read as "no traffic"
-# when it usually means the query failed.
-top_asns=$(jq -r '
-  (.queries[] | select(.name=="requests_by_asn") | .data.viewer.zones[0].httpRequestsAdaptiveGroups?)
-  // empty
-  | .[:15][]
-  | "  \(.count)\tAS\(.dimensions.clientAsn)\t\(.dimensions.clientCountryName)"
-' "$OUT" 2>/dev/null || true)
+# Summary for eyeballing. An empty section is reported explicitly: silence here
+# would read as "no traffic" when it usually means the query failed.
+section() {
+  local title="$1" name="$2" filter="$3" body
+  body=$(jq -r --arg n "$name" "
+    (.queries[] | select(.name==\$n) | .data.viewer.zones[0].httpRequestsAdaptiveGroups?)
+    // empty | ${filter}
+  " "$OUT" 2>/dev/null || true)
+  echo "${title}:" >&2
+  if [[ -n "$body" ]]; then echo "$body" >&2; else
+    echo "  (no data — check the errors above)" >&2; fi
+  echo >&2
+}
 
-echo "top networks by request count:" >&2
-if [[ -n "$top_asns" ]]; then
-  echo "$top_asns" >&2
-else
-  echo "  (no data — check the errors above and the token's permissions)" >&2
-fi
+echo >&2
+jq -r '(.queries[] | select(.name=="daily_totals") | .data.viewer.zones[0].httpRequests1dGroups?)
+  // empty | .[] | "  \(.dimensions.date)  requests=\(.sum.requests)  pageviews=\(.sum.pageViews)  unique_ips=\(.uniq.uniques)"' \
+  "$OUT" 2>/dev/null | { echo "daily totals:" >&2; cat >&2; echo >&2; }
+
+section "traffic by verified bot category (last 24h)" by_verified_bot \
+  '.[:10][] | "  \(.count)\t\(if .dimensions.verifiedBotCategory == "" then "(unverified)" else .dimensions.verifiedBotCategory end)"'
+section "top user agents (last 24h)" by_user_agent \
+  '.[:10][] | "  \(.count)\t\(.dimensions.userAgent[0:90])"'
+section "top countries (last 24h)" by_country \
+  '.[:10][] | "  \(.count)\t\(.dimensions.clientCountryName)"'
+section "analytics beacon hits by country (last 24h)" beacon_requests \
+  '.[:10][] | "  \(.count)\t\(.dimensions.clientCountryName)\t\(.dimensions.userAgent[0:60])"'
