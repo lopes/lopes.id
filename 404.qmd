@@ -1,0 +1,20 @@
+---
+title: "404 — Not Found"
+description: "That page doesn't exist."
+page-layout: custom
+toc: false
+search: false
+include-in-header: _analytics.html
+---
+
+::: {style="max-width: 40rem; margin: 6rem auto; padding: 0 1.5rem;"}
+
+## 404 {style="margin-bottom:0.25rem;"}
+
+That page doesn't exist. It may have been moved, renamed, or never existed at all.
+
+- [Home](https://lopes.id/)
+- [About](https://lopes.id/about.html)
+- [Feed](https://lopes.id/index.xml)
+
+:::
