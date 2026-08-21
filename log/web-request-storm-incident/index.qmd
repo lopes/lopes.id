@@ -163,7 +163,7 @@ Now, Quarto **does** document this, and I hadn't read it. That's my mistake and 
 
 That's cosmetic framing. *You may want to.* There's no warning about any consequence of omitting it, and the platforms named are Netlify and GitHub Pages; not Cloudflare Pages. More tellingly, the sentence before it assumes the platform already returns a 404 and you're merely making it prettier. That assumption is true of most hosts and false of this one.
 
-So the fair critique isn't "Quarto should have warned me." It's that a static site generator shipping no default 404 is only safe if every host produces one, and that's no longer true. Reading the docs wouldn't have saved me either. HTTP status codes are a contract (`200` asserts that the thing you asked for exists) and this site had been lying about that to everything that asked.
+So the fair critique isn't "Quarto should have warned me." It's that a static site generator shipping no default 404 is only safe if every host produces one, and that's no longer true. Reading the docs wouldn't have saved me either. HTTP status codes are a contract: `200` asserts that the thing you asked for exists. For every real page, this site kept that contract. For every typo, dead link and URL a crawler had invented, it said `200` anyway — and those were the ones that mattered, because they were most of the traffic.
 
 The confirmation came from checking what GPTBot was actually crawling. **All ten of its top paths were fabricated.** Not one real post. The fix is a file:
 
