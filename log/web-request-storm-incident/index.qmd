@@ -6,13 +6,13 @@ categories: ["engineering", "hardening"]
 image: "og-web-request-storm-incident.webp"
 ---
 
-One of the premises of this blog is to stay privacy-friendly. But I still want to know which posts people actually read, so I ran [GoatCounter](https://www.goatcounter.com/): no cookies, no cross-site tracking, no personal data.
+One of the premises of this blog is to stay privacy-friendly. But I still want to know which posts people actually read to drive actions, so I ran [GoatCounter](https://www.goatcounter.com/): no cookies, no cross-site tracking, no personal data.
 
 Somewhere in late July, its numbers stopped making sense. I know roughly how many people read this blog. The figure on the dashboard was orders of magnitude above that. GoatCounter has no quota and charges nothing, so it went on the pile of things that are strange but not urgent.
 
 When it got strange enough to bother me, I reached the most obvious conclusion: the tool was wrong. The traffic couldn't be real, so GoatCounter must be failing to filter bots. I switched to [Umami](https://umami.is/) — better interface, same privacy posture, and a free tier capped at 100,000 events a month. That cap seemed irrelevant. My blog is not that popular.
 
-It lasted three days.
+It lasted three days. 😱
 
 Umami reported the same implausible volume GoatCounter had, blew through its quota, and stopped counting. And *that* is what finally made me act — the prospect of having no visibility at all. My working assumption going in was that bots were hammering the site, that it probably wasn't temporary, and that I'd need a WAF rule to live with them.
 
@@ -20,7 +20,7 @@ I was wrong about nearly all of it. What follows is the investigation, the fix I
 
 ## The Obvious Suspects
 
-This site sits behind Cloudflare, so my first move was checking whether Cloudflare Web Analytics (which I'd enabled at some point and then forgotten about) was still running. A beacon, in this context, is just a small script the page loads that reports each page view back to the analytics vendor.
+This site sits behind Cloudflare, so my first move was checking whether Cloudflare Web Analytics (which I'd enabled at some point and then forgotten about) was still running.
 
 ```bash
 curl -s https://lopes.id/ | grep -i cloudflareinsights
@@ -35,6 +35,10 @@ curl -s -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) \
 ```
 
 ::: {.callout-note}
+A beacon, in this context, is just a small script the page loads that reports each page view back to the analytics vendor.
+:::
+
+::: {.callout-tip}
 Absence of evidence from a tool that identifies itself as a tool is not evidence of absence. Anything doing browser detection treats `curl` differently — including the thing you're trying to observe.
 :::
 
@@ -45,7 +49,7 @@ So Cloudflare was already collecting that data along with the other tools I had 
 | Visits | 33,840 |
 | Page views | 33,840 |
 | Page load time | 9,214 ms |
-| Largest Contentful Paint | 96% poor, 0% good |
+| [Largest Contentful Paint](https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint) | 96% poor, 0% good |
 
 Visits and page views were identical, not close — the same number, meaning a page-views-per-visit ratio of exactly **1.000**. That is the cleanest bot signal I've ever seen on my own infrastructure. Real people are inconsistent: some read one post and leave, some open three, some come back twice in an afternoon. Averaged over tens of thousands of sessions you never land on precisely one. Every session fetching exactly one page and never a second means nothing on the other end was deciding anything.
 
@@ -75,7 +79,13 @@ A quarter of everything hitting the site was classified as AI crawlers, and they
 
 GPTBot at 323,000 requests a day. Meta's crawler at roughly 280,000 across four user-agent variants. Declared crawlers are the easiest traffic in the world to act on, because they tell you exactly who they are — and that is precisely what made this feel solved. AI companies were scraping my archive into training corpora, and the answer was obviously to stop them.
 
-Then I started blocking things, and learned two lessons the hard way. The first was that **blocked is not absent**. A WAF block returns 403 *at the edge*. The request still arrived, still counted, still appeared in analytics. Request totals cannot fall from a blocking rule — bandwidth and origin load can. I had set out to reduce a number that was structurally incapable of moving.
+Then I started blocking things, and learned two lessons the hard way.
+
+The first is about where a block actually happens. A crawler sends a request, it crosses the internet, it arrives at Cloudflare's edge — and *then* the rule fires and Cloudflare answers `403` instead of serving the page. The request already happened. It is in the logs, it is in the analytics API, it counts. Blocking changes the response, not the arrival.
+
+Which means **blocked is not absent**, and a day of measurement said so out loud. The rule was blocking 242,127 requests a day and working exactly as designed. Total requests went from 2,745,678 to 2,777,928 — *up*. The status codes showed why: 276,736 blocks, 277,558 responses of `403`, every one of them still a row in the request count.
+
+What blocking does change is what you send back — a few hundred bytes instead of 161 KB — and whether your origin is ever asked. Bandwidth and origin load can fall. Request totals cannot. I had chosen "reduce requests per day" as my measure of success before understanding the mechanism, and it was a number structurally incapable of moving.
 
 The second learning was that **I blocked Bing.** Cloudflare's AI Crawl Control offers a Training category, so I blocked it and left Search alone. A day later, 46,092 requests from **verified** Bingbot were being 403'd — carrying Cloudflare's own `Search Engine Crawler` verification, arriving from Microsoft's US ranges. Not somebody spoofing a user agent. Bing.
 
@@ -160,7 +170,7 @@ Now, Quarto **does** document this, and I hadn't read it. That's my mistake and 
 
 That's cosmetic framing. *You may want to.* There's no warning about any consequence of omitting it, and the platforms named are Netlify and GitHub Pages; not Cloudflare Pages. More tellingly, the sentence before it assumes the platform already returns a 404 and you're merely making it prettier. That assumption is true of most hosts and false of this one.
 
-So the fair critique isn't "Quarto should have warned me." It's that a static site generator shipping no default 404 is only safe if every host produces one, and that's no longer true. Reading the docs wouldn't have saved me either. HTTP status codes are a contract ()`200` asserts that the thing you asked for exists) and this site had been lying about that to everything that asked.
+So the fair critique isn't "Quarto should have warned me." It's that a static site generator shipping no default 404 is only safe if every host produces one, and that's no longer true. Reading the docs wouldn't have saved me either. HTTP status codes are a contract (`200` asserts that the thing you asked for exists) and this site had been lying about that to everything that asked.
 
 The confirmation came from checking what GPTBot was actually crawling. **All ten of its top paths were fabricated.** Not one real post. The fix is a file:
 
@@ -226,13 +236,13 @@ Notice also that the late-July "baseline" is around 1.2 million requests a day. 
 
 August 2 alone, on Netlify, would have been about $105. In one day. To be fair to Cloudflare: this specific bug is a consequence of *their* SPA-fallback default, and Netlify and GitHub Pages would have returned a real 404 without any configuration. But that cuts the other way too, and more interestingly. On a metered host, an anomaly this size announces itself through billing within days. Free and unmetered meant nothing ever pushed back. Cloudflare's generosity is precisely what let this run for a month.
 
-One thread stays open, and I'd rather leave it untied than fake a conclusion: about 687,000 requests a day of entirely unidentified traffic remain — plain Chrome user agents, no bot verification, no explanation. The fake tree is gone and they're still here, which makes them a different question rather than a leftover from this one. Maybe I'll follow-up it in a part 2.
+One thread stays open, and I'd rather leave it untied than fake a conclusion: about 687,000 requests a day of entirely unidentified traffic remain — plain Chrome user agents, no bot verification, no explanation. The fake tree is gone and they're still here, which makes them a different question rather than a leftover from this one. Maybe I'll follow up on it in a part two.
 
 ## On AI's Help
 
-What made the collaboration with AI work wasn't the model being right — it was wrong at least four times across this investigation, sometimes confidently and with good arguments. It worked because every claim arrived with a query attached. Each error was cheap to find and usually caught by the next day's snapshot. That's a fundamentally different risk profile from a confident colleague whose reasoning you can't re-run.
+What made the collaboration with AI work wasn't the model being right. It was wrong at least four times across this investigation, sometimes confidently and with good arguments. It worked because every claim arrived with a query attached. Each error was cheap to find and usually caught by the next day's snapshot. That's a fundamentally different risk profile from a confident colleague whose reasoning you can't re-run.
 
-What didn't come from the tooling was refusing the working fix. The country block was competent, effective, and would have ended this with a good graph and an undiagnosed bug. Deciding that an answer isn't finished until it explains the symptom is a judgement about what "done" means, and I'd keep that one firmly in human hands.
+What didn't come from the tooling was refusing the working fix. The country block was competent and effective, and it would have ended this with a good graph and an undiagnosed bug. Deciding that an answer isn't finished until it explains the symptom is a judgement about what "done" means, and I'd keep that one firmly in human hands.
 
 Use these tools — they're extraordinary through the mechanical middle of an investigation. Just keep asking whether the answer actually explains what you're seeing, because that part is still yours.
 
