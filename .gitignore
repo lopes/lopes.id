@@ -4,6 +4,10 @@
 .venv
 venv
 
+# secrets and captured analytics data (see .env.example)
+.env
+snapshots/
+
 # quarto exclusions
 /.quarto/
 **/*.quarto_ipynb

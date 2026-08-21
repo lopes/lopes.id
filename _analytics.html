@@ -1,5 +1,10 @@
 <!-- Analytics snippet. Provider-neutral filename: swapping vendors means
      editing this file only, not _quarto.yml / decks/_metadata.yml / .gitignore.
-     Current provider: Umami Cloud (cookieless, no personal data). -->
-<script defer src="https://cloud.umami.is/script.js"
-        data-website-id="842dce0a-846e-48d5-bbc1-aa5931cab851"></script>
+
+     Current provider: Cloudflare Web Analytics, injected automatically at the
+     edge (zone-level RUM), so no snippet is needed here. Note the beacon is
+     only injected for browser-like requests — a plain `curl` sees nothing, and
+     that absence is not evidence it is disabled. To verify, send a browser
+     User-Agent.
+
+     Kept as the seam for any future provider that does need a snippet. -->

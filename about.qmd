@@ -44,7 +44,7 @@ A few threads run through most of what I write and build:
 
 ## Analytics
 
-I use [Umami](https://umami.is) to see which posts people actually read. No cookies, no cross-site tracking, no personal data, nothing sold or shared. Just page counts and referrers, so I know what's worth writing more of.
+I use [Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/) to see which posts people actually read. No cookies, no cross-site tracking, no personal data, nothing sold or shared. Just page counts and referrers, so I know what's worth writing more of.
 
 ## Elsewhere
 
