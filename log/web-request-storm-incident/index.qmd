@@ -118,9 +118,7 @@ I stopped querying the CDN and asked the site itself a much simpler question.
 ```bash
 curl -s -o /dev/null -w '%{http_code} %{size_download}b\n' \
   https://lopes.id/totally/made/up/path/
-```
 
-```text
 200 161155b
 ```
 
@@ -153,7 +151,9 @@ The failure mode has a name in the web world, too. Returning 200 for a page that
 
 The same page draws the distinction that turns out to be the whole mechanism: "a `404` status code is a strong signal not to crawl that URL again." A real 404 tells a crawler to stop. A soft 404 tells it to keep going. I had been sending the second one, four hundred times per page, to everything that asked.
 
-What that guidance is describing is wasted crawl budget on a finite site. What I couldn't find discussed anywhere is the multiplier: **a soft 404 that serves relative links doesn't waste a crawl budget, it creates an infinite one.**
+That guidance is about indexing. Crawl budget is the allowance a search engine spends on your site, and a soft 404 burns it on junk instead of your real posts — so you lose search results. Annoying, and finite: there are only so many junk URLs to find.
+
+What I couldn't find discussed anywhere is what happens when the junk URLs don't run out. **Relative links make the supply infinite, so there is no allowance left to exhaust — the crawling simply never ends.** And the cost stops being lost search results and becomes bandwidth, on my side, indefinitely.
 
 The cause is a default nobody chose. From Cloudflare Pages' documentation: without a `404.html` in the build, the platform *"assumes you're deploying a single-page application"* and matches all unmatched paths to `/`. Quarto doesn't emit a `404.html` unless you ask it to. So a static blog had been running in [SPA](https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/) mode, answering every possible URL with a success, for as long as both of those things had been true.
 
