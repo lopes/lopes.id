@@ -572,6 +572,14 @@ svg.mermaid-js {
     fill: transparent !important;
   }
 
+  // Mermaid's xychart hardcodes `fill="black"` on bar data labels with no theme
+  // variable to override it (upstream limitation — see issue #51). Black text is
+  // unreadable on the dark canvas, and anything explicitly black in here is
+  // broken by definition, so recolour it.
+  text[fill="black"] {
+    fill: $w-text !important;
+  }
+
   text, tspan {
     font-family: $font-family-monospace !important;
     font-size: 12px !important;
