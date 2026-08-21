@@ -1,34 +1,32 @@
 ---
 title: "The Web Request Storm Incident"
 date: 2026-08-21
-description: "A missing 404 page turned my blog into an infinite website. Ninety million requests later, the fix was one file."
+description: "A missing 404 page turned my blog into an infinite website."
 categories: ["engineering", "hardening"]
 image: "og-web-request-storm-incident.webp"
 ---
 
-One of the premises of this blog is to stay privacy-friendly. But I still want to know which posts people actually read, so for years I ran [GoatCounter](https://www.goatcounter.com/): no cookies, no cross-site tracking, no personal data.
+One of the premises of this blog is to stay privacy-friendly. But I still want to know which posts people actually read, so I ran [GoatCounter](https://www.goatcounter.com/): no cookies, no cross-site tracking, no personal data.
 
-Somewhere in late July, its numbers stopped making sense. I know roughly how many people read this blog. The figure on the dashboard was orders of magnitude above that. GoatCounter has no quota and charges nothing, so nothing forced my hand. It went on the pile of things that are strange but not urgent.
+Somewhere in late July, its numbers stopped making sense. I know roughly how many people read this blog. The figure on the dashboard was orders of magnitude above that. GoatCounter has no quota and charges nothing, so it went on the pile of things that are strange but not urgent.
 
-When it got strange enough to bother me, I reached the conclusion that felt cheapest: the tool was wrong. The traffic couldn't be real, so GoatCounter must be failing to filter bots. I switched to [Umami](https://umami.is/) — better interface, same privacy posture, and a free tier capped at 100,000 events a month. That cap seemed irrelevant. My blog is not that popular.
+When it got strange enough to bother me, I reached the most obvious conclusion: the tool was wrong. The traffic couldn't be real, so GoatCounter must be failing to filter bots. I switched to [Umami](https://umami.is/) — better interface, same privacy posture, and a free tier capped at 100,000 events a month. That cap seemed irrelevant. My blog is not that popular.
 
 It lasted three days.
 
-Umami reported the same implausible volume GoatCounter had, blew through its quota, and stopped counting. And *that* is what finally made me act — not the traffic, which I'd been ignoring for weeks, but the prospect of having no visibility at all. My working assumption going in was that bots were hammering the site, that it probably wasn't temporary, and that I'd need a WAF rule to live with them.
+Umami reported the same implausible volume GoatCounter had, blew through its quota, and stopped counting. And *that* is what finally made me act — the prospect of having no visibility at all. My working assumption going in was that bots were hammering the site, that it probably wasn't temporary, and that I'd need a WAF rule to live with them.
 
 I was wrong about nearly all of it. What follows is the investigation, the fix I nearly shipped, and the one-line check that ended it.
 
 ## The Obvious Suspects
 
-The site sits behind Cloudflare, so my first move was checking whether Cloudflare Web Analytics — which I'd enabled at some point and then forgotten about — was still running. A beacon, in this context, is just a small script the page loads that reports each page view back to the analytics vendor.
+This site sits behind Cloudflare, so my first move was checking whether Cloudflare Web Analytics (which I'd enabled at some point and then forgotten about) was still running. A beacon, in this context, is just a small script the page loads that reports each page view back to the analytics vendor.
 
 ```bash
 curl -s https://lopes.id/ | grep -i cloudflareinsights
 ```
 
-Nothing came back. I concluded it was disabled and moved on. That was wrong, and it's wrong in a way worth explaining.
-
-Cloudflare can inject its beacon at the edge, rewriting the HTML on its way out rather than requiring a snippet in your repository. But it only does this for requests that look like they came from a browser. A bare `curl` doesn't qualify, so it gets the unmodified page. Send a real User-Agent and the beacon appears:
+Nothing came back. I concluded it was disabled and moved on. That was wrong in a way worth explaining. Cloudflare can inject its beacon at the edge, rewriting the HTML on its way out rather than requiring a snippet in your repository. But it only does this for requests that look like they came from a browser. A bare `curl` doesn't qualify, so it gets the unmodified page. Send a real User-Agent and the beacon appears:
 
 ```bash
 curl -s -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) \
@@ -40,7 +38,7 @@ curl -s -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) \
 Absence of evidence from a tool that identifies itself as a tool is not evidence of absence. Anything doing browser detection treats `curl` differently — including the thing you're trying to observe.
 :::
 
-So I'd been paying an analytics quota for data Cloudflare was already collecting for free. Its dashboard, last 24 hours, with the `Exclude bots` filter switched **on**:
+So Cloudflare was already collecting that data along with the other tools I had adopted. Its dashboard, last 24 hours, with the `Exclude bots` filter switched **on**:
 
 | Metric | Value |
 | ------ | ----- |
@@ -49,19 +47,37 @@ So I'd been paying an analytics quota for data Cloudflare was already collecting
 | Page load time | 9,214 ms |
 | Largest Contentful Paint | 96% poor, 0% good |
 
-Visits and page views were identical. Not close — the same number, meaning a page-views-per-visit ratio of exactly 1.000. That is the cleanest bot signal I've ever seen on my own infrastructure. Real people are inconsistent: some read one post and leave, some open three, some come back twice in an afternoon. Averaged over tens of thousands of sessions you never land on precisely one. Every session fetching exactly one page and never a second means nothing on the other end was deciding anything.
+Visits and page views were identical, not close — the same number, meaning a page-views-per-visit ratio of exactly **1.000**. That is the cleanest bot signal I've ever seen on my own infrastructure. Real people are inconsistent: some read one post and leave, some open three, some come back twice in an afternoon. Averaged over tens of thousands of sessions you never land on precisely one. Every session fetching exactly one page and never a second means nothing on the other end was deciding anything.
 
-A 9.2-second load and 96% "poor" LCP on a static site behind a CDN said the same thing from another angle. That is not a browser on a normal connection.
-
-But the filter was the real problem. `Exclude bots` was on, and these numbers were what *survived* it.
+A 9.2-second load and 96% "poor" LCP on a static site behind a CDN said the same thing from another angle. That is not a browser on a normal connection. But the filter had one problem. `Exclude bots` was on, and these numbers were what *survived* it.
 
 The beacon only fires when a browser executes JavaScript, so everything that scrapes without running JS is invisible to it. To see the whole picture I queried the zone directly through Cloudflare's [GraphQL Analytics API](https://developers.cloudflare.com/analytics/graphql-api/), and the gap was not subtle: **around 2.5 million requests a day.** The dashboard was reporting 33,840. Two products, answering two different questions, and I hadn't noticed the difference.
 
-Then I started blocking things, and learned two lessons the hard way.
+Cloudflare tags each request with a verified bot category, and that breakdown was the first thing that looked like a lead:
 
-**Blocked is not absent.** A WAF block returns 403 *at the edge*. The request still arrived, still counted, still appeared in analytics. Request totals cannot fall from a blocking rule — bandwidth and origin load can. I had set out to reduce a number that was structurally incapable of moving.
+| Category | Requests/day |
+| -------- | ------------ |
+| (unverified) | 1,967,878 |
+| **AI Crawler** | **632,461** |
+| Search Engine Crawler | 59,038 |
+| Search Engine Optimization | 14,931 |
+| AI Search | 7,330 |
 
-**And I blocked Bing.** Cloudflare's AI Crawl Control offers a Training category, so I blocked it and left Search alone. A day later, 46,092 requests from **verified** Bingbot were being 403'd — carrying Cloudflare's own `Search Engine Crawler` verification, arriving from Microsoft's US ranges. Not somebody spoofing a user agent. Bing.
+A quarter of everything hitting the site was classified as AI crawlers, and they were not hiding. The top user agents introduced themselves, documentation URL included:
+
+```text
+322,975  GPTBot/1.4 (+https://openai.com/gptbot)
+168,757  meta-externalagent/1.1 (Windows)
+ 83,376  meta-externalagent/1.1 (Macintosh)
+ 51,650  bingbot/2.0
+ 24,194  Amazonbot/0.1
+```
+
+GPTBot at 323,000 requests a day. Meta's crawler at roughly 280,000 across four user-agent variants. Declared crawlers are the easiest traffic in the world to act on, because they tell you exactly who they are — and that is precisely what made this feel solved. AI companies were scraping my archive into training corpora, and the answer was obviously to stop them.
+
+Then I started blocking things, and learned two lessons the hard way. The first was that **blocked is not absent**. A WAF block returns 403 *at the edge*. The request still arrived, still counted, still appeared in analytics. Request totals cannot fall from a blocking rule — bandwidth and origin load can. I had set out to reduce a number that was structurally incapable of moving.
+
+The second learning was that **I blocked Bing.** Cloudflare's AI Crawl Control offers a Training category, so I blocked it and left Search alone. A day later, 46,092 requests from **verified** Bingbot were being 403'd — carrying Cloudflare's own `Search Engine Crawler` verification, arriving from Microsoft's US ranges. Not somebody spoofing a user agent. Bing.
 
 The cause is that Cloudflare classifies Googlebot, Bingbot and Applebot as *multi-purpose*: they index for search **and** feed model training. Blocking Training blocks them too, even with Search explicitly allowed. Worse, the per-crawler toggles that look like overrides are a front-end to the same Cloudflare-managed rule, so setting Bingbot to "allow" there changed nothing. The `securitySource` dimension is what finally showed it — `firewallManaged`, not my own rule. I ended up deleting the managed layer entirely and writing one WAF rule of my own that names offenders by user agent and explicitly excludes verified search crawlers.
 
@@ -73,11 +89,9 @@ Twenty-four hours of measurement then told me the rule was working perfectly and
 
 ## Something Didn't Add Up
 
-I didn't take it. Call it instinct or experience, but the shape of the thing was wrong.
+I didn't take it. Call it instinct or experience, but the shape of the thing was wrong. Blocking two countries would have worked. The graph would have fallen off a cliff, the post would have written itself, and I would not have been able to explain a single thing about why the traffic existed.
 
-Blocking two countries would have worked. The graph would have fallen off a cliff, the post would have written itself, and I would not have been able to explain a single thing about why the traffic existed. A fix that removes a symptom without explaining the mechanism isn't a fix — it's a bigger hammer. And the specific hammer on offer meant deciding that everyone in two countries was a bot, permanently, on the basis of a number I didn't understand.
-
-So instead of applying it, I went back and asked what I'd been ignoring.
+A fix that removes a symptom without explaining the mechanism isn't a fix — it's a bigger hammer. And the specific hammer on offer meant deciding that everyone in two countries was a bot, permanently, on the basis of a number I didn't understand. So instead of applying it, I went back and asked what I'd been ignoring.
 
 Two things had been sitting in the data for days, filed as noise. Singapore's most-requested path wasn't any of my posts — it was `/cdn-cgi/speculation`, a Cloudflare internal endpoint. And a whole class of URL kept surfacing that looked like line noise:
 
@@ -92,7 +106,7 @@ I should say plainly that I ran this whole investigation alongside Claude Code, 
 
 It had also been confidently wrong more than once. It told me Cloudflare Web Analytics was disabled when it was running. It told me my Singapore theory was wrong and Brazil was the culprit, having measured the wrong beacon to get there. And now it was helping me build a country block, competently, because that's what I'd pointed it at.
 
-When I pushed back and asked it to re-examine the evidence instead of implementing the plan, it produced the data that killed its own proposal within minutes. The capability was never the limitation. It was fast at answering questions, and it was not going to ask this one.
+When I pushed back and asked it to re-examine the evidence instead of implementing the plan, it produced the data that killed its own proposal within minutes. The capability was fast at answering questions, and it was not going to ask this one.
 
 ## The Root Cause
 
@@ -107,17 +121,15 @@ curl -s -o /dev/null -w '%{http_code} %{size_download}b\n' \
 200 161155b
 ```
 
-Two hundred. A hundred and sixty-one kilobytes. For a path that has never existed.
+Two hundred. A hundred and sixty-one kilobytes. For a path that has never existed. Every unknown URL on this site was returning a full page with a success status. And that page carries around 400 links, which Quarto writes as **relative** paths.
 
-Every unknown URL on this site was returning a full page with a success status. And that page carries around 400 links, which Quarto writes as **relative** paths. So a crawler landing on `/log/project-nebula/` reads `href="site_libs/quarto-html/tippy.css"`, resolves it against the current directory, and requests `/log/project-nebula/site_libs/quarto-html/tippy.css`. Which also returns 200, with 400 more relative links, one directory deeper. Even a CSS URL came back as HTML:
+So a crawler landing on `/log/project-nebula/` reads `href="site_libs/quarto-html/tippy.css"`, resolves it against the current directory, and requests `/log/project-nebula/site_libs/quarto-html/tippy.css`. Which also returns 200, with 400 more relative links, one directory deeper. Even a CSS URL came back as HTML:
 
 ```text
 /log/fake/site_libs/quarto-html/tippy.css  ->  200  160,217b
 ```
 
-There was no botnet building those URLs. **My site was generating them**, four hundred at a time, for anyone who knocked.
-
-The whole loop looks like this:
+There was no botnet building those URLs. **My site was generating them**, four hundred at a time, for anyone who knocked. The whole loop looks like this:
 
 ```{mermaid}
 flowchart TD
@@ -130,23 +142,27 @@ flowchart TD
     F --> G["Loop terminates"]
 ```
 
-Network engineers will recognise the shape immediately. This is a broadcast storm: a self-amplifying feedback loop where the medium generates its own traffic until it saturates. The same pattern, one layer up, built out of HTTP status codes and relative hyperlinks instead of frames on a LAN.
+Network engineers will recognise the shape immediately. This is a [broadcast storm](https://en.wikipedia.org/wiki/Broadcast_storm): a self-amplifying feedback loop where the medium generates its own traffic until it saturates. The same pattern, one layer up, built out of HTTP status codes and relative hyperlinks instead of frames on a LAN.
 
-The failure mode has a name in the web world, too. Returning 200 for a page that doesn't exist is a **soft 404**, and it's a documented anti-pattern — Google publishes guidance on it, and confirmed at Search Central Live APAC 2025 that soft 404s consume crawl budget despite the success status. What that literature discusses is wasted crawl budget and index bloat. What I couldn't find discussed anywhere is the multiplier: **a soft 404 that serves relative links doesn't waste a crawl budget, it creates an infinite one.**
+The failure mode has a name in the web world, too. Returning 200 for a page that doesn't exist is a [soft 404](https://developers.google.com/search/docs/crawling-indexing/troubleshoot-crawling-errors#soft-404-errors), and Google's own [crawl budget documentation](https://developers.google.com/search/docs/crawling-indexing/large-site-managing-crawl-budget) is blunt about the consequence:
 
-The cause is a default, and it's a default nobody chose. From Cloudflare Pages' documentation: without a `404.html` in the build, the platform *"assumes you're deploying a single-page application"* and matches all unmatched paths to `/`. Quarto doesn't emit a `404.html` unless you ask it to. So a static blog had been running in SPA mode, answering every possible URL with a success, for as long as both of those things had been true.
+> `soft 404` pages will continue to be crawled, and waste your budget.
 
-Now, Quarto **does** document this, and I hadn't read it. That's my mistake and I'll own it. But it's worth looking at how it's documented:
+The same page draws the distinction that turns out to be the whole mechanism: "a `404` status code is a strong signal not to crawl that URL again." A real 404 tells a crawler to stop. A soft 404 tells it to keep going. I had been sending the second one, four hundred times per page, to everything that asked.
+
+What that guidance is describing is wasted crawl budget on a finite site. What I couldn't find discussed anywhere is the multiplier: **a soft 404 that serves relative links doesn't waste a crawl budget, it creates an infinite one.**
+
+The cause is a default nobody chose. From Cloudflare Pages' documentation: without a `404.html` in the build, the platform *"assumes you're deploying a single-page application"* and matches all unmatched paths to `/`. Quarto doesn't emit a `404.html` unless you ask it to. So a static blog had been running in [SPA](https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/) mode, answering every possible URL with a success, for as long as both of those things had been true.
+
+Now, Quarto **does** document this, and I hadn't read it. That's my mistake and I'll own it. But it's worth looking at [how it's documented](https://quarto.org/docs/websites/website-navigation.html#pages-404):
 
 > Browser default 404 pages can be pretty stark, so you may want to create a custom page with a more friendly message and perhaps pointers on how users might find what they are looking for.
 
-That's cosmetic framing. *You may want to.* There's no warning about any consequence of omitting it, and the platforms named are Netlify and GitHub Pages — not Cloudflare Pages. More tellingly, the sentence before it assumes the platform already returns a 404 and you're merely making it prettier. That assumption is the whole problem: it's true of most hosts and false of this one.
+That's cosmetic framing. *You may want to.* There's no warning about any consequence of omitting it, and the platforms named are Netlify and GitHub Pages; not Cloudflare Pages. More tellingly, the sentence before it assumes the platform already returns a 404 and you're merely making it prettier. That assumption is true of most hosts and false of this one.
 
-So the fair critique isn't "Quarto should have warned me." It's that a static site generator shipping no default 404 is only safe if every host produces one, and that's no longer true. Reading the docs wouldn't have saved me either. HTTP status codes are a contract — `200` asserts that the thing you asked for exists — and this site had been lying about that to everything that asked.
+So the fair critique isn't "Quarto should have warned me." It's that a static site generator shipping no default 404 is only safe if every host produces one, and that's no longer true. Reading the docs wouldn't have saved me either. HTTP status codes are a contract ()`200` asserts that the thing you asked for exists) and this site had been lying about that to everything that asked.
 
-The confirmation came from checking what GPTBot was actually crawling. **All ten of its top paths were fabricated.** Not one real post.
-
-The fix is a file:
+The confirmation came from checking what GPTBot was actually crawling. **All ten of its top paths were fabricated.** Not one real post. The fix is a file:
 
 ```yaml
 ---
@@ -158,7 +174,7 @@ toc: false
 
 `page-layout: custom` does double duty. It drops the page from 161 KB to 31 KB and from 400 links to 19, and it makes Quarto emit **root-absolute** links (`/site_libs/…` rather than `site_libs/…`). Root-absolute links can't compound under a garbage prefix, so even a crawler that ignores the 404 status can't manufacture new URLs from the page. The loop doesn't just stop being followed — it stops existing.
 
-## What the Numbers Said
+## Validation
 
 Comparing full calendar days only, because partial days will fool you — the current day fills progressively and looks like a crash that hasn't happened:
 
@@ -167,9 +183,7 @@ Comparing full calendar days only, because partial days will fool you — the cu
 | 08-17 (before) | 2,933,711 | 2,453,984 | 53.7 GB |
 | 08-20 (after) | 555,742 | 1,212 | 3.1 GB |
 
-**Page views down 99.95%. Bandwidth down 94%.**
-
-Then I removed the WAF rule entirely, to find out what AI crawler traffic looks like when it isn't inflated by a bug:
+**Page views down 99.95%. Bandwidth down 94%.** Then I removed the WAF rule entirely, to find out what AI crawler traffic looks like when it isn't inflated by a bug:
 
 ```text
 GPTBot:  322,975/day  ->  495/day     -99.85%
@@ -177,27 +191,24 @@ GPTBot:  322,975/day  ->  495/day     -99.85%
 
 Four hundred and ninety-five requests a day. That's what honest crawling of about a hundred posts costs. The other 99.85% never existed independently of the defect in my own repository. I had spent days building infrastructure to block traffic that I was manufacturing.
 
-Two smaller findings sit alongside that one.
+The AI Crawler category decayed 632,461 → 242,152 → 65,433 → 577 per day across three days of 403s. Blocking never reduced the request count (every block is a 403 that still arrives) but sustained refusal did eventually convince them to stop coming. That's a slower and less satisfying mechanism than the dashboard implies.
 
-**Crawlers do eventually leave.** The AI Crawler category decayed 632,461 → 242,152 → 65,433 → 577 per day across three days of 403s. Blocking never reduced the request count — every block is a 403 that still arrives — but sustained refusal did eventually convince them to stop coming. That's a slower and less satisfying mechanism than the dashboard implies.
-
-**And there was a second amplifier hiding under the first.** Cloudflare's Early Hints feature was firing 0.58 internal subrequests for every real request, at a **0% cache hit rate** — because it caches `Link: rel=preload` headers from the origin, and a static Quarto build emits none. It could never have hit, not once, for as long as it had been enabled. Turning it off produced its own lesson: the dashboard toggle read *off* while some datacentres kept firing for over 48 hours. A per-datacentre breakdown showed Los Angeles at 0% and Miami still at 20%. The global average hid the fact that the setting was off in some places and not others.
+Cloudflare's [Early Hints](https://developers.cloudflare.com/cache/advanced-configuration/early-hints/) feature was firing 0.58 internal subrequests for every real request, at a **0% cache hit rate** — because it caches `Link: rel=preload` headers from the origin, and a static Quarto build emits none. It could never have hit, not once, for as long as it had been enabled. Turning it off produced its own lesson: the dashboard toggle read *off* while some datacentres kept firing for over 48 hours. A per-datacentre breakdown showed Los Angeles at 0% and Miami still at 20%. The global average hid the fact that the setting was off in some places and not others.
 
 Here's the whole month, which is the part I find hardest to look at:
 
 ```{mermaid}
+%%{init: {"xyChart": {"width": 900, "height": 400, "xAxis": {"labelFontSize": 11, "labelPadding": 4}}}}%%
 xychart-beta
-    title "Daily requests to lopes.id"
-    x-axis [07-22, 07-23, 07-24, 07-25, 07-26, 07-27, 07-28, 07-29, 07-30, 07-31, 08-01, 08-02, 08-03, 08-04, 08-05, 08-06, 08-07, 08-08, 08-09, 08-10, 08-11, 08-12, 08-13, 08-14, 08-15, 08-16, 08-17, 08-18, 08-19, 08-20]
+    title "Daily requests, 22 July to 20 August 2026 (day of month)"
+    x-axis [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     y-axis "Requests (millions)" 0 --> 10
-    line [1.29, 1.08, 1.46, 1.31, 1.41, 1.22, 1.19, 1.65, 3.04, 6.57, 8.28, 9.49, 9.23, 5.17, 2.86, 1.59, 2.04, 2.18, 2.84, 2.22, 2.54, 3.03, 2.77, 2.75, 2.61, 2.75, 2.93, 1.03, 1.36, 0.56]
+    bar [1.29, 1.08, 1.46, 1.31, 1.41, 1.22, 1.19, 1.65, 3.04, 6.57, 8.28, 9.49, 9.23, 5.17, 2.86, 1.59, 2.04, 2.18, 2.84, 2.22, 2.54, 3.03, 2.77, 2.75, 2.61, 2.75, 2.93, 1.03, 1.36, 0.56]
 ```
 
 The investigation started on 15 August. The peak was on **2 August: 9,490,671 requests and 191 GB in a single day.** I had been looking at the aftermath the entire time and thinking it was the event. Umami went in on the 13th, on the decline — which means the 100,000-event quota died in three days against traffic that had already fallen 70% from its worst.
 
-Notice also that the late-July "baseline" is around 1.2 million requests a day. For a blog with a hundred posts, that was already absurd. There was never a normal to return to.
-
-Across the month: roughly 90 million requests and 1.7 TB of egress. All of it absorbed silently, because Cloudflare Pages doesn't meter static bandwidth on any plan, including the free one. Elsewhere, the same traffic:
+Notice also that the late-July "baseline" is around 1.2 million requests a day. For a blog with a hundred posts, that was already absurd. There was never a normal to return to. Across the month: roughly 90 million requests and 1.7 TB of egress. All of it absorbed silently, because Cloudflare Pages doesn't meter static bandwidth on any plan, including the free one. Elsewhere, the same traffic:
 
 | Host | ~1.7 TB in a month |
 | ---- | ------------------ |
@@ -207,23 +218,29 @@ Across the month: roughly 90 million requests and 1.7 TB of egress. All of it ab
 | Netlify | **~$880** (~$0.55/GB past the 100 GB free tier) |
 | GitHub Pages | Throttled — 100 GB soft limit, gone in half a day |
 
-August 2 alone, on Netlify, would have been about $105. In one day.
+August 2 alone, on Netlify, would have been about $105. In one day. To be fair to Cloudflare: this specific bug is a consequence of *their* SPA-fallback default, and Netlify and GitHub Pages would have returned a real 404 without any configuration. But that cuts the other way too, and more interestingly. On a metered host, an anomaly this size announces itself through billing within days. Free and unmetered meant nothing ever pushed back. Cloudflare's generosity is precisely what let this run for a month.
 
-To be fair to Cloudflare: this specific bug is a consequence of *their* SPA-fallback default, and Netlify and GitHub Pages would have returned a real 404 without any configuration. But that cuts the other way too, and more interestingly. On a metered host, an anomaly this size announces itself through billing within days. Free and unmetered meant nothing ever pushed back. Cloudflare's generosity is precisely what let this run for a month.
+One thread stays open, and I'd rather leave it untied than fake a conclusion: about 687,000 requests a day of entirely unidentified traffic remain — plain Chrome user agents, no bot verification, no explanation. The fake tree is gone and they're still here, which makes them a different question rather than a leftover from this one. Maybe I'll follow-up it in a part 2.
 
-One thread stays open, and I'd rather leave it untied than fake a conclusion: about 687,000 requests a day of entirely unidentified traffic remain — plain Chrome user agents, no bot verification, no explanation. The fake tree is gone and they're still here, which makes them a different question rather than a leftover from this one.
+## On AI's Help
+
+What made the collaboration with AI work wasn't the model being right — it was wrong at least four times across this investigation, sometimes confidently and with good arguments. It worked because every claim arrived with a query attached. Each error was cheap to find and usually caught by the next day's snapshot. That's a fundamentally different risk profile from a confident colleague whose reasoning you can't re-run.
+
+What didn't come from the tooling was refusing the working fix. The country block was competent, effective, and would have ended this with a good graph and an undiagnosed bug. Deciding that an answer isn't finished until it explains the symptom is a judgement about what "done" means, and I'd keep that one firmly in human hands.
+
+Use these tools — they're extraordinary through the mechanical middle of an investigation. Just keep asking whether the answer actually explains what you're seeing, because that part is still yours.
 
 ## Closing Thoughts
 
-**Nothing broke.** No slowness, no errors, no complaints, no bill. Nine and a half million requests and 191 GB in a single day, and the site stayed fast throughout. The only component in the entire stack with an opinion about the volume was a 100,000-event analytics quota — the thing I had been treating as the problem. Systems that never push back don't tell you they're healthy. They tell you nothing.
+The thing I keep returning to is that nothing broke. No slowness, no errors, no complaints, no bill. Nine and a half million requests and 191 GB in a single day, and the site stayed fast throughout. The only component in the entire stack with an opinion about the volume was a 100,000-event analytics quota — the thing I had spent weeks treating as the problem. Systems that never push back don't tell you they're healthy. They tell you nothing, and I had mistaken that silence for health.
 
-**Know what your telemetry can physically see.** I had three sources. Two of them — the ones I'd stopped trusting — were right. They lost to a newer, more granular query because its tooling looked more impressive, and that query was answering a question I hadn't actually asked. Zone analytics, a CDN beacon, and a third-party tracker all watch different things through different windows. The gap between them isn't noise; it's where the interesting traffic lives.
+Which is really a story about instruments. I had three of them, and the two I'd stopped trusting were right the whole time. They lost to a newer, more granular query because its tooling looked more impressive — and that query turned out to be answering a question I hadn't asked. Zone analytics, a CDN beacon and a third-party tracker all watch different things through different windows. The gap between them isn't noise. It's where the interesting traffic lives.
 
-**Distrusting the instrument is cheaper than distrusting your model of the world**, so it's the first move everyone makes. I changed analytics vendors rather than believe a number. It cost me weeks, and the second vendor told me exactly the same thing.
+I'd add that distrusting the instrument is always cheaper than distrusting your model of the world, which is exactly why it's the first move everyone makes. I changed analytics vendors rather than believe a number that offended me. It cost weeks, and the second vendor told me precisely the same thing the first one had.
 
-**Defaults are decisions somebody else made about your system.** SPA fallback on a missing 404. Googlebot and Bingbot classified as training crawlers. Early Hints enabled against an origin that could never use it. Nobody chose any of those, all three had consequences, and one of them served an infinite website to the internet for at least a month.
+Underneath all of it sat three defaults nobody chose. SPA fallback on a missing 404. Googlebot and Bingbot classified as training crawlers. Early Hints enabled against an origin structurally incapable of using it. Each is defensible on its own, each was invisible until I went looking, and together they served an infinite website to the internet for at least a month. Defaults are decisions somebody else made about your system, and they compound in ways nobody tested for.
 
-And the one I keep coming back to: **a fix that works without explaining the symptom is not a fix.** Blocking two countries would have produced a beautiful graph and left the defect in my repository, generating traffic for whoever came next.
+But the moment that actually mattered was refusing a fix that worked. Blocking two countries would have removed 2.4 million requests a day and produced a graph I could have led this post with. It would also have left the defect exactly where it was, generating traffic for whoever inherited it. An answer that removes the symptom without explaining it isn't finished — it's just louder than the problem.
 
 ::: {.callout-note}
 If you run a static site behind a CDN, this takes ten seconds:
@@ -235,21 +252,11 @@ curl -s -o /dev/null -w '%{http_code}\n' https://yoursite/nonsense/path/
 If that says `200`, you're serving an infinite website to anything that crawls you.
 :::
 
-## The Part I Couldn't Delegate
-
-I've written before about working with AI on projects like this, and the honest version is more useful than the demo version.
-
-What made the collaboration work wasn't the model being right — it was wrong at least four times across this investigation, sometimes confidently and with good arguments. It worked because every claim arrived with a query attached. Each error was cheap to find and usually caught by the next day's snapshot. That's a fundamentally different risk profile from a confident colleague whose reasoning you can't re-run.
-
-What didn't come from the tooling was refusing the working fix. The country block was competent, effective, and would have ended this with a good graph and an undiagnosed bug. Deciding that an answer isn't finished until it explains the symptom is a judgement about what "done" means, and I'd keep that one firmly in human hands.
-
-Use these tools — they're extraordinary through the mechanical middle of an investigation. Just keep asking whether the answer actually explains what you're seeing, because that part is still yours.
-
 ## References
 
-- [Quarto: 404 Pages](https://quarto.org/docs/websites/website-navigation.html#pages-404) — how to add `404.qmd`. Read it before you need it, and note how gently it's framed.
-- [Cloudflare Pages: Serving Pages](https://developers.cloudflare.com/pages/configuration/serving-pages/) — the SPA-fallback behaviour that turns a missing 404 into a soft 404 on every unmatched path.
-- [Google: Troubleshoot crawling errors](https://developers.google.com/search/docs/crawling-indexing/troubleshoot-crawling-errors) — soft 404s, how they're detected, and why they cost crawl budget.
-- [Cloudflare AI Crawl Control](https://developers.cloudflare.com/ai-crawl-control/) — the Search/Agent/Training split, and the multi-purpose classification that catches Bingbot.
-- [Cloudflare GraphQL Analytics API](https://developers.cloudflare.com/analytics/graphql-api/) — zone-level request data. On the free plan you get no ASN and no bot score, and detailed breakdowns cap at a 24-hour window.
-- [Getting Started with CloudFlare for Web Protection](/log/cloudflare-web-protection-guide/) — my own earlier post, from back when the free plan was mostly about certificates and firewall rules.
+- [Quarto: 404 Pages](https://quarto.org/docs/websites/website-navigation.html#pages-404): how to add `404.qmd`. Read it before you need it, and note how gently it's framed.
+- [Cloudflare Pages: Serving Pages](https://developers.cloudflare.com/pages/configuration/serving-pages/): the SPA-fallback behaviour that turns a missing 404 into a soft 404 on every unmatched path.
+- [Google: Troubleshoot crawling errors](https://developers.google.com/search/docs/crawling-indexing/troubleshoot-crawling-errors): soft 404s, how they're detected, and why they cost crawl budget.
+- [Cloudflare AI Crawl Control](https://developers.cloudflare.com/ai-crawl-control/): the Search/Agent/Training split, and the multi-purpose classification that catches Bingbot.
+- [Cloudflare GraphQL Analytics API](https://developers.cloudflare.com/analytics/graphql-api/): zone-level request data. On the free plan you get no ASN and no bot score, and detailed breakdowns cap at a 24-hour window.
+- [Getting Started with CloudFlare for Web Protection](/log/cloudflare-web-protection-guide/): my own earlier post, from back when the free plan was mostly about certificates and firewall rules.
