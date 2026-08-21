@@ -233,6 +233,22 @@ It answered every question I asked, quickly and well. It never asked why the tra
 
 So let it do the digging. Keep deciding when you're done. It will hand you a fix that works long before it hands you one that explains anything.
 
+## What Should Change
+
+None of this was one bug. It was a stack of individually reasonable defaults that only became dangerous stacked together. I'm sharing this post with the Quarto maintainers, so here's the list stated as plainly as I can make it — the error, and what I think fixes it.
+
+- **Quarto's links are relative by default.** `href="site_libs/…"` resolves against whatever directory a browser or crawler thinks it's in. Under any prefix that returns 200 instead of 404, that's an unbounded tree. → Make links root-absolute by default, everywhere, not just on `page-layout: custom`. This incident proves root-absolute links can't compound, because switching to them is what stopped it.
+
+- **Quarto ships no 404 page unless asked.** No `404.qmd`, no `404.html`. → Emit a minimal one by default, overridable the moment an author adds their own. Fail closed, not open — a static site generator shouldn't leave "does this site have a not-found page" up to whether the operator remembered.
+
+- **The docs don't say what's at stake.** ["Browser default 404 pages can be pretty stark, so you may want to create a custom page"](https://quarto.org/docs/websites/website-navigation.html#pages-404) is decorating advice, not a warning. It names Netlify and GitHub Pages, both of which 404 correctly with zero config, and says nothing about hosts that don't. → State the consequence directly: skip this on a host without a real not-found default, and every unknown URL serves 200 forever. Name Cloudflare Pages, since [its own docs](https://developers.cloudflare.com/pages/configuration/serving-pages/) say a missing `404.html` makes it *"assume you're deploying a single-page application"* and fall back to `/`.
+
+- **I hadn't read the manual.** True, and mine to own. But a paragraph of prose shouldn't be the only thing standing between a static blog and an infinite crawl space. → Make the safe behavior the automatic one. Docs are a backup, not a control.
+
+- **Cloudflare already has the alert I wish I'd had — I just never turned it on.** [HTTP Traffic Anomalies notifications](https://developers.cloudflare.com/notifications/reference/traffic-alerts/) exist today: z-score past 3.5 against the last four hours, opt-in, off by default. Mine was off for the entire month this ran. → If you run your own zone, turn it on now, before you need it. This isn't a feature request; the feature shipped, I just didn't use it.
+
+Quarto's 404 page isn't undocumented territory, either — [issue #5284](https://github.com/quarto-dev/quarto-cli/issues/5284) and [discussion #3615](https://github.com/orgs/quarto-dev/discussions/3615) both flag the 404 page's asset paths behaving differently from every other page. The rough edge was already known. It just hadn't been connected to what it does on a host with no native 404.
+
 ## Closing Thoughts
 
 Nothing broke. No slowness, no errors, no complaints, no bill. Nine and a half million requests and 191 GB in a single day, and the site stayed fast throughout. The only thing in the whole stack that complained was a 100,000-event analytics quota, which is the thing I spent weeks treating as the problem.
