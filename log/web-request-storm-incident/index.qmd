@@ -81,11 +81,11 @@ GPTBot at 323,000 requests a day. Meta's crawler at roughly 280,000 across four 
 
 Then I started blocking things, and learned two lessons the hard way.
 
-The first is about where a block actually happens. A crawler sends a request, it crosses the internet, it arrives at Cloudflare's edge — and *then* the rule fires and Cloudflare answers `403` instead of serving the page. The request already happened. It is in the logs, it is in the analytics API, it counts. Blocking changes the response, not the arrival.
+The first: **blocking doesn't reduce requests.** A request crosses the internet, arrives at Cloudflare's edge, and *then* gets refused. It already happened. It still counts.
 
-Which means **blocked is not absent**, and a day of measurement said so out loud. The rule was blocking 242,127 requests a day and working exactly as designed. Total requests went from 2,745,678 to 2,777,928 — *up*. The status codes showed why: 276,736 blocks, 277,558 responses of `403`, every one of them still a row in the request count.
+A day of measurement said so plainly. The rule was blocking 242,127 requests a day, working exactly as designed, and the total went from 2,745,678 to 2,777,928 — *up*.
 
-What blocking does change is what you send back — a few hundred bytes instead of 161 KB — and whether your origin is ever asked. Bandwidth and origin load can fall. Request totals cannot. I had chosen "reduce requests per day" as my measure of success before understanding the mechanism, and it was a number structurally incapable of moving.
+Blocking changes what you send back, not what shows up. Bandwidth falls. The request count doesn't. I'd picked "fewer requests" as my measure of success before I understood what a block actually does.
 
 The second learning was that **I blocked Bing.** Cloudflare's AI Crawl Control offers a Training category, so I blocked it and left Search alone. A day later, 46,092 requests from **verified** Bingbot were being 403'd — carrying Cloudflare's own `Search Engine Crawler` verification, arriving from Microsoft's US ranges. Not somebody spoofing a user agent. Bing.
 
