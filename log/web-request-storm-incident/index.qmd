@@ -67,54 +67,47 @@ Cloudflare tags each request with a verified bot category, and that breakdown wa
 | Search Engine Optimization | 14,931 |
 | AI Search | 7,330 |
 
-A quarter of everything hitting the site was classified as AI crawlers, and they were not hiding. The top user agents introduced themselves, documentation URL included:
+A quarter of everything hitting the site was classified as AI crawlers, and they were not hiding. The top user agents named themselves, most with a documentation URL in the string:
 
-```text
-322,975  GPTBot/1.4 (+https://openai.com/gptbot)
-168,757  meta-externalagent/1.1 (Windows)
- 83,376  meta-externalagent/1.1 (Macintosh)
- 51,650  bingbot/2.0
- 24,194  Amazonbot/0.1
-```
+| Crawler | Operator | Requests/day |
+| ------- | -------- | ------------ |
+| `GPTBot/1.4` | OpenAI | 322,975 |
+| `meta-externalagent/1.1` (Windows) | Meta | 168,757 |
+| `meta-externalagent/1.1` (macOS) | Meta | 83,376 |
+| `bingbot/2.0` | Microsoft | 51,650 |
+| `Amazonbot/0.1` | Amazon | 24,194 |
 
-GPTBot at 323,000 requests a day. Meta's crawler at roughly 280,000 across four user-agent variants. Declared crawlers are the easiest traffic in the world to act on, because they tell you exactly who they are — and that is precisely what made this feel solved. AI companies were scraping my archive into training corpora, and the answer was obviously to stop them.
+GPTBot at 323,000 requests a day. Meta's crawler at roughly 280,000 across four user-agent variants. Declared crawlers are the easiest traffic in the world to act on, because they tell you exactly who they are — and that is precisely what made this feel solved. AI companies were scraping my archive into training corpora, and the answer was obviously to stop them. Then I started blocking things, and learned two lessons the hard way.
 
-Then I started blocking things, and learned two lessons the hard way.
+The first is about where a block actually happens. A crawler sends a request, it crosses the internet, it arrives at Cloudflare's edge — and *then* the rule fires and Cloudflare answers `403` instead of serving the page. The request already happened. It is in the logs, it is in the analytics API, it counts. Blocking changes the response, not the arrival.
 
-The first: **blocking doesn't reduce requests.** A request crosses the internet, arrives at Cloudflare's edge, and *then* gets refused. It already happened. It still counts.
+Which means **blocked is not absent**. The rule was blocking 242,127 requests a day and working exactly as designed. Total requests went from 2,745,678 to 2,777,928. The status codes showed why: 276,736 blocks, 277,558 responses of `403`, every one of them still a row in the request count.
 
-A day of measurement said so plainly. The rule was blocking 242,127 requests a day, working exactly as designed, and the total went from 2,745,678 to 2,777,928 — *up*.
-
-Blocking changes what you send back, not what shows up. Bandwidth falls. The request count doesn't. I'd picked "fewer requests" as my measure of success before I understood what a block actually does.
+What blocking does change is what you send back and whether your origin is ever asked. Bandwidth and origin load can fall. Request totals cannot. I had chosen "reduce requests per day" as my measure of success before understanding the mechanism, and it was a number structurally incapable of moving.
 
 The second learning was that **I blocked Bing.** Cloudflare's AI Crawl Control offers a Training category, so I blocked it and left Search alone. A day later, 46,092 requests from **verified** Bingbot were being 403'd — carrying Cloudflare's own `Search Engine Crawler` verification, arriving from Microsoft's US ranges. Not somebody spoofing a user agent. Bing.
 
 The cause is that Cloudflare classifies Googlebot, Bingbot and Applebot as *multi-purpose*: they index for search **and** feed model training. Blocking Training blocks them too, even with Search explicitly allowed. Worse, the per-crawler toggles that look like overrides are a front-end to the same Cloudflare-managed rule, so setting Bingbot to "allow" there changed nothing. The `securitySource` dimension is what finally showed it — `firewallManaged`, not my own rule. I ended up deleting the managed layer entirely and writing one WAF rule of my own that names offenders by user agent and explicitly excludes verified search crawlers.
 
-::: {.callout-note}
-From **2026-09-15**, blocking Training becomes the default for newly onboarded domains. If you run a site behind Cloudflare and care about being indexed, check what that default does to Bingbot before it does it.
-:::
+Twenty-four hours of measurement then told me the rule was working perfectly and the traffic hadn't moved. The plan from there looked obvious: keep the WAF rule current, keep `robots.txt` updated, and settle in to fight AI crawlers as an ongoing chore. There was even a bigger hammer sitting right there: Singapore and China accounted for 2.4 million requests a day between them, and blocking both countries was one toggle away.
 
-Twenty-four hours of measurement then told me the rule was working perfectly and the traffic hadn't moved. The plan from there looked obvious: keep the WAF rule current, keep `robots.txt` updated, and settle in to fight AI crawlers as an ongoing chore. There was even a bigger hammer sitting right there — Singapore and China accounted for 2.4 million requests a day between them, and blocking both countries was one toggle away.
-
-## Something Didn't Add Up
+## A Bigger Hammer
 
 I didn't take it. Call it instinct or experience, but the shape of the thing was wrong. Blocking two countries would have worked. The graph would have fallen off a cliff, the post would have written itself, and I would not have been able to explain a single thing about why the traffic existed.
 
-A fix that removes a symptom without explaining the mechanism isn't a fix — it's a bigger hammer. And the specific hammer on offer meant deciding that everyone in two countries was a bot, permanently, on the basis of a number I didn't understand. So instead of applying it, I went back and asked what I'd been ignoring.
+A fix that removes a symptom without explaining the mechanism isn't a fix. It's a bigger hammer. And the specific hammer on offer meant deciding that everyone in two countries was a bot, permanently, on the basis of a number I didn't understand. So instead of applying it, I went back and asked what I'd been ignoring.
 
 Two things had been sitting in the data for days, filed as noise. Singapore's most-requested path wasn't any of my posts — it was `/cdn-cgi/speculation`, a Cloudflare internal endpoint. And a whole class of URL kept surfacing that looked like line noise:
 
 ```text
-/log/project-nebula/log/zola-change-theme/log/log-health-monitoring/
-  site_libs/quarto-html/tippy.css
+/log/project-nebula/log/zola-change-theme/log/log-health-monitoring/site_libs/quarto-html/tippy.css
 ```
 
 Nobody types that. Nobody links to that. That path gets *built*, one segment at a time.
 
-I should say plainly that I ran this whole investigation alongside Claude Code, because this is the moment where that mattered. It had been genuinely strong on the mechanical work: it wrote the snapshot tooling, discovered the free plan's real API limits by probing rather than guessing, and found `securitySource` — the field that explained the Bingbot mess. That's hours I didn't spend.
+I should say plainly that **I ran this whole investigation alongside Claude Code**, because this is the moment where that mattered. It had been genuinely strong on the mechanical work: it wrote the snapshot tooling, discovered the free plan's real API limits by probing rather than guessing, and found `securitySource` — the field that explained the Bingbot mess. That's hours I didn't spend.
 
-It had also been confidently wrong more than once. It told me Cloudflare Web Analytics was disabled when it was running. It told me my Singapore theory was wrong and Brazil was the culprit, having measured the wrong beacon to get there. And now it was helping me build a country block, competently, because that's what I'd pointed it at.
+It had also been confidently wrong more than once. It told me Cloudflare Web Analytics was disabled when it was running. It told me my Singapore theory was wrong and Brazil was the culprit, having measured the wrong beacon to get there. And now it was helping me build a country block, competently.
 
 When I pushed back and asked it to re-examine the evidence instead of implementing the plan, it produced the data that killed its own proposal within minutes. The capability was fast at answering questions, and it was not going to ask this one.
 
