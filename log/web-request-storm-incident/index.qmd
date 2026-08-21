@@ -233,11 +233,11 @@ One thread stays open, and I'd rather leave it untied than fake a conclusion: ab
 
 ## On AI's Help
 
-What made the collaboration with AI work wasn't the model being right. It was wrong at least four times across this investigation, sometimes confidently and with good arguments. It worked because every claim arrived with a query attached. Each error was cheap to find and usually caught by the next day's snapshot. That's a fundamentally different risk profile from a confident colleague whose reasoning you can't re-run.
+Four times in this investigation it told me something wrong, confidently and with good arguments behind it. Each one surfaced within a day, because everything it claimed came with a command I could run myself. That's the whole trick. I wasn't trusting it, I was checking it, and checking was cheap.
 
-What didn't come from the tooling was refusing the working fix. The country block was competent and effective, and it would have ended this with a good graph and an undiagnosed bug. Deciding that an answer isn't finished until it explains the symptom is a judgement about what "done" means, and I'd keep that one firmly in human hands.
+It answered every question I asked, quickly and well. It never asked why the traffic existed. That question is what ended the investigation, and it came from staring at a graph that annoyed me, not from anything I typed into a prompt.
 
-Use these tools — they're extraordinary through the mechanical middle of an investigation. Just keep asking whether the answer actually explains what you're seeing, because that part is still yours.
+So let it do the digging. Keep deciding when you're done. It will hand you a fix that works long before it hands you one that explains anything.
 
 ## Closing Thoughts
 
