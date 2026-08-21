@@ -51,7 +51,7 @@ So Cloudflare was already collecting that data along with the other tools I had 
 | Page load time | 9,214 ms |
 | [Largest Contentful Paint](https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint) | 96% poor, 0% good |
 
-Visits and page views weren't close. They were identical: a page-views-per-visit ratio of exactly **1.000**. That is the cleanest bot signal I've ever seen on my own infrastructure. Real people are inconsistent: some read one post and leave, some open three, some come back twice in an afternoon. Averaged over tens of thousands of sessions you never land on precisely one. Every session fetching exactly one page and never a second means nothing on the other end was deciding anything.
+Visits and page views weren't close. They were identical: a page-views-per-visit ratio of exactly **1.000**. That is the cleanest bot signal I've ever seen on my own infrastructure. Real people are inconsistent: some read one post and leave, some open three, some come back twice in an afternoon. Averaged over tens of thousands of sessions, you never land on precisely one. Every session fetching exactly one page and never a second means nothing on the other end was deciding anything.
 
 A 9.2-second load and 96% "poor" LCP on a static site behind a CDN said the same thing from another angle. That is not a browser on a normal connection. But the filter had one problem. `Exclude bots` was on, and these numbers were what *survived* it.
 
@@ -232,6 +232,22 @@ Four times in this investigation Claude Code told me something wrong, confidentl
 It answered every question I asked, quickly and well. It never asked why the traffic existed. That question is what ended the investigation, and it came from staring at a graph that annoyed me, not from anything I typed into a prompt.
 
 So let it do the digging. Keep deciding when you're done. It will hand you a fix that works long before it hands you one that explains anything.
+
+## The Perfect Storm
+
+None of this was one bug. It was a stack of individually reasonable defaults that only turned dangerous once they stacked.
+
+1. **Quarto's links are relative by default.** `href="site_libs/…"` resolves against whatever directory a browser or crawler thinks it's in, so under any prefix that returns 200 instead of 404, that's an unbounded tree. Make links root-absolute by default, everywhere, not just on `page-layout: custom`. This incident is the proof: switching to them is what stopped the loop.
+
+2. **Quarto ships no 404 page unless asked.** No `404.qmd`, no `404.html` — nothing, until the author opts in. Emit a minimal one by default, overridable the moment an author adds their own. Fail closed, not open: whether a site has a not-found page shouldn't depend on the operator remembering.
+
+3. **The docs don't say what's at stake.** ["Browser default 404 pages can be pretty stark, so you may want to create a custom page"](https://quarto.org/docs/websites/website-navigation.html#pages-404) is decorative advice, not a warning. It names Netlify and GitHub Pages, both of which 404 correctly with zero config, and says nothing about hosts that don't. State the consequence directly: skip this on a host without a real not-found default, and every unknown URL serves 200 forever. Name Cloudflare Pages while you're at it — as quoted earlier, [its own docs](https://developers.cloudflare.com/pages/configuration/serving-pages/) say a missing `404.html` makes the platform assume you're deploying a single-page app and fall back to `/`.
+
+4. **I hadn't read the manual.** True, and mine to own. But a paragraph of prose shouldn't be the only thing standing between a static blog and an infinite crawl space. Make the safe behaviour the automatic one — docs are a backup, not a control.
+
+5. **Cloudflare has the alert that would have caught this — for Enterprise customers.** The [Traffic Anomalies Alert](https://developers.cloudflare.com/notifications/reference/traffic-alerts/) fires on a z-score past 3.5 against the past four hours, checked every five minutes. It would have flagged this on day one. It's Enterprise-only. A Free-plan zone that can generate 9.5 million requests in a single day has no anomaly signal available to it at any tier below Enterprise — the free tier that made this run silently for a month is also the tier with no alarm for it.
+
+Quarto's 404 page isn't undocumented territory, either — [issue #5284](https://github.com/quarto-dev/quarto-cli/issues/5284) and [discussion #3615](https://github.com/orgs/quarto-dev/discussions/3615) both flag the 404 page's asset paths behaving differently from every other page. The rough edge was already known. It just hadn't been connected to what it does on a host with no native 404.
 
 ## Closing Thoughts
 
