@@ -118,7 +118,9 @@ I stopped querying the CDN and asked the site itself a much simpler question.
 ```bash
 curl -s -o /dev/null -w '%{http_code} %{size_download}b\n' \
   https://lopes.id/totally/made/up/path/
+```
 
+```text
 200 161155b
 ```
 
@@ -127,7 +129,7 @@ Two hundred. A hundred and sixty-one kilobytes. For a path that has never existe
 So a crawler landing on `/log/project-nebula/` reads `href="site_libs/quarto-html/tippy.css"`, resolves it against the current directory, and requests `/log/project-nebula/site_libs/quarto-html/tippy.css`. Which also returns 200, with 400 more relative links, one directory deeper. Even a CSS URL came back as HTML:
 
 ```text
-/log/fake/site_libs/quarto-html/tippy.css  ->  200  160,217b
+/log/fake/site_libs/quarto-html/tippy.css  →  200  160,217b
 ```
 
 There was no botnet building those URLs. **My site was generating them**, four hundred at a time, for anyone who knocked. The whole loop looks like this:
@@ -151,9 +153,7 @@ The failure mode has a name in the web world, too. Returning 200 for a page that
 
 The same page draws the distinction that turns out to be the whole mechanism: "a `404` status code is a strong signal not to crawl that URL again." A real 404 tells a crawler to stop. A soft 404 tells it to keep going. I had been sending the second one, four hundred times per page, to everything that asked.
 
-That guidance is about indexing. Crawl budget is the allowance a search engine spends on your site, and a soft 404 burns it on junk instead of your real posts — so you lose search results. Annoying, and finite: there are only so many junk URLs to find.
-
-What I couldn't find discussed anywhere is what happens when the junk URLs don't run out. **Relative links make the supply infinite, so there is no allowance left to exhaust — the crawling simply never ends.** And the cost stops being lost search results and becomes bandwidth, on my side, indefinitely.
+That guidance assumes the junk eventually runs out. Mine didn't. **Every fake page handed the crawler four hundred more, so the supply was endless and the crawling had no reason to stop.** Google's version of this problem costs you search results. Mine cost bandwidth, continuously, and I couldn't find that case written up anywhere.
 
 The cause is a default nobody chose. From Cloudflare Pages' documentation: without a `404.html` in the build, the platform *"assumes you're deploying a single-page application"* and matches all unmatched paths to `/`. Quarto doesn't emit a `404.html` unless you ask it to. So a static blog had been running in [SPA](https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/) mode, answering every possible URL with a success, for as long as both of those things had been true.
 
