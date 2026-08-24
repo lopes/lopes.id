@@ -1,5 +1,11 @@
 project:
   type: website
+  # Operational directories, not site content. Without these the default
+  # project glob picks up their .md files and publishes them.
+  render:
+    - "*"
+    - "!docs/**"
+    - "!terraform/**"
 
 website:
   title: "lopes.log"
