@@ -73,6 +73,15 @@ UNTIL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 mkdir -p "$OUTDIR"
 OUT="${OUTDIR}/$(date -u +%Y-%m-%d)-${LABEL}.json"
 
+# Two snapshots on one day with the same label used to overwrite each other in
+# silence, which loses a capture that cannot be taken again — the adaptive
+# breakdowns only cover the last 24 hours. Disambiguate with the capture time
+# instead of clobbering.
+if [[ -e "$OUT" ]]; then
+  OUT="${OUTDIR}/$(date -u +%Y-%m-%d)-${LABEL}-$(date -u +%H%M%S).json"
+  echo "note: a snapshot with that label already exists today, writing ${OUT##*/}" >&2
+fi
+
 # Runs one GraphQL query. A failed query is recorded with Cloudflare's own error
 # text rather than an empty result, so a permissions problem can never be
 # misread as "no traffic".
