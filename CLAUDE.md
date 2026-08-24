@@ -8,20 +8,49 @@ Quarto-based static site for a professional knowledge base published at [lopes.i
 
 ## Build Commands
 
+`make help` lists every target and is the intended entry point. The underlying
+scripts stay runnable by path.
+
 | Command | Purpose |
 | ------- | ------- |
-| `quarto render --output-dir _site` | Build the full static site |
-| `quarto preview` | Local dev server with live reload |
-| `./scripts/setup.sh` | Install git pre-commit hooks |
+| `make render` / `make preview` | Build the site, or serve it with live reload |
+| `make check` | Content validation (same as the pre-commit hook) |
+| `make setup` | Install git pre-commit hooks |
+| `make snapshot LABEL=x` | Capture Cloudflare analytics into `snapshots/` |
+| `make history` | Fold snapshots into the committed CSVs in `data/` |
+| `make monthly` | Full health check: capture, drift, live probes, traffic |
+| `make tf-plan` / `make tf-apply` / `make drift` | Cloudflare zone configuration |
 
 There are no tests or linters beyond the pre-commit hook validation.
+
+## Infrastructure
+
+The Cloudflare zone is code, in `terraform/`, with state in HCP Terraform (org
+`lopes-log`, workspace `lopes-id`, execution mode Local).
+
+**Cloudflare state changes go through `terraform/` — never the dashboard, never a
+bespoke script.** A dashboard edit leaves no diff, no PR and no author, and the
+prose document that used to mirror those settings was wrong within two days.
+Cloudflare *queries* (analytics, snapshots) stay in `scripts/`: Terraform has no
+analytics data source, so there is no overlap to resolve.
+
+Two tokens, split by blast radius: `CF_RO_TOKEN` for reads (snapshots, plan, CI
+drift) and `CF_RW_TOKEN` for local applies only. The write token must never be
+added to GitHub — CI plans, it never applies. The Makefile injects the right one
+per target. See `.env.example` and `terraform/README.md`.
+
+Reading a diff depends on which file it is in: `dns.tf` is a transcript of the
+zone, so a diff means the file is wrong. `zone-settings.tf` and `security.tf` are
+asserted intent, so a diff means the zone drifted and should be applied back.
+
+Operational procedure lives in `docs/runbooks/`.
 
 ## Architecture
 
 - **Static site generator**: Quarto with Python 3.14 (Jupyter kernel)
 - **Content**: Quarto Markdown (`.qmd`) files in `log/<post-slug>/index.qmd`
 - **Styling**: Custom "Vigil" theme in `static/styles/` (SCSS), dual dark/light mode
-- **CI/CD**: GitHub Actions (`deploy.yml` for Cloudflare Pages, `integration.yml` for PR validation)
+- **CI/CD**: GitHub Actions (`deploy.yml` for Cloudflare Pages, `integration.yml` for PR validation, `infra.yml` for Terraform plan and monthly drift)
 - **Validation**: `scripts/pre-commit.sh` enforces content rules at commit time
 
 ## Content Structure
@@ -65,10 +94,17 @@ Full deck authoring guide: `decks/README.md`.
 
 ## Key Config Files
 
-- `_quarto.yml` — Site-wide Quarto configuration (navigation, themes, listing)
+- `_quarto.yml` — Site-wide Quarto configuration (navigation, themes, listing). Its
+  `render:` list excludes `docs/` and `terraform/`; the exclusion must be written
+  `"!docs/**"` — the `"!docs/"` form is accepted silently and does nothing, which
+  publishes every runbook to the live site
 - `log/_metadata.yml` — Default metadata for all posts (author, license, freeze)
 - `decks/_metadata.yml` — Default metadata for decks (`freeze: auto`, no citation)
 - `decks/README.md` — Deck authoring guide (auto-excluded from render)
 - `scripts/pre-commit.sh` — Single source of truth for validation logic
+- `Makefile` — Task index; `make help` lists everything
+- `terraform/` — Cloudflare zone configuration; `terraform/README.md` explains the layout
+- `docs/runbooks/` — Operational procedure (monthly check, traffic spike, zone restore)
+- `data/*.csv` — Derived traffic history; the breakdowns file is not recoverable if lost
 - `static/styles/vigil-{dark,light}.scss` — Post theme (dual mode, respects visitor scheme)
 - `static/styles/vigil-reveal-{dark,light}.scss` — Deck theme (per-deck baked at render time)

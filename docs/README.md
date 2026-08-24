@@ -5,16 +5,21 @@ Operational documentation for lopes.id. Nothing here is rendered into the site �
 
 | Path | What it is |
 | ---- | ---------- |
-| `runbooks/monthly-check.md` | The recurring health check: what `make monthly` does and how to read it |
-| `runbooks/traffic-spike.md` | What to do when request volume jumps, generalised from the August 2026 incident |
-| `runbooks/restore-cloudflare.md` | Rebuilding the zone, and the settings Terraform cannot own |
+| `runbooks/monthly-check.md` | `make monthly`: what it checks and how to read it |
+| `runbooks/traffic-spike.md` | What to do when request volume jumps |
+| `runbooks/restore-cloudflare.md` | Rebuilding the zone, and what Terraform cannot own |
 
 ## Where configuration actually lives
 
-Cloudflare zone state is **code**, in `terraform/`. It is not documented here and
-must not be — a prose mirror of a dashboard goes stale, which is exactly how the
-previous version of this directory failed. Runbooks describe *procedure*;
-`terraform/` describes *state*.
+Cloudflare zone state is **code**, in `terraform/`. It is deliberately not
+documented here, and should not be: the previous version of this directory was a
+prose mirror of the dashboard, and it was wrong about the WAF rule within two days
+of being written. A document describing state drifts; a `terraform plan` cannot.
 
-Cloudflare *queries* (analytics, snapshots) stay in `scripts/`. Terraform is a
-desired-state engine and has no analytics data source, so the two do not overlap.
+Runbooks describe **procedure**. `terraform/` describes **state**. Where a runbook
+does mention a setting, it is one Terraform provably cannot own — listed under
+"Not codifiable" in `restore-cloudflare.md`.
+
+Cloudflare *queries* stay in `scripts/`. Terraform is a desired-state engine with
+no analytics data source, so the two do not overlap: every script here talks to
+`client/v4/graphql`, and Terraform talks only to the REST configuration API.
