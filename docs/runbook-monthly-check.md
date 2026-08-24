@@ -72,7 +72,7 @@ whatever happened earlier in the month; in August 2026 the mean said traffic was
 *up* while it had in fact collapsed by 79%.
 
 Roughly 500k–1M requests/day is normal for this site. Sustained growth past a few
-million is worth investigating — see `traffic-spike.md`.
+million is worth investigating — see `runbook-traffic-spike.md`.
 
 ## When it fails in CI
 

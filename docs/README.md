@@ -5,9 +5,9 @@ Operational documentation for lopes.id. Nothing here is rendered into the site â
 
 | Path | What it is |
 | ---- | ---------- |
-| `runbooks/monthly-check.md` | `make monthly`: what it checks and how to read it |
-| `runbooks/traffic-spike.md` | What to do when request volume jumps |
-| `runbooks/restore-cloudflare.md` | Rebuilding the zone, and what Terraform cannot own |
+| `runbook-monthly-check.md` | `make monthly`: what it checks and how to read it |
+| `runbook-traffic-spike.md` | What to do when request volume jumps |
+| `runbook-restore-cloudflare.md` | Rebuilding the zone, and what Terraform cannot own |
 
 ## Where configuration actually lives
 
@@ -18,7 +18,7 @@ of being written. A document describing state drifts; a `terraform plan` cannot.
 
 Runbooks describe **procedure**. `terraform/` describes **state**. Where a runbook
 does mention a setting, it is one Terraform provably cannot own â€” listed under
-"Not codifiable" in `restore-cloudflare.md`.
+"Not codifiable" in `runbook-restore-cloudflare.md`.
 
 Cloudflare *queries* stay in `scripts/`. Terraform is a desired-state engine with
 no analytics data source, so the two do not overlap: every script here talks to

@@ -43,7 +43,7 @@ Reading a diff depends on which file it is in: `dns.tf` is a transcript of the
 zone, so a diff means the file is wrong. `zone-settings.tf` and `security.tf` are
 asserted intent, so a diff means the zone drifted and should be applied back.
 
-Operational procedure lives in `docs/runbooks/`.
+Operational procedure lives in `docs/runbook-*.md`.
 
 ## Architecture
 
@@ -104,7 +104,7 @@ Full deck authoring guide: `decks/README.md`.
 - `scripts/pre-commit.sh` — Single source of truth for validation logic
 - `Makefile` — Task index; `make help` lists everything
 - `terraform/` — Cloudflare zone configuration; `terraform/README.md` explains the layout
-- `docs/runbooks/` — Operational procedure (monthly check, traffic spike, zone restore)
+- `docs/runbook-*.md` — Operational procedure (monthly check, traffic spike, zone restore)
 - `data/*.csv` — Derived traffic history; the breakdowns file is not recoverable if lost
 - `static/styles/vigil-{dark,light}.scss` — Post theme (dual mode, respects visitor scheme)
 - `static/styles/vigil-reveal-{dark,light}.scss` — Deck theme (per-deck baked at render time)
