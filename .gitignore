@@ -8,6 +8,13 @@ venv
 .env
 snapshots/
 
+# terraform
+terraform/.terraform/
+*.tfstate
+*.tfstate.*
+terraform/*.tfvars
+!terraform/*.tfvars.example
+
 # quarto exclusions
 /.quarto/
 **/*.quarto_ipynb

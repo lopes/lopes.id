@@ -1,0 +1,955 @@
+captured,dimension,value,count
+"2026-08-15T20:23:54Z","country","AE",5553
+"2026-08-15T20:23:54Z","country","AR",22088
+"2026-08-15T20:23:54Z","country","AZ",6247
+"2026-08-15T20:23:54Z","country","BD",19359
+"2026-08-15T20:23:54Z","country","BR",131716
+"2026-08-15T20:23:54Z","country","CL",9033
+"2026-08-15T20:23:54Z","country","CN",475356
+"2026-08-15T20:23:54Z","country","CO",14919
+"2026-08-15T20:23:54Z","country","DE",30563
+"2026-08-15T20:23:54Z","country","EC",7879
+"2026-08-15T20:23:54Z","country","FR",5787
+"2026-08-15T20:23:54Z","country","ID",4895
+"2026-08-15T20:23:54Z","country","IN",11985
+"2026-08-15T20:23:54Z","country","IQ",10793
+"2026-08-15T20:23:54Z","country","KE",7069
+"2026-08-15T20:23:54Z","country","KZ",5052
+"2026-08-15T20:23:54Z","country","MA",8449
+"2026-08-15T20:23:54Z","country","MX",16928
+"2026-08-15T20:23:54Z","country","NG",6784
+"2026-08-15T20:23:54Z","country","PK",21643
+"2026-08-15T20:23:54Z","country","RU",10053
+"2026-08-15T20:23:54Z","country","SA",6970
+"2026-08-15T20:23:54Z","country","SG",879671
+"2026-08-15T20:23:54Z","country","TN",5208
+"2026-08-15T20:23:54Z","country","UA",15078
+"2026-08-15T20:23:54Z","country","US",741778
+"2026-08-15T20:23:54Z","country","UZ",7839
+"2026-08-15T20:23:54Z","country","VE",10209
+"2026-08-15T20:23:54Z","country","VN",26776
+"2026-08-15T20:23:54Z","country","ZA",16403
+"2026-08-15T20:23:54Z","path","/",605
+"2026-08-15T20:23:54Z","path","//static/images/favicon.ico",72
+"2026-08-15T20:23:54Z","path","/atom.xml",33
+"2026-08-15T20:23:54Z","path","/cdn-cgi/rum",71641
+"2026-08-15T20:23:54Z","path","/cdn-cgi/speculation",53129
+"2026-08-15T20:23:54Z","path","/favicon.ico",38
+"2026-08-15T20:23:54Z","path","/index.xml",47
+"2026-08-15T20:23:54Z","path","/log/detection-as-code-then-what/",312
+"2026-08-15T20:23:54Z","path","/log/prepare-your-soc-for-ai/",130
+"2026-08-15T20:23:54Z","path","/log/prepare-your-soc-for-ai/listings.json",76
+"2026-08-15T20:23:54Z","path","/log/prepare-your-soc-for-ai/og-prepare-your-soc-for-ai.webp",32
+"2026-08-15T20:23:54Z","path","/robots.txt",314
+"2026-08-15T20:23:54Z","path","/site_libs/bootstrap/bootstrap-dark-ce3333e35befaa3f39cce968a1c48071.min.css",87
+"2026-08-15T20:23:54Z","path","/site_libs/bootstrap/bootstrap-df11ea9110b4cda43a2aa41828dba9a5.min.css",92
+"2026-08-15T20:23:54Z","path","/site_libs/bootstrap/bootstrap-icons.css",58
+"2026-08-15T20:23:54Z","path","/site_libs/bootstrap/bootstrap-icons.woff",49
+"2026-08-15T20:23:54Z","path","/site_libs/bootstrap/bootstrap.min.js",65
+"2026-08-15T20:23:54Z","path","/site_libs/bootstrap/site_libs/quarto-html/tabsets/static/images/log/burp-suite-website-hardening/site_libs/clipboard/log/review-intrusion-detection-honeypots/log/lantana-1-honeypot-as-code/migrating-to-quarto/static/images/ai-first-software-development/static/images/ai-first-software-development/yolo-with-claude-code/yolo-with-claude-code/og-yolo-with-claude-code.webp",60
+"2026-08-15T20:23:54Z","path","/site_libs/bootstrap/site_libs/quarto-nav/log/gpg-update-signed-docs/static/images/log/framework-adversary-engagement/site_libs/quarto-html/log/ai-first-software-development/static/images/static/images/quarto-html/burn-after-writing/detection-as-code-then-what/quarto-html/log-health-monitoring/lantana-3-lessons-and-output/quarto-listing/tabsets/burn-after-writing/about.html",60
+"2026-08-15T20:23:54Z","path","/site_libs/clipboard/clipboard.min.js",36
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/log/zola-change-theme/static/images/log/log-health-monitoring/static/images/log/framework-adversary-engagement/static/images/site_libs/quarto-html/site_libs/bootstrap/review-practical-ai-security/bootstrap/soar-playbooks-scripts/lantana-1-honeypot-as-code/patchbay-engineering-with-ai/quarto-listing/ai-first-software-development/favicon.ico",80
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/log/zola-change-theme/static/images/log/log-health-monitoring/static/images/log/framework-adversary-engagement/static/images/soar-playbooks-scripts/prepare-your-soc-for-ai/site_libs/quarto-nav/patchbay-engineering-with-ai/ai-first-software-development/site_libs/quarto-html/tabsets/index.html",60
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/mermaid-init.js",59
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/mermaid.css",40
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/mermaid.min.js",52
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/static/images/log/productivity-unleashed/site_libs/bootstrap/log/burn-after-writing/log/lantana-2-data-pipeline/static/images/site_libs/bootstrap/quarto-html/quarto-nav/quarto-html/quarto-listing/static/images/index.html",60
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/static/images/log/productivity-unleashed/site_libs/bootstrap/site_libs/bootstrap/quarto-html/tabsets/quarto-html/quarto-html/log/burn-after-writing/static/images/log/burn-after-writing/patchbay-engineering-with-ai/lantana-2-data-pipeline/ai-first-software-development/prepare-your-soc-for-ai/static/images/favicon.ico",40
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/static/images/site_libs/bootstrap/site_libs/clipboard/log/arch-linux-nerd-fonts/log/framework-adversary-engagement/log/yolo-with-claude-code/review-intrusion-detection-honeypots/lantana-2-data-pipeline/quarto-html/quarto-html/lantana-1-honeypot-as-code/quarto-listing/static/images/quarto-html/soar-playbooks-scripts/ai-first-software-development/patchbay-engineering-with-ai/static/images/detection-as-code-then-what/quarto-listing/bootstrap/tabsets/tabsets.js",40
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-diagram/static/images/site_libs/bootstrap/site_libs/clipboard/log/git-submodulos-tutorial/static/images/static/images/log/framework-adversary-engagement/log/patchbay-engineering-with-ai/quarto-html/tabsets/yolo-with-claude-code/lantana-3-lessons-and-output/burn-after-writing/quarto-nav/about.html",40
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-html/anchor.min.js",83
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-html/popper.min.js",53
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-7160f7188b449a80f25b7e815ff94f16.css",69
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-dark-a4f2a875fd325d46ed629d605933fdb7.css",78
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-html/quarto.js",86
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-html/tabsets/tabsets.js",40
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-html/tippy.css",94
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-html/tippy.umd.min.js",48
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-nav/headroom.min.js",66
+"2026-08-15T20:23:54Z","path","/site_libs/quarto-nav/quarto-nav.js",88
+"2026-08-15T20:23:54Z","path","/static/images/og-home.webp",81
+"2026-08-15T20:23:54Z","user_agent","(unverified)",608
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",163
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",569
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",1379082
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",83376
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",449
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",203
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",7390
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",1446
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.141 Safari/537.36",443559
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",197
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",177
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",1746
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",168757
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",10150
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",505
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",191
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",319
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",186
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",601
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",18290
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (X11; Linux x86_64; rv:147.0) Gecko/20100101 Firefox/147.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",356
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (compatible; AffsignalCrawler/1.0; +https://affsignal.com/bot)",176
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)",242
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)",2455
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (compatible; SERankingBacklinksBot/1.0; +https://seranking.com/backlinks-crawler)",27895
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",13875
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",185
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (compatible; YandexRenderResourcesBot/1.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",1612
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [LinkedInApp]/9.32.2755",208
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36",24194
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)",194
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.4; +https://openai.com/gptbot)",322975
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",51650
+"2026-08-15T20:23:54Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/136.0.0.0 Safari/537.36 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",5057
+"2026-08-15T20:23:54Z","user_agent","Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",1832
+"2026-08-15T20:23:54Z","user_agent","YisouSpider",2780
+"2026-08-15T20:23:54Z","user_agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",356
+"2026-08-15T20:23:54Z","user_agent","nginx-ssl early hints",81529
+"2026-08-15T20:23:54Z","user_agent","undici",316
+"2026-08-15T20:23:54Z","verified_bot","(unverified)",1967878
+"2026-08-15T20:23:54Z","verified_bot","AI Assistant",9
+"2026-08-15T20:23:54Z","verified_bot","AI Crawler",632461
+"2026-08-15T20:23:54Z","verified_bot","AI Search",7330
+"2026-08-15T20:23:54Z","verified_bot","Page Preview",376
+"2026-08-15T20:23:54Z","verified_bot","Search Engine Crawler",59038
+"2026-08-15T20:23:54Z","verified_bot","Search Engine Optimization",14931
+"2026-08-15T20:23:54Z","verified_bot","Security",68
+"2026-08-15T20:23:54Z","verified_bot","Webhooks",17
+"2026-08-16T12:19:41Z","country","AE",5906
+"2026-08-16T12:19:41Z","country","AR",19166
+"2026-08-16T12:19:41Z","country","AZ",5273
+"2026-08-16T12:19:41Z","country","BD",21542
+"2026-08-16T12:19:41Z","country","BR",113606
+"2026-08-16T12:19:41Z","country","CL",8380
+"2026-08-16T12:19:41Z","country","CN",531400
+"2026-08-16T12:19:41Z","country","CO",12797
+"2026-08-16T12:19:41Z","country","DE",12662
+"2026-08-16T12:19:41Z","country","EC",6551
+"2026-08-16T12:19:41Z","country","FR",5163
+"2026-08-16T12:19:41Z","country","ID",6296
+"2026-08-16T12:19:41Z","country","IN",13914
+"2026-08-16T12:19:41Z","country","IQ",9224
+"2026-08-16T12:19:41Z","country","KE",5956
+"2026-08-16T12:19:41Z","country","KZ",4558
+"2026-08-16T12:19:41Z","country","MA",7319
+"2026-08-16T12:19:41Z","country","MX",16207
+"2026-08-16T12:19:41Z","country","NG",5519
+"2026-08-16T12:19:41Z","country","PK",19564
+"2026-08-16T12:19:41Z","country","RU",10256
+"2026-08-16T12:19:41Z","country","SA",6778
+"2026-08-16T12:19:41Z","country","SG",1080386
+"2026-08-16T12:19:41Z","country","TR",4570
+"2026-08-16T12:19:41Z","country","UA",17606
+"2026-08-16T12:19:41Z","country","US",564574
+"2026-08-16T12:19:41Z","country","UZ",7397
+"2026-08-16T12:19:41Z","country","VE",8824
+"2026-08-16T12:19:41Z","country","VN",28499
+"2026-08-16T12:19:41Z","country","ZA",14165
+"2026-08-16T12:19:41Z","path","/",678
+"2026-08-16T12:19:41Z","path","//static/images/favicon.ico",65
+"2026-08-16T12:19:41Z","path","/atom.xml",32
+"2026-08-16T12:19:41Z","path","/cdn-cgi/challenge-platform/h/g/scripts/jsd/aae2b9a1c261/main.js",555
+"2026-08-16T12:19:41Z","path","/cdn-cgi/challenge-platform/scripts/jsd/main.js",11564
+"2026-08-16T12:19:41Z","path","/cdn-cgi/rum",88676
+"2026-08-16T12:19:41Z","path","/cdn-cgi/speculation",62985
+"2026-08-16T12:19:41Z","path","/favicon.ico",49
+"2026-08-16T12:19:41Z","path","/index.xml",57
+"2026-08-16T12:19:41Z","path","/log/detection-as-code-then-what/",31
+"2026-08-16T12:19:41Z","path","/log/prepare-your-soc-for-ai/",101
+"2026-08-16T12:19:41Z","path","/log/prepare-your-soc-for-ai/listings.json",46
+"2026-08-16T12:19:41Z","path","/log/project-nebula/log/siem-deployment-insights/log/aws-secrets-manager-scripts/log/lantana-1-honeypot-as-code/log/nebula-4-debriefing/log/portfolio-tracker-v4/log/aws-secrets-manager-scripts/index.html",40
+"2026-08-16T12:19:41Z","path","/robots.txt",349
+"2026-08-16T12:19:41Z","path","/site_libs/bootstrap/bootstrap-dark-ce3333e35befaa3f39cce968a1c48071.min.css",84
+"2026-08-16T12:19:41Z","path","/site_libs/bootstrap/bootstrap-df11ea9110b4cda43a2aa41828dba9a5.min.css",81
+"2026-08-16T12:19:41Z","path","/site_libs/bootstrap/bootstrap-icons.css",49
+"2026-08-16T12:19:41Z","path","/site_libs/bootstrap/bootstrap-icons.woff",55
+"2026-08-16T12:19:41Z","path","/site_libs/bootstrap/bootstrap.min.js",56
+"2026-08-16T12:19:41Z","path","/site_libs/bootstrap/site_libs/bootstrap/log/mapping-detection-mitre-attack/log/framework-adversary-engagement/log/high-fidelity-nrd-detections/yolo-with-claude-code/site_libs/quarto-nav/static/images/framework-adversary-engagement/quarto-html/tabsets/static/images/yolo-with-claude-code/static/images/review-virtual-honeypots/yolo-with-claude-code/quarto-nav/log-health-monitoring/detection-as-code-then-what/bootstrap/prepare-your-soc-for-ai/framework-adversary-engagement/og-framework-adversary-engagement.webp",30
+"2026-08-16T12:19:41Z","path","/site_libs/bootstrap/site_libs/quarto-listing/log/python-logging-syslog-macos/log/high-fidelity-nrd-detections/static/images/log/lantana-2-data-pipeline/patchbay-engineering-with-ai/site_libs/quarto-nav/framework-adversary-engagement/quarto-html/tabsets/migrating-to-quarto/framework-adversary-engagement/lantana-1-honeypot-as-code/static/images/static/images/review-virtual-honeypots/soar-playbooks-scripts/bootstrap/detection-as-code-then-what/log-health-monitoring/favicon.ico",30
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-diagram/mermaid-init.js",37
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-diagram/mermaid.css",52
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-diagram/mermaid.min.js",36
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-diagram/static/images/log/productivity-unleashed/site_libs/bootstrap/site_libs/bootstrap/quarto-html/tabsets/quarto-html/quarto-html/log/burn-after-writing/static/images/log/burn-after-writing/patchbay-engineering-with-ai/lantana-2-data-pipeline/ai-first-software-development/prepare-your-soc-for-ai/static/images/favicon.ico",40
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-diagram/static/images/site_libs/bootstrap/site_libs/clipboard/log/git-submodulos-tutorial/static/images/static/images/log/framework-adversary-engagement/log/patchbay-engineering-with-ai/quarto-html/tabsets/yolo-with-claude-code/lantana-3-lessons-and-output/burn-after-writing/quarto-nav/about.html",40
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-html/anchor.min.js",52
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-html/popper.min.js",69
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-7160f7188b449a80f25b7e815ff94f16.css",52
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-dark-a4f2a875fd325d46ed629d605933fdb7.css",66
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-html/quarto.js",63
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-html/tabsets/tabsets.js",47
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-html/tippy.css",57
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-html/tippy.umd.min.js",75
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-nav/headroom.min.js",49
+"2026-08-16T12:19:41Z","path","/site_libs/quarto-nav/quarto-nav.js",70
+"2026-08-16T12:19:41Z","path","/site_libs/revealjs/plugin/notes/log/zola-theme-creation/static/images/site_libs/quarto-nav/static/images/static/images/site_libs/quarto-nav/log/lantana-1-honeypot-as-code/clipboard/bootstrap/log/lantana-2-data-pipeline/burn-after-writing/review-intrusion-detection-honeypots/log-health-monitoring/burn-after-writing/index.xml",30
+"2026-08-16T12:19:41Z","path","/site_libs/revealjs/plugin/notes/static/images/static/images/site_libs/quarto-html/log/blogging-freedom-web/log/lantana-3-lessons-and-output/log/burn-after-writing/lantana-2-data-pipeline/burn-after-writing/review-intrusion-detection-honeypots/static/images/site_libs/bootstrap/index.html",30
+"2026-08-16T12:19:41Z","path","/sitemap.xml",34
+"2026-08-16T12:19:41Z","path","/static/images/og-home.webp",56
+"2026-08-16T12:19:41Z","user_agent","(unverified)",1590
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",146
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Linux; Android 7.0;) AppleWebKit/537.36 (HTML, like Gecko) Mobile Safari/537.36 (compatible; PetalBot;+https://webmaster.petalsearch.com/site/petalbot)",169
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",161
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",151
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",1492369
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",27783
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",396
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",122
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",846
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",139
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.141 Safari/537.36",496659
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",423
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",475
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",62032
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",3059
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",325
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0",1919
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",326
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",247
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",253
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",266
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",6686
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (compatible; AffsignalCrawler/1.0; +https://affsignal.com/bot)",162
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (compatible; DotBot/1.2; +https://opensiteexplorer.org/dotbot; help@moz.com)",233
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)",1826
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (compatible; SERankingBacklinksBot/1.0; +https://seranking.com/backlinks-crawler)",9591
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",13751
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",180
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (compatible; YandexRenderResourcesBot/1.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",1572
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",157
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [LinkedInApp]/9.32.2755",192
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36",21022
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.4; +https://openai.com/gptbot)",327165
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",65115
+"2026-08-16T12:19:41Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/136.0.0.0 Safari/537.36 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",2265
+"2026-08-16T12:19:41Z","user_agent","Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",1697
+"2026-08-16T12:19:41Z","user_agent","YisouSpider",2536
+"2026-08-16T12:19:41Z","user_agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",342
+"2026-08-16T12:19:41Z","user_agent","nginx-ssl early hints",94579
+"2026-08-16T12:19:41Z","verified_bot","(unverified)",2177521
+"2026-08-16T12:19:41Z","verified_bot","AI Assistant",16
+"2026-08-16T12:19:41Z","verified_bot","AI Crawler",449419
+"2026-08-16T12:19:41Z","verified_bot","AI Search",359
+"2026-08-16T12:19:41Z","verified_bot","Page Preview",357
+"2026-08-16T12:19:41Z","verified_bot","Search Engine Crawler",69501
+"2026-08-16T12:19:41Z","verified_bot","Search Engine Optimization",15119
+"2026-08-16T12:19:41Z","verified_bot","Security",27
+"2026-08-16T12:19:41Z","verified_bot","Webhooks",12
+"2026-08-16T12:51:24Z","country","AE",5863
+"2026-08-16T12:51:24Z","country","AR",19080
+"2026-08-16T12:51:24Z","country","AZ",5226
+"2026-08-16T12:51:24Z","country","BD",21529
+"2026-08-16T12:51:24Z","country","BR",113165
+"2026-08-16T12:51:24Z","country","CL",8371
+"2026-08-16T12:51:24Z","country","CN",537864
+"2026-08-16T12:51:24Z","country","CO",12739
+"2026-08-16T12:51:24Z","country","DE",12063
+"2026-08-16T12:51:24Z","country","EC",6539
+"2026-08-16T12:51:24Z","country","FR",5193
+"2026-08-16T12:51:24Z","country","ID",6266
+"2026-08-16T12:51:24Z","country","IN",13923
+"2026-08-16T12:51:24Z","country","IQ",9179
+"2026-08-16T12:51:24Z","country","KE",5928
+"2026-08-16T12:51:24Z","country","KZ",4585
+"2026-08-16T12:51:24Z","country","MA",7314
+"2026-08-16T12:51:24Z","country","MX",16147
+"2026-08-16T12:51:24Z","country","NG",5509
+"2026-08-16T12:51:24Z","country","PK",19500
+"2026-08-16T12:51:24Z","country","RU",9966
+"2026-08-16T12:51:24Z","country","SA",6774
+"2026-08-16T12:51:24Z","country","SG",1087103
+"2026-08-16T12:51:24Z","country","TR",4565
+"2026-08-16T12:51:24Z","country","UA",17761
+"2026-08-16T12:51:24Z","country","US",558895
+"2026-08-16T12:51:24Z","country","UZ",7369
+"2026-08-16T12:51:24Z","country","VE",8792
+"2026-08-16T12:51:24Z","country","VN",28445
+"2026-08-16T12:51:24Z","country","ZA",14078
+"2026-08-16T12:51:24Z","path","/",687
+"2026-08-16T12:51:24Z","path","//static/images/favicon.ico",67
+"2026-08-16T12:51:24Z","path","/atom.xml",32
+"2026-08-16T12:51:24Z","path","/cdn-cgi/challenge-platform/h/g/scripts/jsd/aae2b9a1c261/main.js",603
+"2026-08-16T12:51:24Z","path","/cdn-cgi/challenge-platform/scripts/jsd/main.js",12157
+"2026-08-16T12:51:24Z","path","/cdn-cgi/rum",89313
+"2026-08-16T12:51:24Z","path","/cdn-cgi/speculation",63439
+"2026-08-16T12:51:24Z","path","/favicon.ico",50
+"2026-08-16T12:51:24Z","path","/index.xml",57
+"2026-08-16T12:51:24Z","path","/log/detection-as-code-then-what/",33
+"2026-08-16T12:51:24Z","path","/log/prepare-your-soc-for-ai/",110
+"2026-08-16T12:51:24Z","path","/log/prepare-your-soc-for-ai/listings.json",46
+"2026-08-16T12:51:24Z","path","/log/project-nebula/log/siem-deployment-insights/log/aws-secrets-manager-scripts/log/lantana-1-honeypot-as-code/log/nebula-4-debriefing/log/portfolio-tracker-v4/log/aws-secrets-manager-scripts/index.html",40
+"2026-08-16T12:51:24Z","path","/robots.txt",345
+"2026-08-16T12:51:24Z","path","/site_libs/bootstrap/bootstrap-dark-ce3333e35befaa3f39cce968a1c48071.min.css",90
+"2026-08-16T12:51:24Z","path","/site_libs/bootstrap/bootstrap-df11ea9110b4cda43a2aa41828dba9a5.min.css",72
+"2026-08-16T12:51:24Z","path","/site_libs/bootstrap/bootstrap-icons.css",47
+"2026-08-16T12:51:24Z","path","/site_libs/bootstrap/bootstrap-icons.woff",54
+"2026-08-16T12:51:24Z","path","/site_libs/bootstrap/bootstrap.min.js",67
+"2026-08-16T12:51:24Z","path","/site_libs/bootstrap/site_libs/bootstrap/log/mapping-detection-mitre-attack/log/framework-adversary-engagement/log/high-fidelity-nrd-detections/yolo-with-claude-code/site_libs/quarto-nav/static/images/framework-adversary-engagement/quarto-html/tabsets/static/images/yolo-with-claude-code/static/images/review-virtual-honeypots/yolo-with-claude-code/quarto-nav/log-health-monitoring/detection-as-code-then-what/bootstrap/prepare-your-soc-for-ai/framework-adversary-engagement/og-framework-adversary-engagement.webp",30
+"2026-08-16T12:51:24Z","path","/site_libs/bootstrap/site_libs/quarto-listing/log/python-logging-syslog-macos/log/high-fidelity-nrd-detections/static/images/log/lantana-2-data-pipeline/patchbay-engineering-with-ai/site_libs/quarto-nav/framework-adversary-engagement/quarto-html/tabsets/migrating-to-quarto/framework-adversary-engagement/lantana-1-honeypot-as-code/static/images/static/images/review-virtual-honeypots/soar-playbooks-scripts/bootstrap/detection-as-code-then-what/log-health-monitoring/favicon.ico",30
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-diagram/mermaid-init.js",36
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-diagram/mermaid.css",60
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-diagram/mermaid.min.js",36
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-diagram/static/images/log/productivity-unleashed/site_libs/bootstrap/site_libs/bootstrap/quarto-html/tabsets/quarto-html/quarto-html/log/burn-after-writing/static/images/log/burn-after-writing/patchbay-engineering-with-ai/lantana-2-data-pipeline/ai-first-software-development/prepare-your-soc-for-ai/static/images/favicon.ico",40
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-diagram/static/images/site_libs/bootstrap/site_libs/clipboard/log/git-submodulos-tutorial/static/images/static/images/log/framework-adversary-engagement/log/patchbay-engineering-with-ai/quarto-html/tabsets/yolo-with-claude-code/lantana-3-lessons-and-output/burn-after-writing/quarto-nav/about.html",40
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-html/anchor.min.js",60
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-html/popper.min.js",79
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-7160f7188b449a80f25b7e815ff94f16.css",54
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-dark-a4f2a875fd325d46ed629d605933fdb7.css",63
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-html/quarto.js",62
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-html/tabsets/tabsets.js",55
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-html/tippy.css",59
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-html/tippy.umd.min.js",88
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-nav/headroom.min.js",59
+"2026-08-16T12:51:24Z","path","/site_libs/quarto-nav/quarto-nav.js",69
+"2026-08-16T12:51:24Z","path","/site_libs/revealjs/plugin/notes/log/zola-theme-creation/static/images/site_libs/quarto-nav/static/images/static/images/site_libs/quarto-nav/log/lantana-1-honeypot-as-code/clipboard/bootstrap/log/lantana-2-data-pipeline/burn-after-writing/review-intrusion-detection-honeypots/log-health-monitoring/burn-after-writing/index.xml",30
+"2026-08-16T12:51:24Z","path","/site_libs/revealjs/plugin/notes/static/images/static/images/site_libs/quarto-html/log/blogging-freedom-web/log/lantana-3-lessons-and-output/log/burn-after-writing/lantana-2-data-pipeline/burn-after-writing/review-intrusion-detection-honeypots/static/images/site_libs/bootstrap/index.html",30
+"2026-08-16T12:51:24Z","path","/sitemap.xml",34
+"2026-08-16T12:51:24Z","path","/static/images/og-home.webp",55
+"2026-08-16T12:51:24Z","user_agent","(unverified)",1533
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",144
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Linux; Android 7.0;) AppleWebKit/537.36 (HTML, like Gecko) Mobile Safari/537.36 (compatible; PetalBot;+https://webmaster.petalsearch.com/site/petalbot)",175
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:147.0) Gecko/20100101 Firefox/147.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",277
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",156
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",1497770
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",25116
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",396
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",846
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",139
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.141 Safari/537.36",502746
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",423
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",138
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",475
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",59098
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",2994
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",325
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0",1919
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",326
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",246
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",253
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",266
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",6413
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (compatible; AffsignalCrawler/1.0; +https://affsignal.com/bot)",162
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (compatible; DotBot/1.2; +https://opensiteexplorer.org/dotbot; help@moz.com)",244
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)",1588
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (compatible; SERankingBacklinksBot/1.0; +https://seranking.com/backlinks-crawler)",8976
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",13748
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",155
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (compatible; YandexRenderResourcesBot/1.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",1262
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",163
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [LinkedInApp]/9.32.2755",169
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36",20868
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.4; +https://openai.com/gptbot)",327147
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",65324
+"2026-08-16T12:51:24Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/136.0.0.0 Safari/537.36 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",2258
+"2026-08-16T12:51:24Z","user_agent","Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",1694
+"2026-08-16T12:51:24Z","user_agent","YisouSpider",2611
+"2026-08-16T12:51:24Z","user_agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",340
+"2026-08-16T12:51:24Z","user_agent","nginx-ssl early hints",95248
+"2026-08-16T12:51:24Z","verified_bot","(unverified)",2188994
+"2026-08-16T12:51:24Z","verified_bot","AI Assistant",16
+"2026-08-16T12:51:24Z","verified_bot","AI Crawler",443409
+"2026-08-16T12:51:24Z","verified_bot","AI Search",359
+"2026-08-16T12:51:24Z","verified_bot","Page Preview",354
+"2026-08-16T12:51:24Z","verified_bot","Search Engine Crawler",69364
+"2026-08-16T12:51:24Z","verified_bot","Search Engine Optimization",15128
+"2026-08-16T12:51:24Z","verified_bot","Security",27
+"2026-08-16T12:51:24Z","verified_bot","Webhooks",12
+"2026-08-17T21:34:29Z","country","AE",6581
+"2026-08-17T21:34:29Z","country","AR",17217
+"2026-08-17T21:34:29Z","country","AZ",4405
+"2026-08-17T21:34:29Z","country","BD",20947
+"2026-08-17T21:34:29Z","country","BR",98114
+"2026-08-17T21:34:29Z","country","CL",7646
+"2026-08-17T21:34:29Z","country","CN",932891
+"2026-08-17T21:34:29Z","country","CO",12394
+"2026-08-17T21:34:29Z","country","DE",30359
+"2026-08-17T21:34:29Z","country","EC",6140
+"2026-08-17T21:34:29Z","country","FR",7473
+"2026-08-17T21:34:29Z","country","ID",6558
+"2026-08-17T21:34:29Z","country","IN",13711
+"2026-08-17T21:34:29Z","country","IQ",7899
+"2026-08-17T21:34:29Z","country","KE",5179
+"2026-08-17T21:34:29Z","country","MA",6258
+"2026-08-17T21:34:29Z","country","MX",16781
+"2026-08-17T21:34:29Z","country","NG",4886
+"2026-08-17T21:34:29Z","country","PH",4389
+"2026-08-17T21:34:29Z","country","PK",17173
+"2026-08-17T21:34:29Z","country","RU",10062
+"2026-08-17T21:34:29Z","country","SA",5903
+"2026-08-17T21:34:29Z","country","SG",1512571
+"2026-08-17T21:34:29Z","country","TH",4612
+"2026-08-17T21:34:29Z","country","UA",18087
+"2026-08-17T21:34:29Z","country","US",386148
+"2026-08-17T21:34:29Z","country","UZ",6765
+"2026-08-17T21:34:29Z","country","VE",8604
+"2026-08-17T21:34:29Z","country","VN",28477
+"2026-08-17T21:34:29Z","country","ZA",12439
+"2026-08-17T21:34:29Z","path","/",751
+"2026-08-17T21:34:29Z","path","//static/images/favicon.ico",78
+"2026-08-17T21:34:29Z","path","/cdn-cgi/challenge-platform/h/g/scripts/jsd/aae2b9a1c261/main.js",1306
+"2026-08-17T21:34:29Z","path","/cdn-cgi/challenge-platform/h/g/scripts/precursor/aae2b9a1c261/main.js",50
+"2026-08-17T21:34:29Z","path","/cdn-cgi/challenge-platform/scripts/jsd/main.js",29323
+"2026-08-17T21:34:29Z","path","/cdn-cgi/challenge-platform/scripts/precursor/main.js",52
+"2026-08-17T21:34:29Z","path","/cdn-cgi/rum",126297
+"2026-08-17T21:34:29Z","path","/cdn-cgi/speculation",92229
+"2026-08-17T21:34:29Z","path","/favicon.ico",52
+"2026-08-17T21:34:29Z","path","/index.xml",44
+"2026-08-17T21:34:29Z","path","/log/log-health-monitoring/",41
+"2026-08-17T21:34:29Z","path","/log/prepare-your-soc-for-ai/",110
+"2026-08-17T21:34:29Z","path","/log/prepare-your-soc-for-ai/listings.json",49
+"2026-08-17T21:34:29Z","path","/robots.txt",321
+"2026-08-17T21:34:29Z","path","/site_libs/bootstrap/bootstrap-dark-ce3333e35befaa3f39cce968a1c48071.min.css",64
+"2026-08-17T21:34:29Z","path","/site_libs/bootstrap/bootstrap-df11ea9110b4cda43a2aa41828dba9a5.min.css",70
+"2026-08-17T21:34:29Z","path","/site_libs/bootstrap/bootstrap-icons.css",78
+"2026-08-17T21:34:29Z","path","/site_libs/bootstrap/bootstrap.min.js",47
+"2026-08-17T21:34:29Z","path","/site_libs/clipboard/clipboard.min.js",80
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-diagram/log/portfolio-tracker-v4/log/log-health-monitoring/static/images/site_libs/bootstrap/log/lantana-2-data-pipeline/yolo-with-claude-code/site_libs/quarto-html/bootstrap/lantana-1-honeypot-as-code/static/images/static/images/adversary-engagement-101/favicon.ico",40
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-diagram/mermaid-init.js",42
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-diagram/mermaid.min.js",58
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-diagram/static/images/log/review-git-for-teams/log/detection-as-code-then-what/site_libs/bootstrap/site_libs/clipboard/static/images/quarto-listing/log/framework-adversary-engagement/burn-after-writing/ai-first-software-development/quarto-html/quarto-nav/quarto-html/quarto-html/log-health-monitoring/lantana-1-honeypot-as-code/soar-playbooks-scripts/bootstrap/static/images/adversary-engagement-101/index.xml",40
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-html/anchor.min.js",50
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-html/popper.min.js",78
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-7160f7188b449a80f25b7e815ff94f16.css",53
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-dark-a4f2a875fd325d46ed629d605933fdb7.css",62
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-html/quarto.js",56
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-html/tabsets/tabsets.js",45
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-html/tippy.css",60
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-html/tippy.umd.min.js",53
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-nav/headroom.min.js",67
+"2026-08-17T21:34:29Z","path","/site_libs/quarto-nav/quarto-nav.js",58
+"2026-08-17T21:34:29Z","path","/site_libs/revealjs/dist/log/detect-or-not-strategy/log/detection-as-code-then-what/log/high-fidelity-nrd-detections/site_libs/quarto-nav/site_libs/quarto-listing/lantana-2-data-pipeline/patchbay-engineering-with-ai/static/images/static/images/yolo-with-claude-code/bootstrap/bootstrap/static/images/review-virtual-honeypots/ai-first-software-development/quarto-listing/quarto-html/quarto-html/tabsets/lantana-1-honeypot-as-code/favicon.ico",40
+"2026-08-17T21:34:29Z","path","/sitemap.xml",45
+"2026-08-17T21:34:29Z","path","/static/images/og-home.webp",64
+"2026-08-17T21:34:29Z","path","/web/log/lantana-2-data-pipeline/log/comptia-security-plus-guide/log/nebula-2-wazuh-detection/log/python-syslog-log-forwarding/about.html",40
+"2026-08-17T21:34:29Z","path","/wp-admin/index.php",730
+"2026-08-17T21:34:29Z","path","/wp-includes/SimplePie/index.php",45
+"2026-08-17T21:34:29Z","path","/wp-login.php",765
+"2026-08-17T21:34:29Z","user_agent","(unverified)",1156
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",312
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; https://bytedance.sg.larkoffice.com/docx/K5bxdypulop3IIxrJb0lOjLVgFe)",163
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; https://zhanzhang.toutiao.com/)",122
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.7871.186 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",133
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Linux; Android 7.0;) AppleWebKit/537.36 (HTML, like Gecko) Mobile Safari/537.36 (compatible; PetalBot;+https://webmaster.petalsearch.com/site/petalbot)",174
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",131
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",1863173
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",5383
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",268
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",5456
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",3005
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.141 Safari/537.36",878002
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",143
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",105
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",10369
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",740
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",177
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0",137
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",255
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",230
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",1129
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0",334
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (compatible; Barkrowler/0.9; +https://babbar.tech/crawler)",1599
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (compatible; DotBot/1.2; +https://opensiteexplorer.org/dotbot; help@moz.com)",156
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)",2863
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (compatible; SERankingBacklinksBot/1.0; +https://seranking.com/backlinks-crawler)",27749
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",13683
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (compatible; YandexRenderResourcesBot/1.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",798
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (compatible; crawler)",123
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",153
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36",2572
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.4; +https://openai.com/gptbot)",221448
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",72836
+"2026-08-17T21:34:29Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/136.0.0.0 Safari/537.36 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",9825
+"2026-08-17T21:34:29Z","user_agent","Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",1600
+"2026-08-17T21:34:29Z","user_agent","TokenFoundryBot/1.0 (TFBot@service.alibaba.com)",190
+"2026-08-17T21:34:29Z","user_agent","YisouSpider",2932
+"2026-08-17T21:34:29Z","user_agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",353
+"2026-08-17T21:34:29Z","user_agent","nginx-ssl early hints",141652
+"2026-08-17T21:34:29Z","verified_bot","(unverified)",3001765
+"2026-08-17T21:34:29Z","verified_bot","AI Assistant",14
+"2026-08-17T21:34:29Z","verified_bot","AI Crawler",242152
+"2026-08-17T21:34:29Z","verified_bot","AI Search",5456
+"2026-08-17T21:34:29Z","verified_bot","Feed Fetcher",3
+"2026-08-17T21:34:29Z","verified_bot","Page Preview",382
+"2026-08-17T21:34:29Z","verified_bot","Search Engine Crawler",84113
+"2026-08-17T21:34:29Z","verified_bot","Search Engine Optimization",17630
+"2026-08-17T21:34:29Z","verified_bot","Security",342
+"2026-08-17T21:34:29Z","verified_bot","Webhooks",13
+"2026-08-18T09:08:33Z","country","AE",7329
+"2026-08-18T09:08:33Z","country","AR",22221
+"2026-08-18T09:08:33Z","country","AZ",5722
+"2026-08-18T09:08:33Z","country","BD",19921
+"2026-08-18T09:08:33Z","country","BR",100663
+"2026-08-18T09:08:33Z","country","CL",9581
+"2026-08-18T09:08:33Z","country","CN",572509
+"2026-08-18T09:08:33Z","country","CO",16103
+"2026-08-18T09:08:33Z","country","DE",18210
+"2026-08-18T09:08:33Z","country","EC",8262
+"2026-08-18T09:08:33Z","country","FR",9140
+"2026-08-18T09:08:33Z","country","ID",6765
+"2026-08-18T09:08:33Z","country","IN",13371
+"2026-08-18T09:08:33Z","country","IQ",9682
+"2026-08-18T09:08:33Z","country","KE",6497
+"2026-08-18T09:08:33Z","country","KZ",5374
+"2026-08-18T09:08:33Z","country","MA",7902
+"2026-08-18T09:08:33Z","country","MX",19607
+"2026-08-18T09:08:33Z","country","NG",6475
+"2026-08-18T09:08:33Z","country","PK",23029
+"2026-08-18T09:08:33Z","country","RU",15938
+"2026-08-18T09:08:33Z","country","SA",6983
+"2026-08-18T09:08:33Z","country","SG",1083136
+"2026-08-18T09:08:33Z","country","TN",5199
+"2026-08-18T09:08:33Z","country","UA",27461
+"2026-08-18T09:08:33Z","country","US",161163
+"2026-08-18T09:08:33Z","country","UZ",9383
+"2026-08-18T09:08:33Z","country","VE",10631
+"2026-08-18T09:08:33Z","country","VN",29683
+"2026-08-18T09:08:33Z","country","ZA",16050
+"2026-08-18T09:08:33Z","path","/",747
+"2026-08-18T09:08:33Z","path","//static/images/favicon.ico",86
+"2026-08-18T09:08:33Z","path","/atom.xml",33
+"2026-08-18T09:08:33Z","path","/cdn-cgi/challenge-platform/h/g/scripts/jsd/aae2b9a1c261/main.js",1595
+"2026-08-18T09:08:33Z","path","/cdn-cgi/challenge-platform/h/g/scripts/precursor/aae2b9a1c261/main.js",72
+"2026-08-18T09:08:33Z","path","/cdn-cgi/challenge-platform/scripts/jsd/main.js",17805
+"2026-08-18T09:08:33Z","path","/cdn-cgi/challenge-platform/scripts/precursor/main.js",72
+"2026-08-18T09:08:33Z","path","/cdn-cgi/rum",219548
+"2026-08-18T09:08:33Z","path","/cdn-cgi/speculation",126522
+"2026-08-18T09:08:33Z","path","/favicon.ico",90
+"2026-08-18T09:08:33Z","path","/index.xml",48
+"2026-08-18T09:08:33Z","path","/log/log-health-monitoring/",40
+"2026-08-18T09:08:33Z","path","/log/prepare-your-soc-for-ai/",71
+"2026-08-18T09:08:33Z","path","/log/prepare-your-soc-for-ai/listings.json",39
+"2026-08-18T09:08:33Z","path","/log/prepare-your-soc-for-ai/og-prepare-your-soc-for-ai.webp",44
+"2026-08-18T09:08:33Z","path","/robots.txt",361
+"2026-08-18T09:08:33Z","path","/site_libs/bootstrap/bootstrap-dark-ce3333e35befaa3f39cce968a1c48071.min.css",40777
+"2026-08-18T09:08:33Z","path","/site_libs/bootstrap/bootstrap-df11ea9110b4cda43a2aa41828dba9a5.min.css",848
+"2026-08-18T09:08:33Z","path","/site_libs/bootstrap/bootstrap-icons.css",845
+"2026-08-18T09:08:33Z","path","/site_libs/bootstrap/bootstrap-icons.woff",730
+"2026-08-18T09:08:33Z","path","/site_libs/bootstrap/bootstrap.min.js",857
+"2026-08-18T09:08:33Z","path","/site_libs/clipboard/clipboard.min.js",872
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-diagram/mermaid-init.js",38
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-diagram/mermaid.min.js",41
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-diagram/static/images/log/review-git-for-teams/log/detection-as-code-then-what/site_libs/bootstrap/site_libs/clipboard/static/images/quarto-listing/log/framework-adversary-engagement/burn-after-writing/ai-first-software-development/quarto-html/quarto-nav/quarto-html/quarto-html/log-health-monitoring/lantana-1-honeypot-as-code/bootstrap/adversary-engagement-101/index.xml",40
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-diagram/static/images/log/review-git-for-teams/log/detection-as-code-then-what/site_libs/bootstrap/site_libs/clipboard/static/images/quarto-listing/log/framework-adversary-engagement/burn-after-writing/ai-first-software-development/quarto-html/quarto-nav/quarto-html/quarto-html/log-health-monitoring/lantana-1-honeypot-as-code/soar-playbooks-scripts/bootstrap/static/images/adversary-engagement-101/index.xml",40
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-html/anchor.min.js",855
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-html/popper.min.js",21154
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-7160f7188b449a80f25b7e815ff94f16.css",870
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-dark-a4f2a875fd325d46ed629d605933fdb7.css",875
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-html/quarto.js",821
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-html/tabsets/tabsets.js",807
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-html/tippy.css",792
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-html/tippy.umd.min.js",831
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-nav/headroom.min.js",4781
+"2026-08-18T09:08:33Z","path","/site_libs/quarto-nav/quarto-nav.js",797
+"2026-08-18T09:08:33Z","path","/sitemap.xml",41
+"2026-08-18T09:08:33Z","path","/web/log/lantana-2-data-pipeline/log/comptia-security-plus-guide/log/nebula-2-wazuh-detection/log/python-syslog-log-forwarding/about.html",40
+"2026-08-18T09:08:33Z","path","/wp-admin/index.php",730
+"2026-08-18T09:08:33Z","path","/wp-login.php",780
+"2026-08-18T09:08:33Z","user_agent","(unverified)",600
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Mobile Safari/537.36",157
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; https://bytedance.sg.larkoffice.com/docx/K5bxdypulop3IIxrJb0lOjLVgFe)",109
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Linux; Android 7.0;) AppleWebKit/537.36 (HTML, like Gecko) Mobile Safari/537.36 (compatible; PetalBot;+https://webmaster.petalsearch.com/site/petalbot)",145
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",131
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",1525029
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",459
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",291
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",235
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",3675
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",101
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",2219
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.141 Safari/537.36",518895
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",885
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",154
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",114
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",146
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36 Edg/151.0.0.0",85
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",390
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",136
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",99
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0",399
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (compatible; Barkrowler/0.9; +https://babbar.tech/crawler)",1599
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (compatible; DotBot/1.2; +https://opensiteexplorer.org/dotbot; help@moz.com)",232
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)",3209
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (compatible; SERankingBacklinksBot/1.0; +https://seranking.com/backlinks-crawler)",15051
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",13535
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",110
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (compatible; YandexRenderResourcesBot/1.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",316
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (compatible; crawler)",298
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",153
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Amazonbot/0.1; +https://developer.amazon.com/support/amazonbot) Chrome/119.0.6045.214 Safari/537.36",173
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.4; +https://openai.com/gptbot)",63553
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",49248
+"2026-08-18T09:08:33Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/136.0.0.0 Safari/537.36 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",3371
+"2026-08-18T09:08:33Z","user_agent","Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",1248
+"2026-08-18T09:08:33Z","user_agent","TokenFoundryBot/1.0 (TFBot@service.alibaba.com)",228
+"2026-08-18T09:08:33Z","user_agent","YisouSpider",2635
+"2026-08-18T09:08:33Z","user_agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",353
+"2026-08-18T09:08:33Z","user_agent","nginx-ssl early hints",161753
+"2026-08-18T09:08:33Z","verified_bot","(unverified)",2267971
+"2026-08-18T09:08:33Z","verified_bot","AI Assistant",11
+"2026-08-18T09:08:33Z","verified_bot","AI Crawler",65433
+"2026-08-18T09:08:33Z","verified_bot","AI Search",3676
+"2026-08-18T09:08:33Z","verified_bot","Page Preview",376
+"2026-08-18T09:08:33Z","verified_bot","Search Engine Crawler",53421
+"2026-08-18T09:08:33Z","verified_bot","Search Engine Optimization",18297
+"2026-08-18T09:08:33Z","verified_bot","Security",258
+"2026-08-18T09:08:33Z","verified_bot","Webhooks",14
+"2026-08-19T10:38:04Z","country","AR",67707
+"2026-08-19T10:38:04Z","country","BD",27000
+"2026-08-19T10:38:04Z","country","BO",9788
+"2026-08-19T10:38:04Z","country","BR",342582
+"2026-08-19T10:38:04Z","country","CL",30443
+"2026-08-19T10:38:04Z","country","CN",94665
+"2026-08-19T10:38:04Z","country","CO",53357
+"2026-08-19T10:38:04Z","country","EC",27026
+"2026-08-19T10:38:04Z","country","FR",9165
+"2026-08-19T10:38:04Z","country","ID",9445
+"2026-08-19T10:38:04Z","country","IN",16323
+"2026-08-19T10:38:04Z","country","IQ",15030
+"2026-08-19T10:38:04Z","country","IT",13590
+"2026-08-19T10:38:04Z","country","KE",9900
+"2026-08-19T10:38:04Z","country","MA",13088
+"2026-08-19T10:38:04Z","country","MX",45181
+"2026-08-19T10:38:04Z","country","NG",8621
+"2026-08-19T10:38:04Z","country","PE",16808
+"2026-08-19T10:38:04Z","country","PK",32926
+"2026-08-19T10:38:04Z","country","PT",16400
+"2026-08-19T10:38:04Z","country","PY",13548
+"2026-08-19T10:38:04Z","country","RU",34309
+"2026-08-19T10:38:04Z","country","SA",10874
+"2026-08-19T10:38:04Z","country","SG",207857
+"2026-08-19T10:38:04Z","country","UA",54815
+"2026-08-19T10:38:04Z","country","US",555493
+"2026-08-19T10:38:04Z","country","UZ",14554
+"2026-08-19T10:38:04Z","country","VE",25178
+"2026-08-19T10:38:04Z","country","VN",40236
+"2026-08-19T10:38:04Z","country","ZA",23362
+"2026-08-19T10:38:04Z","path","/",796
+"2026-08-19T10:38:04Z","path","//static/images/favicon.ico",67
+"2026-08-19T10:38:04Z","path","/admin.php",48
+"2026-08-19T10:38:04Z","path","/cdn-cgi/challenge-platform/h/g/scripts/jsd/aae2b9a1c261/main.js",1672
+"2026-08-19T10:38:04Z","path","/cdn-cgi/challenge-platform/h/g/scripts/precursor/aae2b9a1c261/main.js",54
+"2026-08-19T10:38:04Z","path","/cdn-cgi/challenge-platform/scripts/jsd/main.js",1945
+"2026-08-19T10:38:04Z","path","/cdn-cgi/challenge-platform/scripts/precursor/main.js",56
+"2026-08-19T10:38:04Z","path","/cdn-cgi/rum",304799
+"2026-08-19T10:38:04Z","path","/cdn-cgi/speculation",152349
+"2026-08-19T10:38:04Z","path","/favicon.ico",76
+"2026-08-19T10:38:04Z","path","/file.php",44
+"2026-08-19T10:38:04Z","path","/index.xml",48
+"2026-08-19T10:38:04Z","path","/log/adversary-engagement-101/og-adversary-engagement-101.webp",33
+"2026-08-19T10:38:04Z","path","/log/lantana-2-data-pipeline/",32
+"2026-08-19T10:38:04Z","path","/log/prepare-your-soc-for-ai/",52
+"2026-08-19T10:38:04Z","path","/log/prepare-your-soc-for-ai/og-prepare-your-soc-for-ai.webp",33
+"2026-08-19T10:38:04Z","path","/robots.txt",312
+"2026-08-19T10:38:04Z","path","/site_libs/bootstrap/bootstrap-dark-ce3333e35befaa3f39cce968a1c48071.min.css",22396
+"2026-08-19T10:38:04Z","path","/site_libs/bootstrap/bootstrap-df11ea9110b4cda43a2aa41828dba9a5.min.css",1613
+"2026-08-19T10:38:04Z","path","/site_libs/bootstrap/bootstrap-icons.css",1569
+"2026-08-19T10:38:04Z","path","/site_libs/bootstrap/bootstrap-icons.woff",1638
+"2026-08-19T10:38:04Z","path","/site_libs/bootstrap/bootstrap.min.js",1695
+"2026-08-19T10:38:04Z","path","/site_libs/clipboard/clipboard.min.js",1603
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-diagram/mermaid-init.js",32
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-html/anchor.min.js",1676
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-html/popper.min.js",4362
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-7160f7188b449a80f25b7e815ff94f16.css",1697
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-dark-a4f2a875fd325d46ed629d605933fdb7.css",1635
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-html/quarto.js",1665
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-html/tabsets/tabsets.js",1616
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-html/tippy.css",1577
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-html/tippy.umd.min.js",1703
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-listing/quarto-listing.js",39
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-nav/headroom.min.js",4395
+"2026-08-19T10:38:04Z","path","/site_libs/quarto-nav/quarto-nav.js",1628
+"2026-08-19T10:38:04Z","path","/sitemap.xml",44
+"2026-08-19T10:38:04Z","path","/static/images/og-home.webp",104
+"2026-08-19T10:38:04Z","path","/ty.php",32
+"2026-08-19T10:38:04Z","path","/wmore1.php",33
+"2026-08-19T10:38:04Z","path","/yj09.php",38
+"2026-08-19T10:38:04Z","user_agent","(unverified)",2789
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; https://bytedance.sg.larkoffice.com/docx/K5bxdypulop3IIxrJb0lOjLVgFe)",145
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Linux; Android 7.0;) AppleWebKit/537.36 (HTML, like Gecko) Mobile Safari/537.36 (compatible; PetalBot;+https://webmaster.petalsearch.com/site/petalbot)",90
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Linux; Android 8.1.0; moto e5 play) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36",200
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0",70
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",1473
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",816439
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",132
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",469721
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",125
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",265
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",687
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",2611
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.141 Safari/537.36",26182
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",228
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",250
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",423
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",117
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",75
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",480
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",647
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; DotBot/1.2; +https://opensiteexplorer.org/dotbot; help@moz.com)",501
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)",1908
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; MSIE 5.0; Windows NT 10.0; Trident/4.1)",67
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; MSIE 6.0; Windows NT 4.0; Trident/4.0)",68
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; MSIE 6.0; Windows NT 6.0; Trident/5.1)",76
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/3.0)",76
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; MSIE 9.0; Windows 98; Win 9x 4.90; Trident/3.0)",75
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",13606
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",138
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (compatible; crawler)",178
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",185
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)",214
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)",2725
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",57567
+"2026-08-19T10:38:04Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/136.0.0.0 Safari/537.36 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",790
+"2026-08-19T10:38:04Z","user_agent","Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",2167
+"2026-08-19T10:38:04Z","user_agent","YisouSpider",2899
+"2026-08-19T10:38:04Z","user_agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",305
+"2026-08-19T10:38:04Z","user_agent","nginx-ssl early hints",642484
+"2026-08-19T10:38:04Z","verified_bot","(unverified)",2052773
+"2026-08-19T10:38:04Z","verified_bot","AI Assistant",14
+"2026-08-19T10:38:04Z","verified_bot","AI Crawler",577
+"2026-08-19T10:38:04Z","verified_bot","AI Search",685
+"2026-08-19T10:38:04Z","verified_bot","Page Preview",328
+"2026-08-19T10:38:04Z","verified_bot","Search Engine Crawler",58644
+"2026-08-19T10:38:04Z","verified_bot","Search Engine Optimization",15112
+"2026-08-19T10:38:04Z","verified_bot","Security",134
+"2026-08-19T10:38:04Z","verified_bot","Webhooks",14
+"2026-08-21T11:56:36Z","country","AE",5196
+"2026-08-21T11:56:36Z","country","AR",16735
+"2026-08-21T11:56:36Z","country","BD",15942
+"2026-08-21T11:56:36Z","country","BR",70257
+"2026-08-21T11:56:36Z","country","CL",8008
+"2026-08-21T11:56:36Z","country","CN",56717
+"2026-08-21T11:56:36Z","country","CO",11089
+"2026-08-21T11:56:36Z","country","DZ",4390
+"2026-08-21T11:56:36Z","country","EC",5377
+"2026-08-21T11:56:36Z","country","FR",9044
+"2026-08-21T11:56:36Z","country","ID",6189
+"2026-08-21T11:56:36Z","country","IN",10540
+"2026-08-21T11:56:36Z","country","IQ",9706
+"2026-08-21T11:56:36Z","country","KE",5940
+"2026-08-21T11:56:36Z","country","KZ",3961
+"2026-08-21T11:56:36Z","country","MA",7546
+"2026-08-21T11:56:36Z","country","MX",16752
+"2026-08-21T11:56:36Z","country","NG",5639
+"2026-08-21T11:56:36Z","country","PE",3927
+"2026-08-21T11:56:36Z","country","PK",21926
+"2026-08-21T11:56:36Z","country","RU",19114
+"2026-08-21T11:56:36Z","country","SA",7054
+"2026-08-21T11:56:36Z","country","SG",123861
+"2026-08-21T11:56:36Z","country","TN",5601
+"2026-08-21T11:56:36Z","country","UA",32479
+"2026-08-21T11:56:36Z","country","US",92519
+"2026-08-21T11:56:36Z","country","UZ",9302
+"2026-08-21T11:56:36Z","country","VE",8863
+"2026-08-21T11:56:36Z","country","VN",24398
+"2026-08-21T11:56:36Z","country","ZA",13733
+"2026-08-21T11:56:36Z","path","/",696
+"2026-08-21T11:56:36Z","path","//static/images/favicon.ico",73
+"2026-08-21T11:56:36Z","path","/1.php",44
+"2026-08-21T11:56:36Z","path","/atom.xml",32
+"2026-08-21T11:56:36Z","path","/autoload_classmap.php",31
+"2026-08-21T11:56:36Z","path","/cdn-cgi/challenge-platform/h/g/precursor/aae2b9a1c261/0.42776218576687475:1787256309:QF2KTl1JPvw4EQRxwbZXrasOkjsrbHyztW_O8zJjPsY/a2e42ec17a57e407",31
+"2026-08-21T11:56:36Z","path","/cdn-cgi/challenge-platform/h/g/scripts/jsd/aae2b9a1c261/main.js",1538
+"2026-08-21T11:56:36Z","path","/cdn-cgi/challenge-platform/h/g/scripts/precursor/aae2b9a1c261/main.js",63
+"2026-08-21T11:56:36Z","path","/cdn-cgi/challenge-platform/scripts/jsd/main.js",1615
+"2026-08-21T11:56:36Z","path","/cdn-cgi/challenge-platform/scripts/precursor/main.js",66
+"2026-08-21T11:56:36Z","path","/cdn-cgi/rum",187615
+"2026-08-21T11:56:36Z","path","/cdn-cgi/speculation",94857
+"2026-08-21T11:56:36Z","path","/dashboard",48
+"2026-08-21T11:56:36Z","path","/favicon.ico",38
+"2026-08-21T11:56:36Z","path","/index.html",31
+"2026-08-21T11:56:36Z","path","/index.xml",34
+"2026-08-21T11:56:36Z","path","/info.php",36
+"2026-08-21T11:56:36Z","path","/k.php",41
+"2026-08-21T11:56:36Z","path","/log/patchbay-engineering-with-ai/index.html",31
+"2026-08-21T11:56:36Z","path","/log/portfolio-tracker-v4/",34
+"2026-08-21T11:56:36Z","path","/log/prepare-your-soc-for-ai/",59
+"2026-08-21T11:56:36Z","path","/log/prepare-your-soc-for-ai/og-prepare-your-soc-for-ai.webp",53
+"2026-08-21T11:56:36Z","path","/robots.txt",301
+"2026-08-21T11:56:36Z","path","/site_libs/bootstrap/bootstrap-dark-ce3333e35befaa3f39cce968a1c48071.min.css",1697
+"2026-08-21T11:56:36Z","path","/site_libs/bootstrap/bootstrap-df11ea9110b4cda43a2aa41828dba9a5.min.css",1616
+"2026-08-21T11:56:36Z","path","/site_libs/bootstrap/bootstrap-icons.css",1598
+"2026-08-21T11:56:36Z","path","/site_libs/bootstrap/bootstrap-icons.woff",1549
+"2026-08-21T11:56:36Z","path","/site_libs/bootstrap/bootstrap.min.js",1660
+"2026-08-21T11:56:36Z","path","/site_libs/clipboard/clipboard.min.js",1641
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-html/anchor.min.js",1561
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-html/popper.min.js",1668
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-7160f7188b449a80f25b7e815ff94f16.css",1786
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-dark-a4f2a875fd325d46ed629d605933fdb7.css",1584
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-html/quarto.js",1700
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-html/tabsets/tabsets.js",1587
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-html/tippy.css",1666
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-html/tippy.umd.min.js",1635
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-nav/headroom.min.js",1673
+"2026-08-21T11:56:36Z","path","/site_libs/quarto-nav/quarto-nav.js",1656
+"2026-08-21T11:56:36Z","path","/wp-content/themes/index.php",29
+"2026-08-21T11:56:36Z","user_agent","(unverified)",2730
+"2026-08-21T11:56:36Z","user_agent","Go-http-client/2.0",420
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; https://bytedance.sg.larkoffice.com/docx/K5bxdypulop3IIxrJb0lOjLVgFe)",98
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Linux; Android 7.0;) AppleWebKit/537.36 (HTML, like Gecko) Mobile Safari/537.36 (compatible; PetalBot;+https://webmaster.petalsearch.com/site/petalbot)",356
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Linux; arm_64; Android 9; ZB602KL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 YaBrowser/20.3.5.90.00 SA/1 Mobile Safari/537.36",198
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",344
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",116
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",689
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",501646
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",139
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",655
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36",1302
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",1481
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",635
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",624
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",711
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",668
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",629
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",183
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",625
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",383
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",147
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",179
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",8442
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",28223
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (compatible; Barkrowler/0.9; +https://babbar.tech/crawler)",306
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (compatible; DotBot/1.2; +https://opensiteexplorer.org/dotbot; help@moz.com)",222
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)",4054
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",13716
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",355
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",291
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",182
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 26_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/152.0.7977.40 Mobile/15E148 Safari/604.1",101
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)",495
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)",10788
+"2026-08-21T11:56:36Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",30062
+"2026-08-21T11:56:36Z","user_agent","Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",756
+"2026-08-21T11:56:36Z","user_agent","YisouSpider",2169
+"2026-08-21T11:56:36Z","user_agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",315
+"2026-08-21T11:56:36Z","user_agent","nginx-ssl early hints",112514
+"2026-08-21T11:56:36Z","verified_bot","(unverified)",687415
+"2026-08-21T11:56:36Z","verified_bot","AI Assistant",7
+"2026-08-21T11:56:36Z","verified_bot","AI Crawler",764
+"2026-08-21T11:56:36Z","verified_bot","AI Search",614
+"2026-08-21T11:56:36Z","verified_bot","Page Preview",342
+"2026-08-21T11:56:36Z","verified_bot","Search Engine Crawler",59081
+"2026-08-21T11:56:36Z","verified_bot","Search Engine Optimization",16315
+"2026-08-21T11:56:36Z","verified_bot","Security",271
+"2026-08-21T11:56:36Z","verified_bot","Webhooks",14
+"2026-08-24T12:18:33Z","country","AE",4992
+"2026-08-24T12:18:33Z","country","AR",19331
+"2026-08-24T12:18:33Z","country","BD",14266
+"2026-08-24T12:18:33Z","country","BR",84462
+"2026-08-24T12:18:33Z","country","CL",7516
+"2026-08-24T12:18:33Z","country","CN",28147
+"2026-08-24T12:18:33Z","country","CO",13069
+"2026-08-24T12:18:33Z","country","DZ",4254
+"2026-08-24T12:18:33Z","country","EC",6074
+"2026-08-24T12:18:33Z","country","EG",4283
+"2026-08-24T12:18:33Z","country","FR",15205
+"2026-08-24T12:18:33Z","country","ID",5028
+"2026-08-24T12:18:33Z","country","IN",10469
+"2026-08-24T12:18:33Z","country","IQ",10655
+"2026-08-24T12:18:33Z","country","KE",6409
+"2026-08-24T12:18:33Z","country","KZ",4071
+"2026-08-24T12:18:33Z","country","MA",8060
+"2026-08-24T12:18:33Z","country","MX",16638
+"2026-08-24T12:18:33Z","country","NG",5981
+"2026-08-24T12:18:33Z","country","PK",24291
+"2026-08-24T12:18:33Z","country","RU",8952
+"2026-08-24T12:18:33Z","country","SA",15405
+"2026-08-24T12:18:33Z","country","SG",141560
+"2026-08-24T12:18:33Z","country","TN",10350
+"2026-08-24T12:18:33Z","country","UA",12836
+"2026-08-24T12:18:33Z","country","US",51864
+"2026-08-24T12:18:33Z","country","UZ",6961
+"2026-08-24T12:18:33Z","country","VE",10092
+"2026-08-24T12:18:33Z","country","VN",23994
+"2026-08-24T12:18:33Z","country","ZA",14872
+"2026-08-24T12:18:33Z","path","/",811
+"2026-08-24T12:18:33Z","path","//static/images/favicon.ico",52
+"2026-08-24T12:18:33Z","path","//wp-9p3vdgw.php",22
+"2026-08-24T12:18:33Z","path","/2020-automating-network-management/static/images/log/gpg-update-signed-docs/log/python-logging-syslog-macos/log/arch-linux-static-ip/log/git-sign-commits-guide/index.html",22
+"2026-08-24T12:18:33Z","path","/assets/favicon-aOK6_042.ico",21
+"2026-08-24T12:18:33Z","path","/atom.xml",33
+"2026-08-24T12:18:33Z","path","/cdn-cgi/challenge-platform/h/b/scripts/jsd/e694063b5082/main.js",2157
+"2026-08-24T12:18:33Z","path","/cdn-cgi/challenge-platform/h/b/scripts/precursor/e694063b5082/main.js",52
+"2026-08-24T12:18:33Z","path","/cdn-cgi/challenge-platform/scripts/jsd/main.js",2179
+"2026-08-24T12:18:33Z","path","/cdn-cgi/challenge-platform/scripts/precursor/main.js",48
+"2026-08-24T12:18:33Z","path","/cdn-cgi/rum",201974
+"2026-08-24T12:18:33Z","path","/cdn-cgi/speculation",100994
+"2026-08-24T12:18:33Z","path","/favicon.ico",51
+"2026-08-24T12:18:33Z","path","/index.xml",37
+"2026-08-24T12:18:33Z","path","/log/cordyceps-rust-ransomware/",21
+"2026-08-24T12:18:33Z","path","/log/log-health-monitoring/",22
+"2026-08-24T12:18:33Z","path","/log/prepare-your-soc-for-ai/",41
+"2026-08-24T12:18:33Z","path","/log/project-nebula/log/actionable-detection-strategy/log/misp-chronicle-integration/log/detection-as-code-then-what/log/red-team-vs-incident-response/log/mac-minimalist-setup/log/aws-secrets-manager-scripts/index.html",22
+"2026-08-24T12:18:33Z","path","/robots.txt",278
+"2026-08-24T12:18:33Z","path","/site_libs/bootstrap/bootstrap-dark-ce3333e35befaa3f39cce968a1c48071.min.css",2270
+"2026-08-24T12:18:33Z","path","/site_libs/bootstrap/bootstrap-df11ea9110b4cda43a2aa41828dba9a5.min.css",2227
+"2026-08-24T12:18:33Z","path","/site_libs/bootstrap/bootstrap-icons.css",2196
+"2026-08-24T12:18:33Z","path","/site_libs/bootstrap/bootstrap-icons.woff",2214
+"2026-08-24T12:18:33Z","path","/site_libs/bootstrap/bootstrap.min.js",2242
+"2026-08-24T12:18:33Z","path","/site_libs/clipboard/clipboard.min.js",2202
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-html/anchor.min.js",2222
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-html/popper.min.js",2239
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-7160f7188b449a80f25b7e815ff94f16.css",2228
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-html/quarto-syntax-highlighting-dark-a4f2a875fd325d46ed629d605933fdb7.css",2224
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-html/quarto.js",2201
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-html/tabsets/tabsets.js",2221
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-html/tippy.css",2209
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-html/tippy.umd.min.js",2253
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-nav/headroom.min.js",2200
+"2026-08-24T12:18:33Z","path","/site_libs/quarto-nav/quarto-nav.js",2216
+"2026-08-24T12:18:33Z","path","/sitemap.xml",27
+"2026-08-24T12:18:33Z","path","/wp-content/index.php",24
+"2026-08-24T12:18:33Z","path","/wp-content/plugins/hellopress/wp_filemanager.php",35
+"2026-08-24T12:18:33Z","path","/wp-includes/blocks/post-author-biography/824476/index.php",20
+"2026-08-24T12:18:33Z","path","/wp-login.php",22
+"2026-08-24T12:18:33Z","user_agent","(unverified)",1427
+"2026-08-24T12:18:33Z","user_agent","FreshRSS/1.28.1 (Linux; https://freshrss.org)",52
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; https://bytedance.sg.larkoffice.com/docx/K5bxdypulop3IIxrJb0lOjLVgFe)",65
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; https://zhanzhang.toutiao.com/)",105
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Linux; Android 7.0;) AppleWebKit/537.36 (HTML, like Gecko) Mobile Safari/537.36 (compatible; PetalBot;+https://webmaster.petalsearch.com/site/petalbot)",1033
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; MI 8 Build/OPM1.171019.011) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.108 Mobile Safari/537.36",78
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",3720
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",64
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",544041
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",62
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",54
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15 (Applebot/0.1; +http://www.apple.com/go/applebot)",96
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36",1087
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",1327
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",69
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",56
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",97
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",55
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 (compatible; meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler))",100
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 Edg/145.0.0.0",53
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",101
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",646
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",509
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",51
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (compatible; AgentReadinessScanner/1.0; +https://isitagentready.com)",50
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",20453
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (compatible; Barkrowler/0.9; +https://babbar.tech/crawler)",186
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (compatible; DotBot/1.2; +https://opensiteexplorer.org/dotbot; help@moz.com)",475
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",13473
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",155
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0",73
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1",154
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 (iPhone; CPU iPhone OS 18_7_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1",59
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",284
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)",4613
+"2026-08-24T12:18:33Z","user_agent","Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/116.0.1938.76 Safari/537.36",12011
+"2026-08-24T12:18:33Z","user_agent","Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",2386
+"2026-08-24T12:18:33Z","user_agent","YisouSpider",1555
+"2026-08-24T12:18:33Z","user_agent","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",320
+"2026-08-24T12:18:33Z","user_agent","nginx-ssl early hints",109422
+"2026-08-24T12:18:33Z","verified_bot","(unverified)",673173
+"2026-08-24T12:18:33Z","verified_bot","AI Assistant",14
+"2026-08-24T12:18:33Z","verified_bot","AI Crawler",1562
+"2026-08-24T12:18:33Z","verified_bot","AI Search",93
+"2026-08-24T12:18:33Z","verified_bot","Feed Fetcher",2
+"2026-08-24T12:18:33Z","verified_bot","Page Preview",345
+"2026-08-24T12:18:33Z","verified_bot","Search Engine Crawler",32937
+"2026-08-24T12:18:33Z","verified_bot","Search Engine Optimization",14155
+"2026-08-24T12:18:33Z","verified_bot","Security",30
+"2026-08-24T12:18:33Z","verified_bot","Webhooks",12

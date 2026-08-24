@@ -1,0 +1,120 @@
+name: Infrastructure (Terraform plan and drift)
+
+# Plans only. There is deliberately no apply path and no write credential in
+# this repository: CF_RO_TOKEN cannot change the zone, and applying is done from
+# a laptop with a token that never leaves it.
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['terraform/**', '.github/workflows/infra.yml']
+  schedule:
+    # 09:00 UTC on the 1st. Drift is not urgent, but going a whole month without
+    # noticing a dashboard edit is how the previous configuration went stale.
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The provider reads this directly. It is the read-only token, so nothing this
+  # workflow does can modify the zone even if the configuration asks it to.
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CF_RO_TOKEN }}
+  # terraform.tfvars is git-ignored, so the identifiers come from secrets.
+  TF_VAR_zone_id: ${{ secrets.CF_ZONE_ID }}
+  # Reuses the account id secret that deploy.yml already relies on.
+  TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive -diff
+
+      - name: Initialise
+        run: terraform init -input=false
+
+      - name: Validate
+        run: terraform validate
+
+      - name: Plan
+        id: plan
+        # -detailed-exitcode: 0 = no changes, 2 = drift, 1 = failure. `set +e` so
+        # exit 2 is reported rather than failing the step outright.
+        run: |
+          set +e
+          terraform plan -input=false -no-color -detailed-exitcode -out=tfplan > plan.txt 2>&1
+          echo "exitcode=$?" >> "$GITHUB_OUTPUT"
+          tail -c 60000 plan.txt
+
+      - name: Comment the plan on the pull request
+        if: github.event_name == 'pull_request' && steps.plan.outputs.exitcode != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            if [ "${{ steps.plan.outputs.exitcode }}" = "0" ]; then
+              echo "### Terraform plan: no changes"
+              echo "The declared configuration matches the live zone."
+            else
+              echo "### Terraform plan: changes proposed"
+              echo "Applying is manual and local — merging this PR will not change the zone."
+            fi
+            echo
+            echo '```terraform'
+            tail -c 50000 plan.txt
+            echo '```'
+          } > comment.md
+          gh pr comment "${{ github.event.number }}" --body-file comment.md
+
+      - name: Open or update a drift issue
+        if: github.event_name != 'pull_request' && steps.plan.outputs.exitcode == '2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Cloudflare drift detected"
+          {
+            echo "\`terraform plan\` found the live zone differs from \`terraform/\`."
+            echo
+            echo "Someone changed the zone outside Terraform, or a Cloudflare default moved."
+            echo "Review, then either \`make tf-apply\` to restore the declared state or update"
+            echo "the configuration if the change was intended."
+            echo
+            echo '```terraform'
+            tail -c 50000 plan.txt
+            echo '```'
+            echo
+            echo "_Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}_"
+          } > issue.md
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file issue.md
+          else
+            gh issue create --title "$title" --body-file issue.md
+          fi
+
+      - name: Fail if the plan errored
+        if: steps.plan.outputs.exitcode == '1'
+        run: |
+          echo "terraform plan failed:" >&2
+          cat plan.txt >&2
+          exit 1
