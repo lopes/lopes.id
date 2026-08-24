@@ -68,9 +68,17 @@ monthly:  ## Full monthly check: snapshot, history, drift, live assertions
 
 ## --- infrastructure -----------------------------------------------------
 
+# Cloudflare auth is injected per target rather than exported globally: read
+# targets get CF_RO_TOKEN, and only tf-apply gets CF_RW_TOKEN. A plan therefore
+# cannot write even if the configuration asks it to.
+TF_ENV = set -a; . "$(CURDIR)/.env"; set +a; cd $(TF_DIR);
+TF_RO  = $(TF_ENV) CLOUDFLARE_API_TOKEN="$$CF_RO_TOKEN"
+TF_RW  = $(TF_ENV) CLOUDFLARE_API_TOKEN="$$CF_RW_TOKEN"
+
+
 tf-init:  ## Initialise Terraform and the HCP state backend
 	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
-	cd $(TF_DIR) && terraform init
+	$(TF_RO) terraform init
 
 tf-fmt:  ## Rewrite Terraform files into canonical format
 	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
@@ -82,15 +90,15 @@ tf-validate:  ## Check the Terraform configuration is internally valid
 
 tf-plan:  ## Show what Terraform would change on the live zone
 	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
-	cd $(TF_DIR) && terraform plan
+	$(TF_RO) terraform plan
 
 tf-apply:  ## Apply Terraform changes (needs CF_RW_TOKEN, local only)
 	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
-	cd $(TF_DIR) && terraform apply
+	$(TF_RW) terraform apply
 
 drift:  ## Report whether the live zone differs from the declared state
 	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
-	@cd $(TF_DIR) && terraform plan -detailed-exitcode -no-color > /dev/null; \
+	@$(TF_RO) terraform plan -detailed-exitcode -no-color > /dev/null; \
 	  case $$? in \
 	    0) echo "no drift — the zone matches the declared state" ;; \
 	    2) echo "DRIFT DETECTED — run 'make tf-plan' to see it"; exit 2 ;; \
