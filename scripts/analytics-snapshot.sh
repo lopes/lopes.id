@@ -51,13 +51,6 @@ fi
 for tool in curl jq; do
   command -v "$tool" >/dev/null || { echo "missing dependency: $tool" >&2; exit 1; }
 done
-# CF_RO_TOKEN replaced CF_TOKEN when Terraform arrived and the zone needed a
-# read token broader than Analytics. The fallback keeps an un-migrated .env
-# working; drop it once the old token is revoked.
-if [[ -z "${CF_RO_TOKEN:-}" && -n "${CF_TOKEN:-}" ]]; then
-  echo "note: CF_TOKEN is deprecated, rename it to CF_RO_TOKEN — see .env.example" >&2
-  CF_RO_TOKEN="$CF_TOKEN"
-fi
 : "${CF_RO_TOKEN:?not set — see .env.example}"
 : "${CF_ZONE_ID:?not set — see .env.example}"
 : "${CF_ACCOUNT_ID:?not set — see .env.example}"
