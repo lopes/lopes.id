@@ -1,0 +1,198 @@
+---
+title: "Graft 1: Detection-as-Code, Implemented"
+date: 2026-09-29
+description: "Engineering decisions behind Graft, a Detection-as-Code platform."
+categories: ["detection", "engineering"]
+image: "og-graft-1-dac-implemented.webp"
+---
+
+As a Detection Engineer, the first Detection-as-Code (DaC) project I had contact with was basically just a rule repository, nothing else. It had no way to help manage the ruleset or enforce standards. The result was all the friction of a Git workflow with only a fraction of the benefits. Some time later, I got the chance to revamp it and add the features I'd been reading about:
+
+- Decoupled validation using external schemas
+- Auxiliary scripts to export rule data for analysis
+- A cleaner rule envelope containing only fields with a clear purpose
+- A real multi-engine foundation
+
+It was a huge leap for the team, though still short of what I had in mind before other priorities took over. A few months ago, I compiled those thoughts in [Detection-as-Code, Then What?](/log/detection-as-code-then-what/), focusing on the foundations a team needs in place to unlock real management capabilities later. Recently, I finally had the time to turn those ideas into working software — and with AI's help, putting them into practice was much faster than I expected.
+
+In this two-part series, I'll walk through the result: [Graft](https://github.com/lopes/graft) 🌿. Continuing my habit of biology-inspired names, the name comes from horticultural grafting: joining a shoot from one plant onto the rootstock of another so distinct varieties grow on a single trunk. This post covers the architectural decisions behind Graft, why they matter for a DaC platform, and how **Google SecOps** fit in as the first engine. The next post will cover the AI-assisted workflow I used to build it and walk through concrete use cases.
+
+## The Envelope and Dual-Track Rules
+
+Detection-as-Code can't be treated as a loose collection of scripts. Everything has to sit on top of a shared core for reuse and consistency. And before writing a single line of code, you have to define the **rule envelope**.
+
+*Detection logic alone is not a rule*. A production detection is an operational software contract: it needs metadata, deployment controls, and a runbook for the tier-1 analyst on call — or an AI agent assisting with triage. Many DaC projects I've seen stuff too many fields into their YAML files. In my view, every field must earn its place by driving a concrete management or operational action. At the same time, the envelope has to accommodate multiple engines; a DaC system locked to a single platform defeats much of its own purpose.
+
+When I moved from the theoretical 4-block proto-rule in *Detection-as-Code, Then What?* (`metadata`, `logic`, `deployment`, `guide`) to building Graft against live SIEM APIs, a few practical adjustments were necessary. The custom rule envelope settled into five blocks:
+
+- `metadata`: Rule identity, description, authors, references, and taxonomy.
+- `logic`: The raw query string expected by the target engine.
+- `deployment`: Engine-specific runtime parameters.
+- `runbook`: Operational context, triage steps, and incident response actions — renamed from `guide` to reflect how SOCs actually use it.
+- `tests`: Synthetic events and expected match counts for validation.
+
+In my earlier post, I avoided putting a `name` or `id` field inside `metadata`, arguing the filename was enough. Building the reconciliation engine changed my mind. If an engineer renames a YAML file and you don't track an immutable `metadata.id` (UUID), the deployment pipeline sees a deleted rule and a brand-new one. In a SIEM, deleting and recreating a rule generates a new remote ID, wipes historical detection timelines, and breaks SOAR playbooks wired to the old identifier. Adding a UUID inside `metadata` solved that cleanly: you can rename files freely while Graft updates the existing rule in place.
+
+For MITRE ATT&CK mappings (`metadata.mitre`), Graft pairs normalized tactic names with specific technique IDs (`tactic: [technique_ids]`). That structure is deliberate: it stops engineers from rubber-stamping a technique ID across the entire matrix regardless of which tactic actually applies to the rule's context — something I wrote about in [Mapping Detection Rules to MITRE ATT&CK](/log/mapping-detection-mitre-attack/). If a detection genuinely covers a technique across multiple tactics (like `T1098.001` under both `persistence` and `privilege-escalation` below), the author has to declare each tactic explicitly. Finding the normalized tactic name is usually just lowercasing the tactic and replacing spaces with dashes (`Privilege Escalation` becomes `privilege-escalation`), with Graft's bundled [MITRE taxonomy file](https://github.com/lopes/graft/blob/main/src/graft/data/mitre_attack.json) acting as the source of truth.
+
+Using **YAML** here lets engineers write rules declaratively with clean multiline string support (`|`) for query logic and runbooks — an area where TOML gets awkward quickly. Here is what a [custom rule looks like in Graft](https://github.com/lopes/graft/blob/main/rulesets/secops/custom/gcp_iam_service_account_key_create.yaml):
+
+```yaml
+metadata:
+  id: "d5e2a481-7f32-4019-86c2-19e34b719002"
+  name: "gcp_iam_service_account_key_create"
+  description: "User-managed GCP service account key created."
+  authors:
+    - "Cloud Security Operations"
+  mitre:
+    persistence:
+      - "T1098.001"
+    privilege-escalation:
+      - "T1098.001"
+  tags:
+    - "gcp"
+    - "iam"
+  references:
+    - "https://cloud.google.com/iam/docs/creating-managing-service-account-keys"
+
+logic: |
+  events:
+    $e.metadata.event_type = "USER_RESOURCE_CREATION"
+    $e.metadata.product_name = "GCP Cloud Audit"
+    $e.metadata.product_event_type = "google.iam.admin.v1.CreateServiceAccountKey"
+    $e.security_result.action = "ALLOW"
+  condition:
+    $e
+
+deployment:
+  enabled: true
+  alerting: true
+  run_frequency: "live"
+
+runbook:
+  context: "Service account keys are downloadable private key pairs providing persistent programmatic access to Google Cloud APIs."
+  triage: |
+    1. Identify the caller principal creating the key and originating IP address.
+    2. Review the target service account and its assigned IAM roles.
+    3. Check corresponding change management tickets for authorized key generation.
+  response: |
+    1. Invalidate and delete the created service account key immediately.
+    2. Rotate credentials for the calling identity if unauthorized activity is suspected.
+
+tests:
+  - id: "match_service_account_key_creation"
+    description: "Fires an alert when a user-managed service account key is created"
+    expect: 1
+    events:
+      - timestamp: "2026-09-17T15:00:00Z"
+        payload:
+          metadata:
+            event_type: "USER_RESOURCE_CREATION"
+            product_name: "GCP Cloud Audit"
+            product_event_type: "google.iam.admin.v1.CreateServiceAccountKey"
+          security_result:
+            action: "ALLOW"
+```
+
+Custom rules are only half the picture, though. Every detection engineering team also relies on out-of-the-box vendor rules, like Google SecOps' [Curated Detections](https://docs.cloud.google.com/chronicle/docs/detection/curated-detections). Most DaC repositories ignore managed rules entirely, leaving engineers to toggle rule sets and click through exclusions in the web UI. Graft handles both tracks under the same Git workflow: custom rules live in `rulesets/<engine>/custom/`, while vendor-managed rules live in a single consolidated `rulesets/<engine>/managed.yaml` manifest that tracks deployment states and tuning exclusions:
+
+```yaml
+categories:
+  - name: "Linux Threats"
+    id: "a5366ed8-3746-2423-a972-98535279f96a"
+    rulesets:
+      - id: "1c4ab1f6-d801-d6a9-1177-3ec3dd5bcbe9"
+        name: "Malware Signals - Suspicious Execution"
+        deployments:
+          - type: PRECISE
+            enabled: true
+            alerting: true
+          - type: BROAD
+            enabled: true
+            alerting: false
+
+exclusions:
+  - id: "exclude-backup-automation"
+    description: "Exclude overnight backup runner from Suspicious Execution"
+    ruleset_id: "1c4ab1f6-d801-d6a9-1177-3ec3dd5bcbe9"
+    expression: 'principal.hostname = "backup-server.corp.internal"'
+```
+
+## Architecture and Quality Gates
+
+In a multi-engine envelope, blocks like `metadata` and `runbook` stay consistent everywhere, while `logic` and `deployment` vary by platform. To normalize what should be shared while giving each engine room for its own idiosyncrasies, I built [Graft's architecture](https://github.com/lopes/graft/blob/main/assets/architecture-overview.svg) around a [Hexagonal Architecture](https://en.wikipedia.org/wiki/Hexagonal_architecture_(software)) (Ports and Adapters).
+
+The core defines domain models and abstract port interfaces (`RuleCompilerPort`, `RuleDeployerPort`, `ManagedEnginePort`, `ReplayHarnessPort`) without importing a single SIEM SDK, cloud library, or HTTP client. Each engine lives in an isolated package (`src/graft/engines/<engine>/`) along with its own JSON schemas, and carries the full burden of authenticating, translating REST calls, compiling queries, and running tests. Core never adapts to an engine; engines adapt to Core. Bootstrapping a new target (`graft new engine <name>`) scaffolds the directory tree, schemas, and test stubs in seconds.
+
+I also enforced a strict stdlib-first rule. Instead of pulling in third-party packages that expand the supply-chain attack surface and break across updates, Graft uses Python's standard library — `urllib.request` for HTTP, `argparse` for the CLI, `dataclasses` for models, `subprocess` for Git. Runtime dependencies are capped at two stable libraries: [`pyyaml`](https://pyyaml.org/) and [`jsonschema`](https://github.com/python-jsonschema/jsonschema).
+
+On top of this foundation, Graft enforces three quality gates before a rule reaches production:
+
+1. **Offline schema and taxonomy checks (`graft lint`):** Validates YAML envelopes against JSON Schema Draft 2020-12 and checks every MITRE ATT&CK tag against a bundled Enterprise STIX matrix so typos and deprecated techniques fail locally in milliseconds, with no network access required.
+2. **Pre-merge compiler dry runs (`graft <engine> verify`):** Sends the rule logic to the remote engine's syntax validator without saving or enabling the rule, catching query syntax errors during pull request checks without generating phantom alerts.
+3. **[EXPERIMENTAL] Quarantined synthetic replay (`graft <engine> test`):** Takes the synthetic events and expected match counts from the `tests` block, injects them into an isolated staging environment, runs the rule, and asserts that the detection count matches `expect` before cleaning up inside a `finally` block.
+
+To support those gates across different team budgets, Graft works in both dual-tenant (`staging` + `production`) and single-tenant (`production`-only) modes. In a dual-tenant setup, pull request checks (`verify` and `test`) hit an isolated staging instance while merges to `main` deploy to production. Not every team has a second SIEM tenant, though. If staging coordinates aren't configured, Graft automatically falls back to the production instance for safe, read-only or dry-run checks like `verify`, while a hard guard in code refuses to run synthetic event replay (`test`) against production.
+
+## Day-to-Day Operations and Visibility
+
+Once a DaC system is live, Git becomes the single source of truth. If someone edits a rule or toggles a curated ruleset directly in the SIEM console, Graft treats it as drift: the Git baseline prevails and heals the engine back to the committed state.
+
+That behavior needs two safeguards in practice. First, during a pull request, you only want to evaluate the files touched in your branch, so `graft <engine> diff` and `apply` run in scoped mode by default, while `--all` scans the full tenant catalog to catch and heal out-of-band console edits. Second, on Day 0 of adopting DaC on an existing SIEM, pushing an empty repository would be a disaster. Graft includes a `pull` command (`graft <engine> pull`) that temporarily treats the engine as the source of truth, fetching live custom rules and managed settings from the tenant and creating the YAML files locally. It's a huge time saver during adoption, turning brownfield onboarding from days of manual copy-pasting into a five-minute command.
+
+```bash
+$ graft secops diff --env production
+=== Custom Rules Diff ===
+[+] Custom rule to create: gcp_storage_iam_public_access_granted
+[~] Custom rule to update: workspace_nrd_possible_phishing (ID: ru_12345678-abcd-ef01-2345-6789abcdef01)
+[?] Untracked custom rule on tenant: legacy_unmanaged_alert (ID: ru_98765432-feee-dcba-0000-111122223333)
+
+=== Google SecOps Managed Content Diff ===
+[~] Deployment: ur_cloud_threats (PRECISE) | enabled: False -> True, alerting: False -> True
+[+] Exclusion to create: excl_cloud_functions_pipeline_sa
+```
+
+When a rule needs to be retired, deleting the file from Git makes its context harder to find later. In Graft, retiring a rule is just moving it into `rulesets/<engine>/_archived/`. Any underscore-prefixed directory is automatically excluded from active sync, linting, and coverage exports, while keeping the runbook and test vectors intact for audits.
+
+That brings us to the management side: the "then what?" from my previous post. You won't find a `maturity` score or a static `status` field inside Graft's rule envelope. In my experience, manual maturity labels rot the week after they're written, and arbitrary 0–100 scores are mostly security theater. Instead, `graft export catalog` pulls factual lifecycle indicators straight from Git history (`created_at`, `last_modified_at`, commit `review_count`, and unique `contributor_count`) and combines them with envelope data (`has_runbook`, `mitre_attack`, and deployment state):
+
+```bash
+$ graft export catalog
+Rule Name                              Engine  Status   MITRE ATT&CK                        Reviews  Runbook  Updated
+-------------------------------------  ------  -------  ----------------------------------  -------  -------  --------------------
+gcp_iam_service_account_key_create     secops  enabled  TA0003:T1098.001, TA0004:T1098.001  1        yes      2026-09-22T14:01:52Z
+gcp_storage_iam_public_access_granted  secops  enabled  TA0001:T1078.004, TA0112:T1685      2        yes      2026-09-22T15:17:52Z
+workspace_nrd_possible_phishing        secops  enabled  TA0001:T1566.002                    1        yes      2026-09-22T14:01:52Z
+```
+
+Exporting this catalog to CSV (`graft export catalog --format csv`) is built for day-to-day management: a team lead can open it in a spreadsheet (or join it with SIEM alert volume in BigQuery) and immediately spot which rules haven't been reviewed in six months, which ones lack a runbook, or where MITRE mappings are thin.
+
+For threat coverage, `graft export matrix --format navigator` generates MITRE ATT&CK v19.2 Navigator layer files per engine (`--engine secops`, `--engine sentinel`, and so on). Exporting each engine as its own layer lets you overlay them in the official ATT&CK Navigator to see where engines overlap and answer the classic leadership question ("how's our coverage?") with real deployment state behind it.
+
+## Google SecOps as the First Engine
+
+**Google SecOps** is the first engine adapter in Graft. Picking it first was a practical choice: I've worked with the platform for over three years (starting back when it was Chronicle), and now that I work at Google, I have a running lab environment to test against.
+
+::: {.callout-warning}
+Graft is a personal research project, not an official Google product, and the opinions here are my own.
+:::
+
+Few people talk about the [Google SecOps REST API](https://cloud.google.com/chronicle/docs/reference/rest) (`https://<region>-chronicle.googleapis.com`) from a Detection-as-Code perspective, and working with it at a low level was a pleasant surprise. The endpoints are fast and map cleanly to almost every feature I wanted in Graft:
+
+- **Non-destructive syntax validation ([`instances:verifyRuleText`](https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances/verifyRuleText)):** This endpoint impressed me the most. You `POST` a raw YARA-L 2.0 string to `:verifyRuleText`, and the backend compiler validates it and returns line-and-column diagnostics immediately without creating a rule or touching live state. It made pre-merge CI dry runs trivial to wire up.
+- **Custom rule CRUD and 2-call catalog diffs ([`rules`](https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.rules)):** Calling `GET rules?view=FULL` alongside the wildcard deployment endpoint `GET rules/-/deployments` fetches every custom rule and its deployment state across the entire tenant in just two HTTP requests. Creating a rule is a `POST rules` followed by `PATCH rules/{id}/deployment`. When an existing rule changes, `PATCH rules/{id}?update_mask=text` compiles a new revision in place under the existing `ru_<uuid>` identifier, and `PATCH rules/{id}/deployment?update_mask=enabled,alerting` updates its runtime flags separately (with `DELETE rules/{id}` available for teardown). If nothing changed in Git, Graft sends zero writes and creates zero duplicate revisions.
+- **Managed content and exclusions via API (`curatedRuleSets` and `findingsRefinements`):** Using the `-` wildcard again, Graft bulk-fetches all vendor rule sets and their deployment states via `GET curatedRuleSetCategories/-/curatedRuleSets` and `GET curatedRuleSetCategories/-/curatedRuleSets/-/curatedRuleSetDeployments`, and toggles `PRECISE` or `BROAD` tiers via `PATCH .../curatedRuleSetDeployments/{precise|broad}?update_mask=enabled,alerting`. Detection exclusions ([`findingsRefinements`](https://cloud.google.com/chronicle/docs/reference/rest/v1alpha/projects.locations.instances.findingsRefinements)) follow a similar two-step model: `POST` or `PATCH findingsRefinements` for the UDM filter query, and `PATCH findingsRefinements/{id}/deployment` to bind it to target rulesets (or retire it by setting `enabled: false, archived: true`, since exclusions are archived rather than hard-deleted).
+
+One quirk worth knowing if you build against this API today: endpoints are currently split between `v1` and `v1alpha`. Google has been migrating Chronicle's legacy APIs into the unified `chronicle.googleapis.com` surface; custom rules and `:verifyRuleText` are already on GA `v1`, while Curated Rule Sets and `findingsRefinements` still live under `v1alpha` as that consolidation continues. In Graft, the HTTP client defaults to `v1` and lets individual adapter methods pass `api_version="v1alpha"`, so when those remaining endpoints graduate to `v1`, switching over is a one-line change.
+
+::: {.callout-note}
+Although the DaC revamp I mentioned earlier also had Google SecOps as its primary detection engine, my role there was defining goals, features, and technical direction as a Detection Engineer. We had dedicated developers on the team who wrote the integration code, so I had little hands-on contact with the API at the time — a gap I finally closed while building Graft.
+:::
+
+The only piece from my blueprint that the public SecOps API doesn't support yet is synchronous event injection and ad-hoc rule evaluation for the `tests` block. Because ingestion and retrohunts run asynchronously, you can't yet pass a small array of mock UDM events to an endpoint and get an immediate pass/fail count back during a quick CI job. That's why I still mark `tests` as experimental — honestly, I don't know of another SIEM engine that exposes synchronous inline replay either. Even when engines start supporting it, a feature like that only makes sense against a staging tenant: injecting synthetic attack events into a production SIEM risks triggering real response workflows and creates compliance headaches, since production security logs are closely watched by auditors.
+
+## What Comes Next
+
+A Detection-as-Code platform has to earn the friction it introduces. If it's just a folder of queries in Git, engineers will resent the extra steps. When it pairs a disciplined rule envelope with hexagonal adapters, automated quality gates, managed-content governance, and factual catalog exports, it becomes the operational backbone of a detection team.
+
+Graft today is a working ~10,500-line Python codebase with strict typing (`mypy --strict`), zero cloud SDK dependencies, and over 200 unit tests that run in a few seconds. In the next post, I'll go behind the scenes of how I built it: the AI-assisted engineering workflow I used with Gemini and Google's internal agentic coding harness, the mistakes I made along the way, and concrete use cases showing Graft in action.
