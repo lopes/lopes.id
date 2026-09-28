@@ -68,10 +68,13 @@ monthly:  ## Full monthly check: snapshot, history, drift, live assertions
 
 ## --- infrastructure -----------------------------------------------------
 
-# Cloudflare auth is injected per target rather than exported globally: read
-# targets get CF_RO_TOKEN, and only tf-apply gets CF_RW_TOKEN. A plan therefore
-# cannot write even if the configuration asks it to.
-TF_ENV = set -a; . "$(CURDIR)/.env"; set +a; cd $(TF_DIR);
+# Cloudflare auth and Terraform variables are injected from .env per target:
+# read targets get CF_RO_TOKEN, and only tf-apply gets CF_RW_TOKEN. A plan
+# therefore cannot write even if the configuration asks it to.
+TF_ENV = set -a; . "$(CURDIR)/.env"; set +a; cd $(TF_DIR); \
+         TF_VAR_zone_id="$$CF_ZONE_ID" \
+         TF_VAR_account_id="$$CF_ACCOUNT_ID" \
+         TF_VAR_access_email="$$CF_ACCESS_EMAIL"
 TF_RO  = $(TF_ENV) CLOUDFLARE_API_TOKEN="$$CF_RO_TOKEN"
 TF_RW  = $(TF_ENV) CLOUDFLARE_API_TOKEN="$$CF_RW_TOKEN"
 

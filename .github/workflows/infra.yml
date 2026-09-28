@@ -26,6 +26,7 @@ env:
   TF_VAR_zone_id: ${{ secrets.CF_ZONE_ID }}
   # Reuses the account id secret that deploy.yml already relies on.
   TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  TF_VAR_access_email: ${{ secrets.CF_ACCESS_EMAIL }}
 
 jobs:
   plan:

@@ -103,14 +103,27 @@ This installs:
 - `.git/hooks/pre-commit`: active Git hook  
 - enforcement logic from `scripts/pre-commit.sh`
 
-### Continuous Integration
+### Continuous Integration & PR Preview
 
-All pull requests to `main` are validated via GitHub Actions:
+All pull requests to `main` are validated via GitHub Actions (`.github/workflows/integration.yml`):
 
-- Quarto environment check  
-- Full site render  
+- Pre-commit content & image checks (`scripts/pre-commit.sh`)
+- Full Quarto site render (`quarto render --output-dir _site-test`)
+- Automatic deploy of `_site-test` to Cloudflare Pages branch `preview`, served at `https://preview.lopes.id`
 
 No code reaches `main` unless both local and CI validation succeed.
+
+#### How PR Preview Works & How to Access It
+
+- **Where it lives:** Every same-repo PR deploys to the `preview` branch on the `lopes-id` Cloudflare Pages project and posts a comment on the PR with two links:
+  - `https://preview.lopes.id` — always points to the latest PR preview build
+  - `https://<hash>.lopes-id.pages.dev` — immutable link for that specific workflow run
+- **How it is protected:** `preview.lopes.id`, `*.lopes-id.pages.dev`, and `lopes-id.pages.dev` are gated by **Cloudflare Zero Trust Access** (configured in `terraform/access.tf` and `terraform/dns.tf`). Production (`https://lopes.id` and `https://www.lopes.id`) stays public.
+- **How to log in:**
+  1. Open `https://preview.lopes.id` (or the per-commit `.pages.dev` link from the PR comment).
+  2. Cloudflare Access redirects to the login screen (`lopes-id.cloudflareaccess.com`).
+  3. Enter the allowed email (`CF_ACCESS_EMAIL` in `.env` / GitHub Secrets) and click **Send me a code**.
+  4. Enter the 6-digit One-Time Pin (OTP) sent to your inbox. Your session stays valid for **24 hours**.
 
 ### Design Principles
 

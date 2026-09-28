@@ -5,11 +5,18 @@ updates:
     schedule:
       interval: "weekly"
     reviewers:
-      - "jose.lopes"
+      - "lopes"
 
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "monthly"
     reviewers:
-      - "jose.lopes"
+      - "lopes"
+
+  - package-ecosystem: "terraform"
+    directory: "/terraform"
+    schedule:
+      interval: "monthly"
+    reviewers:
+      - "lopes"

@@ -27,6 +27,19 @@ resource "cloudflare_dns_record" "www" {
   ttl     = 1
 }
 
+# Preview subdomain for unmerged PRs. CI deploys PR builds with `--branch=preview`,
+# which Cloudflare Pages serves at preview.lopes-id.pages.dev. Gated behind
+# Cloudflare Zero Trust Access (Email OTP) in access.tf.
+resource "cloudflare_dns_record" "preview" {
+  zone_id = var.zone_id
+  name    = "preview.lopes.id"
+  type    = "CNAME"
+  content = "preview.lopes-id.pages.dev"
+  proxied = true
+  ttl     = 1
+  comment = "PR preview environment (Access OTP protected)"
+}
+
 # Bluesky domain handle verification for @lopes.id. Deleting this silently
 # breaks the handle — it reverts to the generated .bsky.social one.
 resource "cloudflare_dns_record" "atproto" {
