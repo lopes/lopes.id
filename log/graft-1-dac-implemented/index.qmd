@@ -94,6 +94,10 @@ tests:
             action: "ALLOW"
 ```
 
+::: {.callout-note}
+If you know YARA-L, you'll notice the `logic` block above omits the outer `rule <name> { ... }` wrapper and `meta:` section. That's deliberate to keep the file DRY: YARA-L's `meta:` fields overlap with the envelope's `metadata` block, and maintaining them in two places inside the same file is an invitation for drift. Instead, the SecOps adapter (more on this later) reconstructs the full YARA-L rule on the fly, wrapping `logic` with the rule name and a minimal `meta:` block (`id` and `description`) for remote tracking. Future adapters can use the same pattern whenever a query language embeds metadata, while engines with simpler query structures will export `logic` as is — either way, the adapter abstracts it away.
+:::
+
 Custom rules are only half the picture, though. Every detection engineering team also relies on out-of-the-box vendor rules, like Google SecOps' [Curated Detections](https://docs.cloud.google.com/chronicle/docs/detection/curated-detections). Most DaC repositories ignore managed rules entirely, leaving engineers to toggle rule sets and click through exclusions in the web UI. Graft handles both tracks under the same Git workflow: custom rules live in `rulesets/<engine>/custom/`, while vendor-managed rules live in a single consolidated `rulesets/<engine>/managed.yaml` manifest that tracks deployment states and tuning exclusions:
 
 ```yaml
