@@ -33,6 +33,7 @@ Branch names follow the pattern: `<namespace>/<short-description>`.
 | Namespace | Purpose | Examples |
 | ------- | ------ | ------- |
 | `post` | New articles | `post/gap-analysis-mitre`, `post/dfir-toolkit` |
+| `deck` | New Reveal.js presentations | `deck/bsides-detection-at-scale` |
 | `revise` | Significant updates to existing posts | `revise/mitre-intro-2025` |
 | `typo` | Minor textual fixes | `typo/fix-cloudflare-spelling` |
 | `bugfix` | Structural or layout problems | `bugfix/navbar-overflow` |
@@ -128,10 +129,10 @@ No code reaches `main` unless both local and CI validation succeed.
   git checkout -b post/my-new-article
   ```
 
-2. Create post file in `posts/` using `.qmd`  
-3. Generate and optimize images in `images/`  
-4. Validate locally (commit will enforce rules)  
-5. Push branch and open Pull Request  
+2. Create post file at `log/<slug>/index.qmd`  
+3. Place optimized `.webp` Open Graph and article images in `log/<slug>/`  
+4. Validate locally (`make check` or commit to trigger the pre-commit hook)  
+5. Push branch and open Pull Request (CI validates, renders, and deploys a preview to `https://preview.lopes.id`)  
 
 ---
 

@@ -6,6 +6,8 @@ project:
     - "*"
     - "!docs/**"
     - "!terraform/**"
+    - "!AGENTS.md"
+    - "!CHANGELOG.md"
 
 website:
   title: "lopes.log"

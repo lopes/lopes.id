@@ -10,7 +10,7 @@ Assumes `./scripts/setup.sh` was run once (installs the pre-commit hook) and bra
 
 ```bash
 git checkout main && git pull
-git checkout -b post/<slug>          # no deck/talk namespace yet; use post/
+git checkout -b deck/<slug>
 ```
 
 Slug is kebab-case, ≤ 50 characters. It's both the directory name and the URL segment.
@@ -49,34 +49,29 @@ Fuller example: `decks/lantana-little-help-claude/_brief.md`.
 
 ### 3. Scaffold
 
-In a Claude Code session:
+In an AI agent session (uses `.agents/skills/scaffold-deck/`):
 
 > scaffold-deck from `decks/<slug>/_brief.md`
 
-The skill asks for `duration`/`tlp` if missing, computes a slide budget, refuses to overfill, and writes `decks/<slug>/index.qmd`. It pushes back on `amber`/`red` (would fail commit anyway). Hand-authoring is fine — copy the [front-matter reference](#front-matter-reference).
+The skill asks for `duration`/`tlp` if missing, computes a slide budget, refuses to overfill, writes `decks/<slug>/index.qmd`, and runs `make check` + a source-level design audit. It pushes back on `amber`/`red` (would fail commit anyway). Hand-authoring is fine — copy the [front-matter reference](#front-matter-reference).
 
 ### 4. OG image
 
 Drop `decks/<slug>/og-<slug>.webp` (≤ 300 KB, ≤ 70-char filename). Pre-commit requires the `image:` field. A solid card is fine for silent publishing.
 
-### 5. Preview
+### 5. Validate, push, preview & merge
 
 ```bash
-quarto preview decks/<slug>/index.qmd
-```
-
-Browser opens locally, live-reloads on save. Keys: `→`/`↓` next · `←`/`↑` back · `S` speaker view · `F` fullscreen · `Esc` overview · `B` blank screen.
-
-### 6. Commit, push, merge
-
-```bash
+make check
 git add decks/<slug>/
 git commit -m "decks: add <slug> talk on <topic>"
-git push -u origin post/<slug>
+git push -u origin deck/<slug>
 gh pr create --title "decks: add <slug>"
 ```
 
-Pre-commit fires locally; PR CI reruns pre-commit and a full `quarto render`. Merge to `main` → deploy workflow renders and ships. Live at `https://lopes.id/decks/<slug>/` in ~2 minutes.
+Pre-commit fires locally; PR CI reruns pre-commit, performs a full `quarto render`, and deploys the preview to `https://preview.lopes.id/decks/<slug>/` (protected by Cloudflare Access OTP). Keys in presentation view: `→`/`↓` next · `←`/`↑` back · `S` speaker view · `F` fullscreen · `Esc` overview · `B` blank screen.
+
+Merge to `main` → deploy workflow renders and ships. Live at `https://lopes.id/decks/<slug>/` in ~2 minutes.
 
 ## Front-matter reference
 
@@ -102,6 +97,7 @@ format:
     # Theme is picked by the SCSS path. NEVER add a top-level `theme:` —
     # Quarto merges it with reveal's `theme:` list and stacks a stray theme.
     theme: [default, ../../static/styles/vigil-reveal-dark.scss]   # or -light
+    footer: "TLP:GREEN"          # ★ mirrors front-matter tlp: in uppercase
     incremental: true
     code-line-numbers: true
     slide-number: c/t
@@ -112,23 +108,18 @@ format:
     hash-type: number
 ---
 
-## Deck title {.center}
-
-[TLP:GREEN]{.tlp-badge}
-
-[EVENT · YYYY-MM-DD]{.kicker}
-
-One-line hook.
-
-::: notes
-Speaker cue for the opening.
-:::
+<!-- Title slide is auto-generated from front matter (title / description / date)
+     via decks/_partials/title-slide.html. Do not add a duplicate title slide. -->
 
 ## First slide
 
 [SECTION KICKER]{.kicker}
 
 Body copy.
+
+::: notes
+Speaker cue for the opening.
+:::
 ```
 
 Fields marked ★ are enforced by pre-commit.
@@ -145,14 +136,13 @@ This repo is public. Sensitive presentations live in a separate private repo.
 | `amber` / `amber+strict` / `red` | ❌ | Rejected at commit |
 | *(missing)*                      | ❌ | Rejected at commit |
 
-The title-slide badge (`[TLP:CLEAR]{.tlp-badge}`) mirrors the front-matter value.
+The slide `footer:` (`footer: "TLP:CLEAR"`) mirrors the front-matter value on every slide.
 
 ## Slide conventions
 
-The vigil-reveal theme adds two hooks:
+The vigil-reveal theme adds `.kicker` and composition primitives (`.big-idea`, `.big-number`, `.metric-delta`, `.stat-grid`, `.pull-quote`, `.chat-snippet`, `.aside-box`, `.takeaways`, `.timeline`, `.contact-row`, `.section-divider`):
 
 - **`[TEXT]{.kicker}`** — mono ALL-CAPS section label. One per slide.
-- **`[TLP:CLEAR]{.tlp-badge}`** — framed mono chip. Once, on the title slide.
 
 Standard Quarto revealjs worth remembering:
 

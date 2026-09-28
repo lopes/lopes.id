@@ -8,7 +8,7 @@ $theme: "cosmo" !default;
 // =============================================================================
 // 2. Typography
 //
-// Four typefaces, four jobs — DESIGN.md §3:
+// Four typefaces, four jobs — docs/design-system.md §3:
 //   Playfair Display → WiredDisplay   (editorial display headlines)
 //   Lora             → BreveText      (body prose)
 //   Source Sans 3    → Apercu         (UI, nav, section headings)
@@ -32,7 +32,7 @@ $h4-font-size:  1.0625rem;
 $h5-font-size:  1rem;
 $h6-font-size:  0.875rem;
 
-// Border radius — 0 everywhere (DESIGN.md §5)
+// Border radius — 0 everywhere (docs/design-system.md §5)
 $border-radius:        0;
 $border-radius-sm:     0;
 $border-radius-lg:     0;
@@ -45,7 +45,7 @@ $card-border-radius:   0;
 $transition-base: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
 
 // =============================================================================
-// 3. WIRED Color Palette — DESIGN.md §2
+// 3. WIRED Color Palette — docs/design-system.md §2
 // =============================================================================
 
 $w-white:    #ffffff; // Paper White
@@ -426,7 +426,7 @@ pre {
 
 strong, b { font-weight: 600; }
 
-// Links — underline on hover in article body (editorial linking per DESIGN.md)
+// Links — underline on hover in article body (editorial linking per docs/design-system.md)
 #quarto-document-content a:not(.nav-link):not(.navbar-brand) {
   &:hover {
     text-decoration: underline;
@@ -459,7 +459,7 @@ hr {
 }
 
 // =============================================================================
-// 12. Footer — Inverted (DESIGN.md §2)
+// 12. Footer — Inverted (docs/design-system.md §2)
 // =============================================================================
 
 footer, .nav-footer {
