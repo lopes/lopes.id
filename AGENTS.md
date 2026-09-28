@@ -40,7 +40,7 @@ Operational procedure lives in `docs/runbook-*.md`.
 
 ## Architecture
 
-- **Static site generator**: Quarto with Python 3.14 (Jupyter kernel), executed in GitHub Actions
+- **Static site generator**: Quarto, executed in GitHub Actions
 - **Content**: Quarto Markdown (`.qmd`) files in `log/<post-slug>/index.qmd` and `decks/<deck-slug>/index.qmd`
 - **Styling & Design System**: Custom WIRED-inspired "Vigil" theme in `static/styles/` (SCSS), dual dark/light mode; full design specification in `docs/design-system.md`
 - **CI/CD**: GitHub Actions (`deploy.yml` for production Cloudflare Pages, `integration.yml` for PR validation + preview deploy to `preview.lopes.id`, `infra.yml` for Terraform plan and monthly drift)
