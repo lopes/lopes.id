@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           terraform_wrapper: false
@@ -72,7 +72,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          marker="<!-- terraform-plan-comment -->"
           {
+            echo "$marker"
             if [ "${{ steps.plan.outputs.exitcode }}" = "0" ]; then
               echo "### Terraform plan: no changes"
               echo "The declared configuration matches the live zone."
@@ -85,7 +87,16 @@ jobs:
             tail -c 50000 plan.txt
             echo '```'
           } > comment.md
-          gh pr comment "${{ github.event.number }}" --body-file comment.md
+
+          comment_id=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.number }}/comments" \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n 1)
+
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/${{ github.repository }}/issues/comments/$comment_id" \
+              -F body=@comment.md >/dev/null
+          else
+            gh pr comment "${{ github.event.number }}" --body-file comment.md
+          fi
 
       - name: Open or update a drift issue
         if: github.event_name != 'pull_request' && steps.plan.outputs.exitcode == '2'

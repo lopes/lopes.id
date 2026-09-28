@@ -7,13 +7,6 @@ updates:
     reviewers:
       - "lopes"
 
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    reviewers:
-      - "lopes"
-
   - package-ecosystem: "terraform"
     directory: "/terraform"
     schedule:
