@@ -3,6 +3,7 @@
 
 ## Type
 - [ ] New post (`post/`)
+- [ ] New deck (`deck/`)
 - [ ] Revision (`revise/`)
 - [ ] Design / theme
 - [ ] Infrastructure / CI

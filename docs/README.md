@@ -5,6 +5,7 @@ Operational documentation for lopes.id. Nothing here is rendered into the site â
 
 | Path | What it is |
 | ---- | ---------- |
+| `design-system.md` | WIRED-inspired editorial design system specification |
 | `runbook-monthly-check.md` | `make monthly`: what it checks and how to read it |
 | `runbook-traffic-spike.md` | What to do when request volume jumps |
 | `runbook-restore-cloudflare.md` | Rebuilding the zone, and what Terraform cannot own |

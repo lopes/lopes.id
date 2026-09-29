@@ -41,7 +41,7 @@ unexplained differences are visible.
 
 ### 4. Live behaviour
 
-Three probes, each for a failure that has actually happened here.
+Four probes, each verifying live edge behaviour rather than declared state.
 
 **`unknown paths return 404`** — the regression that caused the August 2026
 request storm. Cloudflare Pages serves an SPA-style fallback when a build has no
@@ -60,6 +60,11 @@ Terraform can prove what is *configured*. Only this can show what the edge is
 **`robots.txt reachable`** — matters if blocking is ever reintroduced, because
 the first clause of any block rule exempts `/robots.txt` so a blocked crawler can
 still read why.
+
+**`preview.lopes.id` and `lopes-id.pages.dev` gated by Access** — unauthenticated
+requests to non-production / side hostnames must return HTTP `302` redirecting to
+`cloudflareaccess.com` (Email OTP), while `https://lopes.id` remains public. If
+this FAILs, check `terraform/access.tf` and run `make tf-plan`.
 
 ### 5. Traffic
 

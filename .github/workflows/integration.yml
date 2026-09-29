@@ -1,4 +1,4 @@
-name: Continuous Integration (PR Test)
+name: Continuous Integration (PR Test & Preview)
 
 on:
   pull_request:
@@ -12,6 +12,9 @@ concurrency:
 jobs:
   test-build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -19,20 +22,46 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.14"
-          cache: "pip"
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Validate content
         run: bash scripts/pre-commit.sh
 
       - name: Test Quarto Render
         run: |
           quarto render --output-dir _site-test
+
+      - name: Publish PR Preview to Cloudflare Pages
+        id: deploy
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site-test --project-name=lopes-id --branch=preview
+
+      - name: Comment PR Preview URL
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_URL: ${{ steps.deploy.outputs.deployment-url }}
+        run: |
+          marker="<!-- pages-preview-comment -->"
+          {
+            echo "$marker"
+            echo "### Cloudflare Pages Preview"
+            echo
+            echo "- **Preview alias (Access OTP):** https://preview.lopes.id"
+            if [ -n "$DEPLOY_URL" ]; then
+              echo "- **Deployment URL (Access OTP):** $DEPLOY_URL"
+            fi
+            echo "- **Commit:** \`${{ github.event.pull_request.head.sha }}\`"
+          } > preview-comment.md
+
+          comment_id=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.number }}/comments" \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n 1)
+
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/${{ github.repository }}/issues/comments/$comment_id" \
+              -F body=@preview-comment.md >/dev/null
+          else
+            gh pr comment "${{ github.event.number }}" --body-file preview-comment.md
+          fi

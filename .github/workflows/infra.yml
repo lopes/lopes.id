@@ -26,6 +26,7 @@ env:
   TF_VAR_zone_id: ${{ secrets.CF_ZONE_ID }}
   # Reuses the account id secret that deploy.yml already relies on.
   TF_VAR_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  TF_VAR_access_email: ${{ secrets.CF_ACCESS_EMAIL }}
 
 jobs:
   plan:
@@ -71,7 +72,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          marker="<!-- terraform-plan-comment -->"
           {
+            echo "$marker"
             if [ "${{ steps.plan.outputs.exitcode }}" = "0" ]; then
               echo "### Terraform plan: no changes"
               echo "The declared configuration matches the live zone."
@@ -84,7 +87,16 @@ jobs:
             tail -c 50000 plan.txt
             echo '```'
           } > comment.md
-          gh pr comment "${{ github.event.number }}" --body-file comment.md
+
+          comment_id=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.number }}/comments" \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n 1)
+
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/${{ github.repository }}/issues/comments/$comment_id" \
+              -F body=@comment.md >/dev/null
+          else
+            gh pr comment "${{ github.event.number }}" --body-file comment.md
+          fi
 
       - name: Open or update a drift issue
         if: github.event_name != 'pull_request' && steps.plan.outputs.exitcode == '2'

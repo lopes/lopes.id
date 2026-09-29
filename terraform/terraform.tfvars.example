@@ -1,11 +1,13 @@
-# Copy to terraform.tfvars (git-ignored) and fill in from .env at the repo root.
+# Optional if running `terraform` directly instead of `make tf-*` (the Makefile
+# automatically injects TF_VAR_zone_id, TF_VAR_account_id, and
+# TF_VAR_access_email from `../.env`).
 #
 #   cp terraform.tfvars.example terraform.tfvars
 #
 # These are identifiers, not secrets, but they are kept out of the repo because
-# it is public and they make targeted API guessing easier. The API token is NOT
-# here — it comes from CLOUDFLARE_API_TOKEN in the environment, which the
-# Makefile sets from CF_RO_TOKEN or CF_RW_TOKEN depending on the target.
+# it is public. The API token is NOT here — it comes from CLOUDFLARE_API_TOKEN
+# in the environment, which the Makefile sets from CF_RO_TOKEN or CF_RW_TOKEN.
 
-zone_id    = ""
-account_id = ""
+zone_id      = ""
+account_id   = ""
+access_email = ""

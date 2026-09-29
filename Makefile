@@ -9,9 +9,6 @@
 # terraform/, so each step stays runnable directly by path and this file never
 # becomes the only way to do anything. `make help` is the default target.
 #
-# Targets whose backing file does not exist yet fail with the phase that
-# delivers it, rather than a confusing "no such file" from the shell.
-#
 # USAGE
 #   make help
 #   make snapshot LABEL=monthly-2026-08
@@ -59,45 +56,40 @@ snapshot:  ## Capture a Cloudflare snapshot: make snapshot LABEL=x [DAYS=7]
 	./scripts/analytics-snapshot.sh $(LABEL) --days $(DAYS)
 
 history:  ## Fold snapshots/ into the committed CSVs under data/
-	@test -x scripts/traffic-history.sh || { echo "scripts/traffic-history.sh not present yet (Phase 3)"; exit 1; }
 	./scripts/traffic-history.sh
 
 monthly:  ## Full monthly check: snapshot, history, drift, live assertions
-	@test -x scripts/cloudflare-monthly-check.sh || { echo "scripts/cloudflare-monthly-check.sh not present yet (Phase 3)"; exit 1; }
 	./scripts/cloudflare-monthly-check.sh
 
 ## --- infrastructure -----------------------------------------------------
 
-# Cloudflare auth is injected per target rather than exported globally: read
-# targets get CF_RO_TOKEN, and only tf-apply gets CF_RW_TOKEN. A plan therefore
-# cannot write even if the configuration asks it to.
-TF_ENV = set -a; . "$(CURDIR)/.env"; set +a; cd $(TF_DIR);
+# Cloudflare auth and Terraform variables are injected from .env per target:
+# read targets get CF_RO_TOKEN, and only tf-apply gets CF_RW_TOKEN. A plan
+# therefore cannot write even if the configuration asks it to.
+TF_ENV = test -f "$(CURDIR)/.env" || { echo ".env missing — copy .env.example to .env and fill in"; exit 1; }; \
+         set -a; . "$(CURDIR)/.env"; set +a; cd $(TF_DIR); \
+         TF_VAR_zone_id="$$CF_ZONE_ID" \
+         TF_VAR_account_id="$$CF_ACCOUNT_ID" \
+         TF_VAR_access_email="$$CF_ACCESS_EMAIL"
 TF_RO  = $(TF_ENV) CLOUDFLARE_API_TOKEN="$$CF_RO_TOKEN"
 TF_RW  = $(TF_ENV) CLOUDFLARE_API_TOKEN="$$CF_RW_TOKEN"
 
-
 tf-init:  ## Initialise Terraform and the HCP state backend
-	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
 	$(TF_RO) terraform init
 
 tf-fmt:  ## Rewrite Terraform files into canonical format
-	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
 	cd $(TF_DIR) && terraform fmt -recursive
 
 tf-validate:  ## Check the Terraform configuration is internally valid
-	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
 	cd $(TF_DIR) && terraform validate
 
 tf-plan:  ## Show what Terraform would change on the live zone
-	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
 	$(TF_RO) terraform plan
 
 tf-apply:  ## Apply Terraform changes (needs CF_RW_TOKEN, local only)
-	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
 	$(TF_RW) terraform apply
 
 drift:  ## Report whether the live zone differs from the declared state
-	@test -d $(TF_DIR) || { echo "$(TF_DIR)/ not present yet (Phase 2)"; exit 1; }
 	@$(TF_RO) terraform plan -detailed-exitcode -no-color > /dev/null; \
 	  case $$? in \
 	    0) echo "no drift — the zone matches the declared state" ;; \

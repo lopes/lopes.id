@@ -4,15 +4,19 @@ Most of the zone is code and restores itself. This file covers the rest.
 
 ## What Terraform owns
 
-Nine resources, in `terraform/`:
+Thirteen resources, in `terraform/`:
 
 | Resource | Covers |
 | -------- | ------ |
 | `cloudflare_dns_record.apex` / `.www` | CNAMEs to `lopes-id.pages.dev` |
+| `cloudflare_dns_record.preview` | CNAME `preview.lopes.id` → `preview.lopes-id.pages.dev` |
 | `cloudflare_dns_record.atproto` | Bluesky handle verification TXT |
 | `cloudflare_zone_setting.*` | `early_hints`, `always_use_https`, `min_tls_version`, `ssl` |
 | `cloudflare_bot_management.this` | Bot Fight Mode, AI scraper blocking, AI Labyrinth, managed robots.txt |
 | `cloudflare_ruleset.firewall_custom` | The custom WAF ruleset, declared empty |
+| `cloudflare_pages_domain.preview` | Registers `preview.lopes.id` on the `lopes-id` Pages project |
+| `cloudflare_zero_trust_access_policy.pages_preview_otp` | Email OTP allow policy for `var.access_email` |
+| `cloudflare_zero_trust_access_application.pages_preview` | Access gate on `*.lopes-id.pages.dev`, `lopes-id.pages.dev`, and `preview.lopes.id` |
 
 Restoring them:
 
@@ -32,14 +36,18 @@ execution mode to Local, then re-import each resource — see the import IDs bel
 These differ per resource and are easy to get wrong:
 
 ```
-cloudflare_dns_record      <zone_id>/<record_id>
-cloudflare_zone_setting    <zone_id>/<setting_id>
-cloudflare_bot_management  <zone_id>
-cloudflare_ruleset         zones/<zone_id>/<ruleset_id>     # note the prefix
+cloudflare_dns_record                    <zone_id>/<record_id>
+cloudflare_zone_setting                  <zone_id>/<setting_id>
+cloudflare_bot_management                <zone_id>
+cloudflare_ruleset                       zones/<zone_id>/<ruleset_id>        # note the prefix
+cloudflare_pages_domain                  <account_id>/<project_name>/<domain>
+cloudflare_zero_trust_access_policy      <account_id>/<policy_id>
+cloudflare_zero_trust_access_application accounts/<account_id>/<app_id>      # note the prefix
 ```
 
-The ruleset needs the `zones/` discriminator; without it the provider fails with
-`invalid discriminator segment`.
+Both `cloudflare_ruleset` and `cloudflare_zero_trust_access_application` require
+their scope discriminator (`zones/` and `accounts/`); without it the provider
+fails with `invalid discriminator segment`.
 
 ## Not codifiable — verify by hand
 

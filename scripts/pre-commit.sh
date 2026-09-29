@@ -6,7 +6,6 @@
 # This script is executed automatically by Git via the pre-commit hook.
 # Do NOT run directly. To install the hook: ./scripts/setup.sh
 
-#!/bin/bash
 set -u
 
 MAX_POST_FILENAME_LEN=50
@@ -39,14 +38,15 @@ get_yaml_val() {
   if [[ "$raw" != \"* && "$raw" != \'* ]]; then
     raw="${raw%%#*}"
   fi
-  # Trim, then unquote.
-  raw="$(echo "$raw" | xargs)"
+  # Trim, then unquote (pure bash — avoids spawning xargs per field across 100+ posts).
+  raw="${raw#"${raw%%[![:space:]]*}"}"
+  raw="${raw%"${raw##*[![:space:]]}"}"
   raw="${raw#\"}"; raw="${raw%\"}"
   raw="${raw#\'}"; raw="${raw%\'}"
   echo "$raw"
 }
 
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
 
 if [ -z "$STAGED_FILES" ]; then
     echo "🔍 Standalone mode: Checking all files in $POSTS_DIR, $DECKS_DIR, and $IMAGES_DIR..."
@@ -59,12 +59,12 @@ fi
 while IFS= read -r file; do
   [[ -z "$file" || ! -f "$file" ]] && continue
 
-  # ---- POSTS (.qmd) ----
-  if [[ "$file" == "$POSTS_DIR"/*.qmd && "$file" != *"/"_* ]]; then
-    filename=$(basename "$file")
+  # ---- POSTS (log/<slug>/index.qmd) ----
+  if [[ "$file" == "$POSTS_DIR"/*/index.qmd && "$file" != *"/"_* ]]; then
+    slug=$(basename "$(dirname "$file")")
 
-    if [ ${#filename} -gt $MAX_POST_FILENAME_LEN ]; then
-      echo "ERROR: $file filename too long (${#filename})"
+    if [ ${#slug} -gt $MAX_POST_FILENAME_LEN ]; then
+      echo "ERROR: $file post slug too long (${#slug} chars, max $MAX_POST_FILENAME_LEN)"
       error=1
     fi
 
@@ -96,6 +96,20 @@ while IFS= read -r file; do
       error=1
     elif [[ ! -f "$(dirname "$file")/$image" ]]; then
       echo "ERROR: $file image '$image' not found at $(dirname "$file")/$image"
+      error=1
+    fi
+  fi
+
+  # ---- Non-post Markdown inside log/<slug>/ must be _-prefixed ----
+  # Quarto renders any .md/.qmd inside log/ and adds it to the homepage listing
+  # and RSS feed unless underscore-prefixed. Also catches index.md typos.
+  if [[ "$file" == "$POSTS_DIR"/*/*.md || ( "$file" == "$POSTS_DIR"/*/*.qmd && "$file" != "$POSTS_DIR"/*/index.qmd ) ]]; then
+    filename=$(basename "$file")
+    if [[ "$filename" == "index.md" ]]; then
+      echo "ERROR: $file post entry point must be named index.qmd, not index.md"
+      error=1
+    elif [[ "$filename" != _* ]]; then
+      echo "ERROR: $file auxiliary Markdown inside a post folder must be _-prefixed (e.g. _$filename) so Quarto doesn't render and publish it"
       error=1
     fi
   fi

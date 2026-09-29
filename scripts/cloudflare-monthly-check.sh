@@ -100,6 +100,19 @@ fi
 [[ "$(curl -s -o /dev/null -w '%{http_code}' -A "$UA" "${SITE}/robots.txt")" == "200" ]] \
   && pass "robots.txt reachable" || fail "robots.txt not reachable"
 
+# Non-production hostnames (preview.lopes.id and lopes-id.pages.dev) must redirect
+# unauthenticated visitors to Cloudflare Zero Trust Access (302 -> cloudflareaccess.com).
+for preview_host in "https://preview.lopes.id" "https://lopes-id.pages.dev"; do
+  hdrs=$(curl -sI -A "$UA" "$preview_host" 2>/dev/null || true)
+  p_code=$(printf '%s\n' "$hdrs" | awk 'NR==1 {print $2}')
+  p_loc=$(printf '%s\n' "$hdrs" | awk 'tolower($1)=="location:" {print $2}' | tr -d '\r')
+  if [[ "$p_code" == "302" && "$p_loc" == *"cloudflareaccess.com"* ]]; then
+    pass "${preview_host} gated by Access (302 -> cloudflareaccess.com)"
+  else
+    fail "${preview_host} returned ${p_code:-000} (location: ${p_loc:-none}) — expected 302 to cloudflareaccess.com"
+  fi
+done
+
 say "5. Traffic"
 DAILY="${REPO_ROOT}/data/traffic-history.csv"
 if [[ -s "$DAILY" ]]; then
