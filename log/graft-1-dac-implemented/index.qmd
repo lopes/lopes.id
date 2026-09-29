@@ -25,7 +25,7 @@ Detection-as-Code can't be treated as a loose collection of scripts. Everything 
 
 When I moved from the theoretical 4-block proto-rule in *Detection-as-Code, Then What?* (`metadata`, `logic`, `deployment`, `guide`) to building Graft against live SIEM APIs, a few practical adjustments were necessary. The custom rule envelope settled into five blocks:
 
-- `metadata`: Rule identity, description, authors, references, and taxonomy.
+- `metadata`: Rule identity, description, owners, references, and taxonomy.
 - `logic`: The raw query string expected by the target engine.
 - `deployment`: Engine-specific runtime parameters.
 - `runbook`: Operational context, triage steps, and incident response actions — renamed from `guide` to reflect how SOCs actually use it.
@@ -33,7 +33,11 @@ When I moved from the theoretical 4-block proto-rule in *Detection-as-Code, Then
 
 In my earlier post, I avoided putting a `name` or `id` field inside `metadata`, arguing the filename was enough. Building the reconciliation engine changed my mind. If an engineer renames a YAML file and you don't track an immutable `metadata.id` (UUID), the deployment pipeline sees a deleted rule and a brand-new one. In a SIEM, deleting and recreating a rule generates a new remote ID, wipes historical detection timelines, and breaks SOAR playbooks wired to the old identifier. Adding a UUID inside `metadata` solved that cleanly: you can rename files freely while Graft updates the existing rule in place.
 
+I also replaced `metadata.authors` with `metadata.owners`. In my earlier post, I noted that Git already tracks authorship and timestamps, yet I still had `authors` sitting in the proto-rule. On a daily basis, when an alert misfires or a rule needs tuning, you want to know who is responsible for maintaining it today — not who wrote the first draft two years ago. To check who worked on a rule over time, you can consult `git log`, and when a rule builds on external threat research or community work, `metadata.references` accepts plain strings (not just URLs) so you can credit original authorship there.
+
 For MITRE ATT&CK mappings (`metadata.mitre`), Graft pairs normalized tactic names with specific technique IDs (`tactic: [technique_ids]`). That structure is deliberate: it stops engineers from rubber-stamping a technique ID across the entire matrix regardless of which tactic actually applies to the rule's context — something I wrote about in [Mapping Detection Rules to MITRE ATT&CK](/log/mapping-detection-mitre-attack/). If a detection genuinely covers a technique across multiple tactics (like `T1098.001` under both `persistence` and `privilege-escalation` below), the author has to declare each tactic explicitly. Finding the normalized tactic name is usually just lowercasing the tactic and replacing spaces with dashes (`Privilege Escalation` becomes `privilege-escalation`), with Graft's bundled [MITRE taxonomy file](https://github.com/lopes/graft/blob/main/src/graft/data/mitre_attack.json) acting as the source of truth.
+
+You'll also notice there is no `priority` or `severity` field in the envelope. Although setting them in detection rules is common sense across the industry, I strongly believe detection authoring time is the wrong place for both. **Priority** fits better at **triage time**: deciding which alert the SOC investigates next depends on live context when the alert fires — target asset criticality, user privilege, active incidents — not a static value hardcoded into a YAML file months earlier. **Severity** fits better at **response time**, once triage confirms an incident and you can assess its real impact. To keep the catalog consistent, Graft's schema treats all remaining envelope fields (aside from experimental `tests`) as strictly required.
 
 Using **YAML** here lets engineers write rules declaratively with clean multiline string support (`|`) for query logic and runbooks — an area where TOML gets awkward quickly. Here is what a [custom rule looks like in Graft](https://github.com/lopes/graft/blob/main/rulesets/secops/custom/gcp_iam_service_account_key_create.yaml):
 
@@ -42,7 +46,7 @@ metadata:
   id: "d5e2a481-7f32-4019-86c2-19e34b719002"
   name: "gcp_iam_service_account_key_create"
   description: "User-managed GCP service account key created."
-  authors:
+  owners:
     - "Cloud Security Operations"
   mitre:
     persistence:
@@ -117,9 +121,10 @@ categories:
 
 exclusions:
   - id: "exclude-backup-automation"
-    description: "Exclude overnight backup runner from Suspicious Execution"
+    rule_id: "ur_suspicious_exec"
     ruleset_id: "1c4ab1f6-d801-d6a9-1177-3ec3dd5bcbe9"
     expression: 'principal.hostname = "backup-server.corp.internal"'
+    description: "Exclude overnight backup runner from Suspicious Execution"
 ```
 
 ## Architecture and Quality Gates
