@@ -6,7 +6,7 @@ categories: ["detection", "engineering"]
 image: "og-graft-2-ai-workflow.webp"
 ---
 
-In [Graft 1: Detection-as-Code, Implemented](/log/graft-1-dac-implemented/), I walked through the architecture behind [Graft](https://github.com/lopes/graft) 🌿: a multi-engine Detection-as-Code (DaC) platform built around a 5-block custom rule envelope, vendor-managed rule registration, self-expiring lookup datasets (`ttl:YYYY-MM-DD`), and a zero-SDK Google SecOps adapter.
+In [Graft 1: Detection-as-Code, Implemented](/log/graft-1-dac-implemented/), I walked through the architecture behind [Graft](https://github.com/lopes/graft) 🌿: a multi-engine Detection-as-Code (DaC) platform built around a 5-block custom rule envelope, vendor-managed rule registration, self-expiring lookup datasets, and a zero-SDK Google SecOps adapter.
 
 ::: {.callout-warning}
 Graft is a personal research project, not an official Google product, and the opinions here are my own.
@@ -32,7 +32,7 @@ Left to its defaults, an AI coding agent is an eager pleaser: the moment you des
 
 ```{mermaid}
 flowchart LR
-    A["<b>1. Grounding</b><br/>AGENTS.md + Literature"] --> B["<b>2. Plan Mode + /grill-me</b><br/>Context, Persona, Tasks, Output"]
+    A["<b>1. Grounding</b><br/>AGENTS.md + Literature"] --> B["<b>2. Plan Mode+/grill-me</b><br/>Prompt"]
     B --> C["<b>3. Phased Blueprint</b><br/>Lock contracts & test cases"]
     C --> D["<b>4. Auto-Accept Mode</b><br/>Red-Green-Refactor TDD"]
     D --> E["<b>5. Human Diff Review</b><br/>Scoped commit & PR"]
@@ -68,6 +68,10 @@ I didn't use this exact combination during the first days of Graft, but it is no
 
 Staying in Plan Mode while `/grill-me` runs guarantees the agent can't jump the gun. It reads the existing code, spots collisions with current interfaces, and forces me to make explicit calls on edge cases before a single file is touched.
 
+::: {.callout-note}
+I already knew that a job-title `Persona` (*"Act as a Principal Detection Engineer..."*) mainly sets the tone of the conversation rather than making the model consider different architectural approaches. While writing this post, I asked the agent what the recommended replacement is when `AGENTS.md` already handles the behavioral rules — *"be direct, avoid over-engineering"*. Unless you frame the persona as a specific operational lens (for example, *"review this rule as a Tier-1 analyst triaging it at 3 a.m."*), replacing **Persona** with **Constraints & Non-Goals** (what solutions are off the table before brainstorming starts) prunes the design tree much more effectively. Since I learned that while drafting this post, I'm moving my kickstart prompts in that direction going forward.
+:::
+
 ### 3. Auto-Accept Mode Inside a Guardrailed TDD Loop
 
 Once the `/grill-me` interview finishes and I approve the phased plan, I switch the CLI from Plan Mode to **Auto-Accept Mode**, which in my harness gives a good balance between full control and YOLO-mode, and tell it to execute Phase 1.
@@ -87,7 +91,7 @@ It took a few bruises during the first week of building Graft to arrive at that 
 
 In my original master blueprint for Graft, I wrote a clear rule: *"Execute each phase in an independent, fresh agent session."* Then I got comfortable and ran the entire initial build (Phases 0 through 9) inside a **single 6263-step conversation** across five days. 😱
 
-To the harness's credit, its hierarchical context compaction kept the session coherent transparently: as completed tool calls piled up, it compressed older turns into dense state summaries while keeping raw tokens for active diffs and writing the full history to `transcript.jsonl`. Even so, running a marathon session is an anti-pattern. As the thread grew, token pressure increased, latency crept up, and the agent occasionally had to re-read files on disk to verify paths it had created two days earlier. Moving to one fresh Tmux session per feature branch eliminated that friction completely. Your Git repository is the permanent source of truth; the context window is just scratch space.
+To the harness's credit, its hierarchical context compaction kept the session coherent transparently: as completed tool calls piled up, it compressed older turns into dense state summaries while keeping raw tokens for active diffs. Even so, running a marathon session is an anti-pattern. As the thread grew, token pressure increased, latency crept up, and the agent occasionally had to re-read files on disk to verify paths it had created two days earlier. Moving to one fresh Tmux session per feature branch eliminated that friction completely. Your Git repository is the permanent source of truth; the context window is just scratch space.
 
 ### 2. Macro-Interrogation Without Micro-Planning
 
@@ -103,7 +107,9 @@ That's where **Specification-Driven Development (SDD)** comes in before TDD. Ins
 
 ### 4. Rubber-Stamping
 
-The biggest human failure mode in AI pair programming is getting lazy at reviews. After watching the agent pass 200 tests in a row, it's tempting to see a green summary at the end of a phase and reply `"go"` or `"continue"` without inspecting `git diff`. Every single time I rubber-stamped a phase, small defects slipped through (a schema field left optional when it should have been required, or an outdated owner name in `README.md`) and created immediate rework. Because the tests were green, the code worked mechanically, but the design or ergonomics weren't what I wanted, forcing me to spend extra prompts fixing things I had just approved five minutes earlier. The moment you stop reading diffs, you aren't pair-programming anymore, and you learn the hard way that sometimes you have to move slower to move faster.
+The biggest human failure mode in AI pair programming is getting lazy at reviews. After watching the agent pass 200 tests in a row, it's tempting to see a green summary at the end of a phase and reply `"go"` or `"continue"` without inspecting `git diff`. Every single time I rubber-stamped a phase, small defects slipped through (a schema field left optional when it should have been required, or an outdated owner name in `README.md`) and created immediate rework.
+
+Because the tests were green, the code worked mechanically, but the design or ergonomics weren't what I wanted, forcing me to spend extra prompts fixing things I had just approved five minutes earlier. The moment you stop reading diffs, you aren't pair-programming anymore, and you learn the hard way that sometimes you have to move slower to move faster.
 
 ## Teamwork
 
@@ -111,7 +117,7 @@ The real value of the **Plan Mode + `/grill-me` -> Auto-Accept** loop showed up 
 
 ### 1. Reusable Datasets and Self-Expiring Values
 
-Detection rules constantly reference contextual lists — vulnerability scanners, corporate egress IP addresses, privileged accounts — and temporary suppressions for pentests. I wanted Graft to manage reusable datasets in `datasets/<name>.yaml` and auto-expire temporary entries via inline YAML comments so a two-week red team IP wouldn't sit in a SIEM lookup table for a year.
+Detection rules constantly reference contextual lists (vulnerability scanners, corporate egress IP addresses, privileged accounts) and temporary suppressions for pentests. I wanted Graft to manage reusable datasets in `datasets/<name>.yaml` and auto-expire temporary entries via inline YAML comments so a two-week red team IP wouldn't sit in a SIEM lookup table for a year.
 
 #### 1.1. Where the agent caught my blind spot
 
@@ -164,7 +170,7 @@ Looking at the repository and session logs, here is what it took to build Graft 
 
 Building a platform of this scope solo in my spare time (an engine-agnostic hexagonal core, JSON Schema Draft 2020-12 and offline STIX ATT&CK validators, a zero-SDK Google SecOps REST client (`v1` and `v1alpha`), self-expiring datasets, registered managed rules, documentation across three personas, and over 400 unit tests) would have taken me four to six months of nights and weekends by hand. With Gemini and the agentic CLI, the core platform was live in five days, and major post-release capabilities (like datasets with inline `ttl:YYYY-MM-DD` expiration) went from an idea to a tested, documented, merged pull request in under two hours.
 
-Beyond the numbers, the real outcome is qualitative: I now have a working Detection-as-Code platform wired into my lab that implements the exact features I've wanted for years (I really wanted to be a Detection Engineer again, just to use it). In the spirit of honesty, I also have to admit an unfair advantage on the first adapter: working at Google and having access to internal Google SecOps documentation and tooling made understanding the `v1` and `v1alpha` API nuances much easier than piecing them together from scratch on the outside.
+Beyond the numbers, the real outcome is qualitative: I now have a working Detection-as-Code platform wired into my lab that implements the exact features I've wanted for years — I really wanted to be a Detection Engineer again, just to use it frequently 😆. In the spirit of honesty, I also have to admit an unfair advantage on the first adapter: working at Google and having access to internal Google SecOps documentation and tooling made understanding the `v1` and `v1alpha` API nuances much easier than piecing them together from scratch on the outside.
 
 ## Conclusion
 
