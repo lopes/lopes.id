@@ -1,0 +1,186 @@
+---
+title: "Graft 2: The AI Engineering Workflow"
+date: 2026-10-03
+description: "How I built Graft using Gemini and disciplined AI workflows."
+categories: ["detection", "engineering"]
+image: "og-graft-2-ai-workflow.webp"
+---
+
+In [Graft 1: Detection-as-Code, Implemented](/log/graft-1-dac-implemented/), I walked through the architecture behind [Graft](https://github.com/lopes/graft) 🌿: a multi-engine Detection-as-Code (DaC) platform built around a 5-block custom rule envelope, vendor-managed rule registration, self-expiring lookup datasets, and a zero-SDK Google SecOps adapter.
+
+::: {.callout-warning}
+Graft is a personal research project, not an official Google product, and the opinions here are my own.
+:::
+
+I built the entire platform pair-programming with Google's internal agentic CLI, powered by Gemini. Today the repository sits at roughly 17500 lines of strict Python (`mypy --strict`, zero `Any`), capped at two runtime dependencies (`pyyaml` and `jsonschema`), with 403 unit and adapter tests running in a few seconds.
+
+I didn't type most of those lines by hand, but the project didn't come together through "vibe coding" or prompt magic either. If you hand an LLM a one-paragraph prompt and ask it to build a hexagonal GitOps reconciler with STIX taxonomy validation and multi-step REST error handling, it will hallucinate, lose the architectural thread, and collapse under its own weight. It worked because I treated the agent with the same engineering discipline I'd expect from a team: hard rules in the repository, upfront architectural interrogation before touching code, strict Test-Driven Development (TDD), and constant pushback in both directions.
+
+Here is how my setup works today, the mistakes I made during the early days of Graft, and concrete examples of where the AI and I caught each other's blind spots.
+
+## The Setup
+
+When I started building Graft, I ran the agent inside an IDE panel. It got the initial release across the finish line, but as my workflow matured, I moved completely to the **agentic CLI inside Tmux** on my remote Linux workstation. If you spend your day in the terminal, pairing an agentic CLI with Tmux changes how you work for two reasons.
+
+First, **pane-level multiplexing**. Instead of stuffing every question, test run, and side fix into one giant chat thread, I split a Tmux window by task: one pane runs an agent session focused on a single Graft feature branch, a second pane runs ad-hoc `graft secops diff` checks against my lab tenant, and a third pane runs another agent instance in a separate repository (like this blog). Each agent instance gets a clean, narrow context window, and I can watch a test suite run in one pane while reviewing a plan in another.
+
+Second, **live session persistence**. The harness has a built-in `/resume` plugin that reloads a conversation transcript from disk if your network connection drops or your laptop restarts. That's a solid safety net, but rehydrating a saved transcript is not the same as keeping a live process. Because my Tmux server runs on the remote workstation, a dropped VPN session or a local reboot doesn't interrupt anything: the CLI process, its in-flight tool calls, my scrollback buffer, and the pane layout stay alive in memory. I reconnect, run `tmux attach`, and pick up right where I left off.
+
+## The Loop
+
+Left to its defaults, an AI coding agent is an eager pleaser: the moment you describe a problem, it wants to start editing files based on its first guess. My current workflow is designed to prevent premature coding by combining repository guardrails (`AGENTS.md`), CLI execution modes (**Plan** vs. **Auto-Accept**), and the **`/grill-me`** interview plugin.
+
+```{mermaid}
+flowchart LR
+    A["<b>1. Grounding</b><br/>AGENTS.md + Literature"] --> B["<b>2. Plan Mode+/grill-me</b><br/>Prompt"]
+    B --> C["<b>3. Phased Blueprint</b><br/>Lock contracts & test cases"]
+    C --> D["<b>4. Auto-Accept Mode</b><br/>Red-Green-Refactor TDD"]
+    D --> E["<b>5. Human Diff Review</b><br/>Scoped commit & PR"]
+```
+
+### 1. Permanent Guardrails
+
+Before we designed a single module on Day 1, I had the agent fetch and read nine foundational Detection-as-Code articles (my own [*Detection-as-Code, Then What?*](/log/detection-as-code-then-what/) and [NVISO's 8-part Detection Engineering series](https://blog.nviso.eu/series/detection-engineering-practicing-detection-as-code/)) and summarize their core ideas into the repository documentation. That gave us a shared vocabulary before talking architecture.
+
+Next, we codified our non-negotiable engineering rules in [`AGENTS.md`](https://github.com/lopes/graft/blob/main/AGENTS.md) at the root of the repo:
+
+- **No sycophancy:** Challenge bad ideas upfront; prefer boring, simple solutions over clever abstractions.
+- **Root cause first:** Never paper over failures with broad `try/except`, disabled lints, or skipped tests.
+- **Stdlib-first:** Stick to Python's standard library unless there is a clear advantage to using a well-established, battle-tested third-party library. Every new dependency requires an explicit rationale and my approval before it touches the repo.
+- **Strict TDD and quality gates:** Every change follows Red-Green-Refactor and must pass `ruff check`, `ruff format --check`, `mypy --strict src tests`, and `pytest` before a phase ends. Automated tests guarantee that future iterations won't break existing code, while strict typing and formatting produce clean, predictable Python that is easier to read and analyze.
+- **Branch and commit discipline:** Always work on a feature branch (never `main`) and use [Scoped Commits](https://scopedcommits.com/) (`<scope>: <description>`). Isolating work on branches lets us explore new features freely and run the full test stack before anything merges into `main`.
+
+Because the CLI loads `AGENTS.md` automatically at the start of every session, those constraints act as permanent guardrails without me having to paste them into every prompt.
+
+### 2. The 4-Part Kickstart Prompt
+
+I didn't use this exact combination during the first days of Graft, but it is now my default for every non-trivial feature. Whenever I start a new task in a Tmux pane, I switch the CLI into **Plan Mode** (which restricts the agent to read-only exploration and planning) and trigger **`/grill-me`**.
+
+`/grill-me` flips the usual prompt dynamic: instead of me trying to anticipate every edge case in a massive specification, the plugin tells the agent to explore the codebase and interview *me* one question at a time, walking down each branch of the design tree until we resolve every trade-off. To give that interview a sharp starting point, I structure my opening prompt around four pieces: **Context**, **Persona**, **Tasks**, and **Output**:
+
+```text
+/grill-me
+[Context] We recently added reusable datasets (datasets/<name>.yaml) to Graft. Now I want a way to auto-expire temporary values (like a 2-week pentest IP) using inline YAML comments so they get removed from the SIEM automatically without losing the Git history.
+[Persona] Act as a Principal Detection Engineer and Python Architect. Be direct, avoid over-engineering, and push back if my approach has flaws.
+[Tasks] Inspect how datasets are currently loaded, linted, and reconciled. Walk me through the edge cases one by one (syntax, timezones, empty datasets, archival, CI schedule) before proposing code.
+[Output] Once we align, produce a phased TDD implementation plan with exact file paths and test cases.
+```
+
+Staying in Plan Mode while `/grill-me` runs guarantees the agent can't jump the gun. It reads the existing code, spots collisions with current interfaces, and forces me to make explicit calls on edge cases before a single file is touched.
+
+::: {.callout-note}
+I already knew that a job-title `Persona` (*"Act as a Principal Detection Engineer..."*) mainly sets the tone of the conversation rather than making the model consider different architectural approaches. While writing this post, I asked the agent what the recommended replacement is when `AGENTS.md` already handles the behavioral rules — *"be direct, avoid over-engineering"*. Unless you frame the persona as a specific operational lens (for example, *"review this rule as a Tier-1 analyst triaging it at 3 a.m."*), replacing **Persona** with **Constraints & Non-Goals** (what solutions are off the table before brainstorming starts) prunes the design tree much more effectively. Since I learned that while drafting this post, I'm moving my kickstart prompts in that direction going forward.
+:::
+
+### 3. Auto-Accept Mode Inside a Guardrailed TDD Loop
+
+Once the `/grill-me` interview finishes and I approve the phased plan, I switch the CLI from Plan Mode to **Auto-Accept Mode**, which in my harness gives a good balance between full control and YOLO-mode, and tell it to execute Phase 1.
+
+Back in May, I wrote about [Going YOLO With Claude Code](/log/yolo-with-claude-code/), where running with full permissions in a saturated chat session wiped my `2026.journal` accounting file because I hadn't committed my work. Auto-Accept in Graft looks completely different: Google's internal CLI is a much more disciplined harness out of the box (tighter workspace sandboxing, cleaner tool scoping, and far less eager to run destructive commands), and I only unleash it after the plan is locked inside four hard boundaries:
+
+1. **Feature-branch isolation:** We are always on a clean branch (`git checkout -b <branch>`), so `main` is untouched and rollback is a `git checkout` away.
+2. **Small phase blast radius:** By rule in my [personal global `AGENTS.md`](https://github.com/lopes/dotfiles/blob/master/.config/gemini/AGENTS.md) (and reinforced in Graft's repo), the agent must break non-trivial work into explicit phases, implement only the active phase, and stop to wait for confirmation.
+3. **Autonomous tool loop:** The agent writes the failing test first, runs `uv run pytest` in the terminal, reads the traceback, writes the implementation, and iterates until `ruff`, `mypy --strict`, and `pytest` all return zero errors.
+4. **Human gate at phase boundaries:** When the phase passes all checks, the agent stops and presents the summary. I review `git diff`, approve the scoped commit, and only then move to the next phase.
+
+## Mistakes From the Early Days
+
+It took a few bruises during the first week of building Graft to arrive at that workflow. Four mistakes stood out:
+
+### 1. The 6263-Step Marathon vs. Session Isolation
+
+In my original master blueprint for Graft, I wrote a clear rule: *"Execute each phase in an independent, fresh agent session."* Then I got comfortable and ran the entire initial build (Phases 0 through 9) inside a **single 6263-step conversation** across five days. 😱
+
+To the harness's credit, its hierarchical context compaction kept the session coherent transparently: as completed tool calls piled up, it compressed older turns into dense state summaries while keeping raw tokens for active diffs. Even so, running a marathon session is an anti-pattern. As the thread grew, token pressure increased, latency crept up, and the agent occasionally had to re-read files on disk to verify paths it had created two days earlier. Moving to one fresh Tmux session per feature branch eliminated that friction completely. Your Git repository is the permanent source of truth; the context window is just scratch space.
+
+### 2. Macro-Interrogation Without Micro-Planning
+
+Planning a full platform in a single pass doesn't scale: if you try to resolve every schema field and CLI flag in one giant `/grill-me` session, you'll burn millions of tokens and still miss half the details. My approach was two-tiered: use an initial macro-prompt to agree on the high-level phases (for example, deciding that one phase defines the 5-block rule envelope and a later phase implements the CLI), and then run a focused `/grill-me` when entering each phase to hash out the exact envelope sections or CLI subcommands.
+
+During the initial build, I followed that macro-plan for the 10 phases, but got impatient and skipped the micro-planning inside a few of them, jumping straight from the phase summary into writing code. Halfway through, we renamed `src/graft/adapters/` to `src/graft/engines/`; because we hadn't locked down every affected file in an in-phase micro-plan before touching code, stale references survived in the documentation and had to be hunted down later. That prompted us to add an automated documentation integrity test suite (`test_documentation_integrity.py`) so broken markdown links, missing files, or stale CLI references break the build during `pytest`.
+
+### 3. TDD Without API Contracts
+
+TDD catches logic bugs, but unit tests are only as accurate as the mocks behind them. In our first pass at the Google SecOps adapter, we wrote unit tests and domain models for Curated Detections assuming deployment updates only needed a ruleset UUID. Everything was green locally, and then the live SecOps tenant rejected our first call: the `v1alpha` API requires passing the parent category UUID in the URL path (`curatedRuleSetCategories/{category}/curatedRuleSets/{ruleset}/...`).
+
+That's where **Specification-Driven Development (SDD)** comes in before TDD. Instead of writing tests against how we *assumed* the remote API worked, we should have first inspected a real `curatedRuleSetDeployments` response from the live SecOps API (or its official discovery document), saved the sanitized payload as a contract fixture in `tests/fixtures/`, and locked the exact URL path parameters and JSON fields in our spec before writing a single mock or domain model. For external integrations, pin the wire contract first, then write the tests.
+
+### 4. Rubber-Stamping
+
+The biggest human failure mode in AI pair programming is getting lazy at reviews. After watching the agent pass 200 tests in a row, it's tempting to see a green summary at the end of a phase and reply `"go"` or `"continue"` without inspecting `git diff`. Every single time I rubber-stamped a phase, small defects slipped through (a schema field left optional when it should have been required, or an outdated owner name in `README.md`) and created immediate rework.
+
+Because the tests were green, the code worked mechanically, but the design or ergonomics weren't what I wanted, forcing me to spend extra prompts fixing things I had just approved five minutes earlier. The moment you stop reading diffs, you aren't pair-programming anymore, and you learn the hard way that sometimes you have to move slower to move faster.
+
+## Teamwork
+
+The real value of the **Plan Mode + `/grill-me` -> Auto-Accept** loop showed up after the initial release, as we added the features that made Graft feel complete. The best sessions were genuine two-way street collaborations: times when the agent's analysis caught an operational failure I hadn't foreseen, and times when I had to grab the wheel and stop the agent from over-engineering or guessing.
+
+### 1. Reusable Datasets and Self-Expiring Values
+
+Detection rules constantly reference contextual lists (vulnerability scanners, corporate egress IP addresses, privileged accounts) and temporary suppressions for pentests. I wanted Graft to manage reusable datasets in `datasets/<name>.yaml` and auto-expire temporary entries via inline YAML comments so a two-week red team IP wouldn't sit in a SIEM lookup table for a year.
+
+#### 1.1. Where the agent caught my blind spot
+
+During our `/grill-me` session for datasets, the agent asked a question I hadn't considered: *What happens during a pull request check (`graft secops verify`) when an engineer adds both a new dataset (`datasets/known_scanner_ips.yaml`) and a new rule (`multiple_hosts_scanned.yaml`) referencing `%known_scanner_ips.value` in the same branch?* Because `verify` is a read-only dry run that executes *before* the PR merges to `main`, the new Data Table doesn't exist on the SecOps tenant yet — meaning the remote `:verifyRuleText` compiler will reject the rule and block the PR.
+
+To solve that before writing the code, we designed an in-memory fallback in the compiler adapter: when `:verifyRuleText` returns a missing-table diagnostic for a dataset that exists locally in `datasets/<name>.yaml`, Graft substitutes the local values into the query string for the dry run so syntax verification still succeeds. When we opened the real PR against the live tenant, `multiple_ports_scanned.yaml` triggered a slightly different missing-table error message from the SecOps API than the one in our unit test mock — which the PR check caught immediately and we fixed in one commit. We also refined the expiration tag together: I initially suggested `expires:YYYY-MM-DD`, the agent pointed out that `expire` vs. `expires` is an easy typo in free-text comments, I pushed for a shorter word, and we settled on `ttl:YYYY-MM-DD` — three letters, unambiguous, and native to every security engineer.
+
+#### 1.2. Where I pushed back on the agent
+
+Left to its own instincts, the agent proposed a 3-block dataset envelope (`metadata`, `type`, `values`) supporting `string`, `cidr`, and `regex` data types with custom validation rules. Halfway through `/grill-me`, I killed the `type` block: datasets in Graft are meant for simple, short lists, and certainty that everything works across engines matters more than flexibility. We stripped it down to a 2-block, string-only envelope (`metadata` and `values`, up to 1000 strings of max 256 characters) and left complex multi-column or regex tables to the SIEM.
+
+The next day, when we designed dataset retirement (`datasets/_archived/`), the agent suggested having `graft lint` parse rule queries locally and fail if an active rule referenced an archived dataset. I pushed back twice: Core `lint` has no business parsing engine-specific query syntax, and deleting a lookup table on a SIEM will break any rule still referencing `%<name>.value`. Instead, I directed that moving a dataset to `datasets/_archived/` should empty its rows (`0` rows) on the SIEM and change its remote description to `"Deprecated on Graft"`. Active rules keep compiling cleanly against the empty table until the team removes the references and deletes the table on the SIEM.
+
+### 2. Rule Naming and Schema Lockdown
+
+A similar back-and-forth happened when we cleaned up Graft's rule naming convention and replaced `metadata.authors` with `metadata.owners`.
+
+#### 2.1. Where I pushed back on the agent
+
+I didn't want rule filenames tied to vendor log sources (`source_descriptor`), so I asked the agent to help brainstorm an extensible naming pattern. Its first proposal was a 3-part taxonomy (`<domain>_<surface>_<fact>`) with elaborate sub-rules for when to use `gcp` versus `gcs`. I shut it down immediately: three elements is too much friction; it had to be simple, lowercase, and at most two parts ending with the action in the past tense. That pushback gave us Graft's `<subject>_<fact>` convention (`gcp_service_account_key_created`, `multiple_hosts_scanned`, `workspace_nrd_email_opened`).
+
+Likewise, when we replaced `metadata.authors` with `metadata.owners` (because SOCs need to know who maintains a broken rule today, while `git log` and `metadata.references` already cover authorship), the agent suggested having `graft secops pull` guess the owner from the remote YARA-L `meta.author` field. Guessing in security automation is a terrible habit; I forced `pull` to write an explicit `["Unassigned"]` placeholder so the engineer has to assign real ownership before merging.
+
+#### 2.2. Where the agent caught gaps in the repo
+
+Once we locked down `<subject>_<fact>` and `metadata.owners`, the agent audited the schemas and loaders across the codebase and surfaced two inconsistencies that had slipped past my earlier rubber-stamps: `metadata.priority` was still sitting in `base_custom.schema.json` alongside optional `mitre`, `tags`, and `references` fields (violating my own design rule that every field is required and priority belongs at triage time), and our uniqueness validator needed to enforce the same `[a-z0-9_]` stem rules across both `custom/` and `managed/` directories so a registered vendor rule could never collide with a custom rule filename. We fixed both in the same branch, stripping `priority`, marking every metadata field required in `base_custom.schema.json`, and wiring cross-track filename uniqueness into `graft lint`.
+
+### 3. Closing the Loop with Repository-Native Skills
+
+After using the agentic CLI to build Graft, we added a set of four slash-invoked agent skills inside [`.agents/skills/`](https://github.com/lopes/graft/tree/main/.agents/skills) for day-to-day detection engineering: `/scaffold-dataset`, `/scaffold-rule`, `/scaffold-tests`, and `/review-rule`.
+
+Here again, the boundary between human judgment and AI automation is deliberate. Just as I wrote in [Patchbay: Engineering with AI](/log/patchbay-engineering-with-ai/), I don't want an LLM in the runtime execution loop burning tokens on every CI run, and I don't want an AI guessing production detection logic on its own. When an analyst runs `/scaffold-rule`, the skill calls `graft new rule` and populates `metadata` (including tactic-scoped MITRE mappings) and the `runbook` (`context`, `triage`, `response`), but leaves `logic` and `deployment` untouched for the human detection engineer to write. Once the engineer writes the query, `/scaffold-tests` parses the predicates in `logic` to generate positive (`match_*`) and negative (`ignore_*`) synthetic test vectors, and `/review-rule` runs `graft lint` alongside a read-only 5-block peer review before the pull request is opened.
+
+The best part of building `SKILL.md` files is that AI excels at writing them. We rarely write skills by hand: we tell the agent the workflow and constraints we want, and it writes the file itself. It is an AI artifact made by AI for AI, so humans can make the best use of AI.
+
+## Results
+
+Looking at the repository and session logs, here is what it took to build Graft and where the project stands today:
+
+| Metric | Value |
+| :--- | :--- |
+| **Active Development Days** | **11 days** (5 days for initial `v0.1.0` + 6 days of post-release features) |
+| **Agent Sessions & Trajectory** | **16 sessions**, **309 user prompts**, **14443 agent steps**, **110 Git commits** |
+| **Token Volume (5 CLI Sessions)** | **~57.7M tokens** (`11.4M` input, `454K` output, `45.8M` cached reads; early IDE sessions didn't log token counts) |
+| **Python Codebase (`src/` + `tests/`)** | **~17500 lines** across 88 Python files |
+| **Automated Test Suite** | **403 passing tests** (3 live-tenant staging replay tests gated), running in **~13s** |
+| **Static Quality Gates** | `mypy --strict` (0 errors, 0 `Any`), `ruff` (0 lint or format warnings) |
+| **Runtime Dependencies** | **2 packages** (`pyyaml`, `jsonschema`); 100% stdlib for HTTP, CLI, models, and Git |
+| **Post-Release Feature PRs** | **1 to 2 hours per feature** in isolated Tmux + Plan Mode (`/grill-me`) sessions |
+
+Building a platform of this scope solo in my spare time (an engine-agnostic hexagonal core, JSON Schema Draft 2020-12 and offline STIX ATT&CK validators, a zero-SDK Google SecOps REST client (`v1` and `v1alpha`), self-expiring datasets, registered managed rules, documentation across three personas, and over 400 unit tests) would have taken me four to six months of nights and weekends by hand. With Gemini and the agentic CLI, the core platform was live in five days, and major post-release capabilities (like datasets with inline `ttl:YYYY-MM-DD` expiration) went from an idea to a tested, documented, merged pull request in under two hours.
+
+Beyond the numbers, the real outcome is qualitative: I now have a working Detection-as-Code platform wired into my lab that implements the exact features I've wanted for years — I really wanted to be a Detection Engineer again, just to use it frequently 😆. In the spirit of honesty, I also have to admit an unfair advantage on the first adapter: working at Google and having access to internal Google SecOps documentation and tooling made understanding the `v1` and `v1alpha` API nuances much easier than piecing them together from scratch on the outside.
+
+## Conclusion
+
+AI is a huge multiplier for security engineering, and pairing a capable model like Gemini with a sharp agentic CLI and concise context produces results that would have been out of reach for a solo engineer a couple of years ago.
+
+Still, the tool doesn't replace the engineer. Every time I treated the agent like magic (letting a single session run for 6000+ steps, skipping micro-plans, or typing `go` without reading the diff) we created rework. The best results came when I spent the time to learn how to lead the harness: anchoring permanent standards in `AGENTS.md`, isolating workstreams in Tmux panes, starting every feature in **Plan Mode** with **`/grill-me`** (Context, Persona, Tasks, Output) so we could challenge each other's assumptions, and only unleashing **Auto-Accept Mode** inside a strict TDD loop. Do the thinking together upfront, box the execution inside hard tests, and read every diff before you commit. 🛠️
+
+Finally, if there is one lesson that carries over from [Lantana](/log/lantana-3-lessons-and-output/) to Graft, it is that pausing feature work to learn how to work with AI is an investment that pays off fast. I wouldn't have been able to build this if I hadn't stepped back in April to study agentic workflows (back then with Claude Code and Opus), and then taken a few days in September to adapt my workflow when my AI stack changed to Google's internal agentic CLI and Gemini. The models and harnesses will keep changing, so take the time to learn your stack, keep your documentation sharp, and stay in the driver's seat.
+
+## Graft Series
+
+- [Graft 1: Detection-as-Code, Implemented](/log/graft-1-dac-implemented/)
+- Graft 2: The AI Engineering Workflow
